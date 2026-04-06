@@ -26,6 +26,16 @@
 
 - Flutter SDK, совместимый с Dart **^3.10.1** (см. `pubspec.yaml`).
 
+### Linux desktop
+
+На Ubuntu/Debian для `flutter run -d linux` может понадобиться пакет **LLVM LLD** в той же версии, что и `clang` (иначе при сборке native assets для SQLite часто возникает ошибка `Failed to find any of [ld.lld, ld] in .../llvm-.../bin`). Пример:
+
+```bash
+sudo apt install lld-18
+```
+
+Подробности и типичные зависимости — **[docs/linux-setup.md](docs/linux-setup.md)**.
+
 ## Запуск
 
 ```bash
