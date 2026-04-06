@@ -1,7 +1,7 @@
 import 'package:crypto_informer/core/shell/scaffold_with_nav_bar.dart';
-import 'package:crypto_informer/features/about/presentation/pages/about_page.dart';
 import 'package:crypto_informer/features/market/presentation/pages/coin_detail_page.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_page.dart';
+import 'package:crypto_informer/features/settings/presentation/pages/settings_page.dart';
 import 'package:crypto_informer/features/watchlist/presentation/pages/watchlist_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -11,7 +11,8 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _marketShellKey = GlobalKey<NavigatorState>(debugLabel: 'marketShell');
 final _watchlistShellKey =
     GlobalKey<NavigatorState>(debugLabel: 'watchlistShell');
-final _aboutShellKey = GlobalKey<NavigatorState>(debugLabel: 'aboutShell');
+final _settingsShellKey =
+    GlobalKey<NavigatorState>(debugLabel: 'settingsShell');
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -57,13 +58,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             ],
           ),
           StatefulShellBranch(
-            navigatorKey: _aboutShellKey,
+            navigatorKey: _settingsShellKey,
             routes: [
               GoRoute(
-                path: '/about',
+                path: '/settings',
                 pageBuilder: (context, state) => NoTransitionPage<void>(
                   key: state.pageKey,
-                  child: const AboutPage(),
+                  child: const SettingsPage(),
                 ),
               ),
             ],

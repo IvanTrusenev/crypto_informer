@@ -1,5 +1,8 @@
+import 'package:crypto_informer/core/localization/locale_resolution.dart';
 import 'package:crypto_informer/core/router/app_router.dart';
 import 'package:crypto_informer/core/theme/app_theme.dart';
+import 'package:crypto_informer/features/settings/domain/app_settings.dart';
+import 'package:crypto_informer/features/settings/presentation/providers/app_settings_provider.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,11 +18,26 @@ class CryptoInformerApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
+    final platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    final settings = ref.watch(appSettingsProvider).valueOrNull ??
+        AppSettings.initial;
+    final locale = resolveAppLocale(
+      settings.localePreference,
+      platformLocale,
+    );
+
+    final themeMode = switch (settings.themePreference) {
+      AppThemePreference.system => ThemeMode.system,
+      AppThemePreference.light => ThemeMode.light,
+      AppThemePreference.dark => ThemeMode.dark,
+    };
 
     return MaterialApp.router(
-      onGenerateTitle: (context) =>
-          AppLocalizations.of(context)!.appTitle,
+      onGenerateTitle: (ctx) => AppLocalizations.of(ctx)!.appTitle,
       theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: themeMode,
+      locale: locale,
       routerConfig: router,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

@@ -18,7 +18,40 @@ class AppLocalizationsRu extends AppLocalizations {
   String get navWatchlist => 'Избранное';
 
   @override
-  String get navAbout => 'О приложении';
+  String get navSettings => 'Настройки';
+
+  @override
+  String get settingsTitle => 'Настройки';
+
+  @override
+  String get settingsLanguageSection => 'Язык';
+
+  @override
+  String get settingsLanguageSystem => 'Системный';
+
+  @override
+  String get settingsLanguageEnglish => 'Английский';
+
+  @override
+  String get settingsLanguageRussian => 'Русский';
+
+  @override
+  String get settingsThemeSection => 'Цветовая схема';
+
+  @override
+  String get settingsThemeSystem => 'Системная';
+
+  @override
+  String get settingsThemeLight => 'Светлая';
+
+  @override
+  String get settingsThemeDark => 'Тёмная';
+
+  @override
+  String get settingsAbout => 'О программе';
+
+  @override
+  String get dialogClose => 'Закрыть';
 
   @override
   String get marketTitle => 'Рынок';
@@ -64,7 +97,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get aboutTitle => 'О приложении';
+  String get aboutTitle => 'О программе';
 
   @override
   String get aboutHeadline => 'Crypto Informer';
@@ -77,7 +110,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router и StatefulShellRoute для навигации\n• Material 3';
+      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой';
 
   @override
   String get aboutSectionData => 'Данные';

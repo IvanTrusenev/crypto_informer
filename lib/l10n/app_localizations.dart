@@ -116,11 +116,77 @@ abstract class AppLocalizations {
   /// **'Watchlist'**
   String get navWatchlist;
 
-  /// No description provided for @navAbout.
+  /// No description provided for @navSettings.
   ///
   /// In en, this message translates to:
-  /// **'About'**
-  String get navAbout;
+  /// **'Settings'**
+  String get navSettings;
+
+  /// No description provided for @settingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsLanguageSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get settingsLanguageSection;
+
+  /// No description provided for @settingsLanguageSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsLanguageSystem;
+
+  /// No description provided for @settingsLanguageEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get settingsLanguageEnglish;
+
+  /// No description provided for @settingsLanguageRussian.
+  ///
+  /// In en, this message translates to:
+  /// **'Russian'**
+  String get settingsLanguageRussian;
+
+  /// No description provided for @settingsThemeSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Color scheme'**
+  String get settingsThemeSection;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In en, this message translates to:
+  /// **'About the app'**
+  String get settingsAbout;
+
+  /// No description provided for @dialogClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get dialogClose;
 
   /// No description provided for @marketTitle.
   ///
@@ -197,7 +263,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutTitle.
   ///
   /// In en, this message translates to:
-  /// **'About'**
+  /// **'About the app'**
   String get aboutTitle;
 
   /// No description provided for @aboutHeadline.
@@ -221,7 +287,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutArchitectureBulletList.
   ///
   /// In en, this message translates to:
-  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router and StatefulShellRoute for navigation\n• Material 3'**
+  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes'**
   String get aboutArchitectureBulletList;
 
   /// No description provided for @aboutSectionData.

@@ -18,7 +18,40 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navWatchlist => 'Watchlist';
 
   @override
-  String get navAbout => 'About';
+  String get navSettings => 'Settings';
+
+  @override
+  String get settingsTitle => 'Settings';
+
+  @override
+  String get settingsLanguageSection => 'Language';
+
+  @override
+  String get settingsLanguageSystem => 'System';
+
+  @override
+  String get settingsLanguageEnglish => 'English';
+
+  @override
+  String get settingsLanguageRussian => 'Russian';
+
+  @override
+  String get settingsThemeSection => 'Color scheme';
+
+  @override
+  String get settingsThemeSystem => 'System';
+
+  @override
+  String get settingsThemeLight => 'Light';
+
+  @override
+  String get settingsThemeDark => 'Dark';
+
+  @override
+  String get settingsAbout => 'About the app';
+
+  @override
+  String get dialogClose => 'Close';
 
   @override
   String get marketTitle => 'Market';
@@ -64,7 +97,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get aboutTitle => 'About';
+  String get aboutTitle => 'About the app';
 
   @override
   String get aboutHeadline => 'Crypto Informer';
@@ -77,7 +110,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router and StatefulShellRoute for navigation\n• Material 3';
+      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes';
 
   @override
   String get aboutSectionData => 'Data';

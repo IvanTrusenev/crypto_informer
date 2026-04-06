@@ -29,9 +29,9 @@ class ScaffoldWithNavBar extends StatelessWidget {
             label: l10n.navWatchlist,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.info_outline),
-            selectedIcon: const Icon(Icons.info),
-            label: l10n.navAbout,
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: const Icon(Icons.settings),
+            label: l10n.navSettings,
           ),
         ],
       ),
