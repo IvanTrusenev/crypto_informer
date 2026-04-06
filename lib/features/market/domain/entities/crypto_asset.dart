@@ -6,6 +6,7 @@ class CryptoAsset {
     required this.name,
     required this.currentPriceUsd,
     required this.priceChangePercent24h,
+    this.marketCapUsd,
     this.imageUrl,
   });
 
@@ -14,5 +15,10 @@ class CryptoAsset {
   final String name;
   final double currentPriceUsd;
   final double priceChangePercent24h;
+
+  /// Рыночная капитализация в USD (`market_cap` в CoinGecko).
+  /// Может отсутствовать.
+  final double? marketCapUsd;
+
   final String? imageUrl;
 }

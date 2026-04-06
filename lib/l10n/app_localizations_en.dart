@@ -60,6 +60,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketTitle => 'Market';
 
   @override
+  String get marketSearchHint => 'Search by name or ticker';
+
+  @override
+  String get marketSearchNoResults => 'Nothing matches your search.';
+
+  @override
+  String get marketSortSectionTitle => 'Sorting';
+
+  @override
+  String get marketSortName => 'Name';
+
+  @override
+  String get marketSortPrice => 'Price';
+
+  @override
+  String get marketSortMarketCap => 'Market cap';
+
+  @override
+  String get marketSortReset => 'Reset';
+
+  @override
   String get marketEmpty => 'No data';
 
   @override

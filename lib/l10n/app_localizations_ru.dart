@@ -60,6 +60,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get marketTitle => 'Рынок';
 
   @override
+  String get marketSearchHint => 'Поиск по названию или тикеру';
+
+  @override
+  String get marketSearchNoResults => 'Ничего не найдено.';
+
+  @override
+  String get marketSortSectionTitle => 'Сортировка';
+
+  @override
+  String get marketSortName => 'Имя';
+
+  @override
+  String get marketSortPrice => 'Цена';
+
+  @override
+  String get marketSortMarketCap => 'Капитализация';
+
+  @override
+  String get marketSortReset => 'Сброс';
+
+  @override
   String get marketEmpty => 'Нет данных';
 
   @override

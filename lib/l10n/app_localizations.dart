@@ -200,6 +200,48 @@ abstract class AppLocalizations {
   /// **'Market'**
   String get marketTitle;
 
+  /// No description provided for @marketSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or ticker'**
+  String get marketSearchHint;
+
+  /// No description provided for @marketSearchNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing matches your search.'**
+  String get marketSearchNoResults;
+
+  /// No description provided for @marketSortSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sorting'**
+  String get marketSortSectionTitle;
+
+  /// No description provided for @marketSortName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get marketSortName;
+
+  /// No description provided for @marketSortPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Price'**
+  String get marketSortPrice;
+
+  /// No description provided for @marketSortMarketCap.
+  ///
+  /// In en, this message translates to:
+  /// **'Market cap'**
+  String get marketSortMarketCap;
+
+  /// No description provided for @marketSortReset.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset'**
+  String get marketSortReset;
+
   /// No description provided for @marketEmpty.
   ///
   /// In en, this message translates to:

@@ -98,6 +98,7 @@ Map<String, dynamic> _cryptoAssetToJson(CryptoAsset a) {
     'name': a.name,
     'current_price': a.currentPriceUsd,
     'price_change_percentage_24h': a.priceChangePercent24h,
+    'market_cap': a.marketCapUsd,
     'image': a.imageUrl,
   };
 }
@@ -111,6 +112,7 @@ CryptoAsset _cryptoAssetFromJson(Map<String, dynamic> m) {
     currentPriceUsd: (m['current_price'] as num?)?.toDouble() ?? 0,
     priceChangePercent24h:
         (m['price_change_percentage_24h'] as num?)?.toDouble() ?? 0,
+    marketCapUsd: (m['market_cap'] as num?)?.toDouble(),
     imageUrl: image is String && image.isNotEmpty ? image : null,
   );
 }

@@ -17,6 +17,13 @@
   "settingsAbout": "About the app",
   "dialogClose": "Close",
   "marketTitle": "Market",
+  "marketSearchHint": "Search by name or ticker",
+  "marketSearchNoResults": "Nothing matches your search.",
+  "marketSortSectionTitle": "Sorting",
+  "marketSortName": "Name",
+  "marketSortPrice": "Price",
+  "marketSortMarketCap": "Market cap",
+  "marketSortReset": "Reset",
   "marketEmpty": "No data",
   "marketAssetSubtitle": "{symbol} · {change}",
   "@marketAssetSubtitle": {

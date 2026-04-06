@@ -17,6 +17,13 @@
   "settingsAbout": "О программе",
   "dialogClose": "Закрыть",
   "marketTitle": "Рынок",
+  "marketSearchHint": "Поиск по названию или тикеру",
+  "marketSearchNoResults": "Ничего не найдено.",
+  "marketSortSectionTitle": "Сортировка",
+  "marketSortName": "Имя",
+  "marketSortPrice": "Цена",
+  "marketSortMarketCap": "Капитализация",
+  "marketSortReset": "Сброс",
   "marketEmpty": "Нет данных",
   "marketAssetSubtitle": "{symbol} · {change}",
   "@marketAssetSubtitle": {
