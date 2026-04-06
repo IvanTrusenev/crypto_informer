@@ -1,4 +1,4 @@
-import 'package:crypto_informer/l10n/app_localizations.dart';
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -10,7 +10,7 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Scaffold(
       body: navigationShell,

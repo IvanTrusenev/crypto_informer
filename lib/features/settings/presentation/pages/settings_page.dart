@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/features/about/presentation/about_dialog.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:crypto_informer/features/settings/presentation/providers/app_settings_provider.dart';
@@ -34,7 +35,7 @@ class SettingsPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final asyncSettings = ref.watch(appSettingsProvider);
 
     return Scaffold(

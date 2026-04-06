@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
@@ -14,7 +15,7 @@ class MarketPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
     final priceFormat = NumberFormat.currency(
       locale: Localizations.localeOf(context).toString(),
       symbol: r'$',

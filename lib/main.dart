@@ -1,3 +1,4 @@
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/localization/locale_resolution.dart';
 import 'package:crypto_informer/core/router/app_router.dart';
 import 'package:crypto_informer/core/theme/app_theme.dart';
@@ -33,7 +34,7 @@ class CryptoInformerApp extends ConsumerWidget {
     };
 
     return MaterialApp.router(
-      onGenerateTitle: (ctx) => AppLocalizations.of(ctx)!.appTitle,
+      onGenerateTitle: (ctx) => ctx.l10n.appTitle,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,

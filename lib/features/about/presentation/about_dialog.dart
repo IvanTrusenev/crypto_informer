@@ -1,9 +1,9 @@
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/features/about/presentation/widgets/about_content.dart';
-import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 Future<void> showAboutAppDialog(BuildContext context) {
-  final l10n = AppLocalizations.of(context)!;
+  final l10n = context.l10n;
 
   return showDialog<void>(
     context: context,

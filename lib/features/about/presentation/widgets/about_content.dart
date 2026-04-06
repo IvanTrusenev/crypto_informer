@@ -1,5 +1,5 @@
+import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
-import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 /// Текст «О программе» (экран настроек открывает это в диалоге).
@@ -9,7 +9,7 @@ class AboutContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
-    final l10n = AppLocalizations.of(context)!;
+    final l10n = context.l10n;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
