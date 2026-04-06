@@ -1,0 +1,63 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Crypto Informer",
+  "navMarket": "Рынок",
+  "navWatchlist": "Избранное",
+  "navAbout": "О приложении",
+  "marketTitle": "Рынок",
+  "marketEmpty": "Нет данных",
+  "marketAssetSubtitle": "{symbol} · {change}",
+  "@marketAssetSubtitle": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "retryAction": "Повторить",
+  "tooltipWatchlistRemove": "Убрать из избранного",
+  "tooltipWatchlistAdd": "В избранное",
+  "coinTitleFallback": "Монета",
+  "coinSectionDescription": "Описание",
+  "coinChange24h": "{percent}% за 24ч",
+  "@coinChange24h": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "watchlistTitle": "Избранное",
+  "watchlistEmptyBody": "Добавьте монеты звёздочкой на экране «Рынок».",
+  "watchlistPartialMissing": "Часть избранного не в топ-списке рынка ({missing}). Откройте монету с «Рынка» или обновите список.",
+  "@watchlistPartialMissing": {
+    "placeholders": {
+      "missing": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutTitle": "О приложении",
+  "aboutHeadline": "Crypto Informer",
+  "aboutTagline": "Курсовой проект OTUS: информер криптовалют.",
+  "aboutSectionArchitecture": "Архитектура",
+  "aboutArchitectureBulletList": "• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router и StatefulShellRoute для навигации\n• Material 3",
+  "aboutSectionData": "Данные",
+  "aboutDataBody": "Курсы и описания: публичный API CoinGecko (есть лимиты запросов).",
+  "errorEmptyResponse": "Пустой ответ сервера",
+  "errorCoinNotFound": "Монета не найдена",
+  "errorTimeout": "Превышено время ожидания. Проверьте сеть.",
+  "errorServer": "Ошибка сервера ({statusCode})",
+  "@errorServer": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNetwork": "Ошибка сети",
+  "errorUnexpected": "Что-то пошло не так"
+}

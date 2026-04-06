@@ -25,6 +25,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(NavigationBar), findsOneWidget);
-    expect(find.text('Рынок'), findsWidgets);
+    expect(find.text('Market'), findsWidgets);
   });
 }

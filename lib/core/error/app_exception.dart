@@ -1,9 +1,19 @@
-/// Ошибка уровня приложения (данные / сеть). Слой presentation может показать [message].
-class AppException implements Exception {
-  const AppException(this.message);
+/// Код ошибки данных/сети; текст для UI строится в `app_exception_localizations.dart`.
+enum AppErrorCode {
+  emptyResponse,
+  coinNotFound,
+  timeout,
+  serverError,
+  network,
+}
 
-  final String message;
+/// Ошибка уровня приложения без привязки к языку UI.
+class AppException implements Exception {
+  const AppException(this.code, {this.statusCode});
+
+  final AppErrorCode code;
+  final int? statusCode;
 
   @override
-  String toString() => message;
+  String toString() => 'AppException($code, statusCode: $statusCode)';
 }

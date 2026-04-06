@@ -29,13 +29,13 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
       );
       final list = response.data;
       if (list == null) {
-        throw const AppException('Пустой ответ сервера');
+        throw const AppException(AppErrorCode.emptyResponse);
       }
       return list
           .whereType<Map<String, dynamic>>()
           .toList(growable: false);
     } on DioException catch (e) {
-      throw AppException(_messageFromDio(e));
+      throw _mapDioException(e);
     }
   }
 
@@ -45,26 +45,26 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
       final response = await _dio.get<Map<String, dynamic>>('/coins/$id');
       final data = response.data;
       if (data == null) {
-        throw const AppException('Пустой ответ сервера');
+        throw const AppException(AppErrorCode.emptyResponse);
       }
       return data;
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
-        throw const AppException('Монета не найдена');
+        throw const AppException(AppErrorCode.coinNotFound);
       }
-      throw AppException(_messageFromDio(e));
+      throw _mapDioException(e);
     }
   }
 
-  String _messageFromDio(DioException e) {
+  AppException _mapDioException(DioException e) {
     final status = e.response?.statusCode;
     if (e.type == DioExceptionType.connectionTimeout ||
         e.type == DioExceptionType.receiveTimeout) {
-      return 'Превышено время ожидания. Проверьте сеть.';
+      return const AppException(AppErrorCode.timeout);
     }
     if (status != null) {
-      return 'Ошибка сервера ($status)';
+      return AppException(AppErrorCode.serverError, statusCode: status);
     }
-    return e.message ?? 'Ошибка сети';
+    return const AppException(AppErrorCode.network);
   }
 }

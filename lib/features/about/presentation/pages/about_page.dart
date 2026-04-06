@@ -1,3 +1,4 @@
+import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class AboutPage extends StatelessWidget {
@@ -6,42 +7,40 @@ class AboutPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('О приложении')),
+      appBar: AppBar(title: Text(l10n.aboutTitle)),
       body: ListView(
         padding: const EdgeInsets.all(24),
         children: [
           Text(
-            'Crypto Informer',
+            l10n.aboutHeadline,
             style: theme.textTheme.headlineSmall,
           ),
           const SizedBox(height: 8),
           Text(
-            'Курсовой проект OTUS: информер криптовалют.',
+            l10n.aboutTagline,
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: 24),
           Text(
-            'Архитектура',
+            l10n.aboutSectionArchitecture,
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
-          const Text(
-            '• Слои domain / data / presentation по фичам\n'
-            '• Репозитории и use case-ы в domain, реализация и API в data\n'
-            '• Riverpod для состояния и DI\n'
-            '• go_router и StatefulShellRoute для навигации\n'
-            '• Material 3',
+          Text(
+            l10n.aboutArchitectureBulletList,
+            style: theme.textTheme.bodyMedium,
           ),
           const SizedBox(height: 24),
           Text(
-            'Данные',
+            l10n.aboutSectionData,
             style: theme.textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Курсы и описания: публичный API CoinGecko (есть лимиты запросов).',
+            l10n.aboutDataBody,
             style: theme.textTheme.bodyMedium,
           ),
         ],

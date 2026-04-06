@@ -1,3 +1,4 @@
+import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,26 +10,28 @@ class ScaffoldWithNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: NavigationBar(
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: navigationShell.goBranch,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.show_chart_outlined),
-            selectedIcon: Icon(Icons.show_chart),
-            label: 'Рынок',
+            icon: const Icon(Icons.show_chart_outlined),
+            selectedIcon: const Icon(Icons.show_chart),
+            label: l10n.navMarket,
           ),
           NavigationDestination(
-            icon: Icon(Icons.star_outline),
-            selectedIcon: Icon(Icons.star),
-            label: 'Избранное',
+            icon: const Icon(Icons.star_outline),
+            selectedIcon: const Icon(Icons.star),
+            label: l10n.navWatchlist,
           ),
           NavigationDestination(
-            icon: Icon(Icons.info_outline),
-            selectedIcon: Icon(Icons.info),
-            label: 'О приложении',
+            icon: const Icon(Icons.info_outline),
+            selectedIcon: const Icon(Icons.info),
+            label: l10n.navAbout,
           ),
         ],
       ),

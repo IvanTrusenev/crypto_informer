@@ -1,6 +1,8 @@
+import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,19 +11,23 @@ import 'package:intl/intl.dart';
 class MarketPage extends ConsumerWidget {
   const MarketPage({super.key});
 
-  static final _price = NumberFormat.currency(symbol: r'$', decimalDigits: 2);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final priceFormat = NumberFormat.currency(
+      locale: Localizations.localeOf(context).toString(),
+      symbol: r'$',
+      decimalDigits: 2,
+    );
     final async = ref.watch(marketAssetsProvider);
     final watchlistAsync = ref.watch(watchlistProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Рынок')),
+      appBar: AppBar(title: Text(l10n.marketTitle)),
       body: async.when(
         data: (items) {
           if (items.isEmpty) {
-            return const Center(child: Text('Нет данных'));
+            return Center(child: Text(l10n.marketEmpty));
           }
           final watchlistIds = watchlistAsync.valueOrNull ?? [];
           return RefreshIndicator(
@@ -35,8 +41,9 @@ class MarketPage extends ConsumerWidget {
                 final inList = watchlistIds.contains(asset.id);
                 return _MarketTile(
                   asset: asset,
-                  priceText: _price.format(asset.currentPriceUsd),
+                  priceText: priceFormat.format(asset.currentPriceUsd),
                   inWatchlist: inList,
+                  l10n: l10n,
                   onTap: () => context.push('/market/coin/${asset.id}'),
                   onToggleStar: () => ref
                       .read(watchlistProvider.notifier)
@@ -54,13 +61,13 @@ class MarketPage extends ConsumerWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  e.toString(),
+                  localizedErrorMessage(l10n, e),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
                 FilledButton(
                   onPressed: () => ref.invalidate(marketAssetsProvider),
-                  child: const Text('Повторить'),
+                  child: Text(l10n.retryAction),
                 ),
               ],
             ),
@@ -76,6 +83,7 @@ class _MarketTile extends StatelessWidget {
     required this.asset,
     required this.priceText,
     required this.inWatchlist,
+    required this.l10n,
     required this.onTap,
     required this.onToggleStar,
   });
@@ -83,6 +91,7 @@ class _MarketTile extends StatelessWidget {
   final CryptoAsset asset;
   final String priceText;
   final bool inWatchlist;
+  final AppLocalizations l10n;
   final VoidCallback onTap;
   final VoidCallback onToggleStar;
 
@@ -93,6 +102,8 @@ class _MarketTile extends StatelessWidget {
     final changeColor = change >= 0
         ? Colors.green.shade700
         : Colors.red.shade700;
+    final changeStr =
+        '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
 
     return ListTile(
       onTap: onTap,
@@ -110,8 +121,7 @@ class _MarketTile extends StatelessWidget {
       ),
       title: Text(asset.name),
       subtitle: Text(
-        '${asset.symbol} · '
-        '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%',
+        l10n.marketAssetSubtitle(asset.symbol, changeStr),
         style: TextStyle(color: changeColor),
       ),
       trailing: Row(
@@ -124,7 +134,9 @@ class _MarketTile extends StatelessWidget {
               color: inWatchlist ? theme.colorScheme.primary : null,
             ),
             onPressed: onToggleStar,
-            tooltip: inWatchlist ? 'Убрать из избранного' : 'В избранное',
+            tooltip: inWatchlist
+                ? l10n.tooltipWatchlistRemove
+                : l10n.tooltipWatchlistAdd,
           ),
         ],
       ),

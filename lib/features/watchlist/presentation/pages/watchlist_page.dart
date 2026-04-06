@@ -1,6 +1,8 @@
+import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,23 +11,27 @@ import 'package:intl/intl.dart';
 class WatchlistPage extends ConsumerWidget {
   const WatchlistPage({super.key});
 
-  static final _price = NumberFormat.currency(symbol: r'$', decimalDigits: 2);
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context)!;
+    final priceFormat = NumberFormat.currency(
+      locale: Localizations.localeOf(context).toString(),
+      symbol: r'$',
+      decimalDigits: 2,
+    );
     final watchlistAsync = ref.watch(watchlistProvider);
     final marketAsync = ref.watch(marketAssetsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Избранное')),
+      appBar: AppBar(title: Text(l10n.watchlistTitle)),
       body: watchlistAsync.when(
         data: (ids) {
           if (ids.isEmpty) {
-            return const Center(
+            return Center(
               child: Padding(
-                padding: EdgeInsets.all(24),
+                padding: const EdgeInsets.all(24),
                 child: Text(
-                  'Добавьте монеты звёздочкой на экране «Рынок».',
+                  l10n.watchlistEmptyBody,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -48,8 +54,7 @@ class WatchlistPage extends ConsumerWidget {
                     Padding(
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Text(
-                        'Часть избранного не в топ-списке рынка ($missing). '
-                        'Откройте монету с «Рынка» или обновите список.',
+                        l10n.watchlistPartialMissing(missing),
                         style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ),
@@ -69,7 +74,9 @@ class WatchlistPage extends ConsumerWidget {
                       ),
                       title: Text(asset.name),
                       subtitle: Text(asset.symbol),
-                      trailing: Text(_price.format(asset.currentPriceUsd)),
+                      trailing: Text(
+                        priceFormat.format(asset.currentPriceUsd),
+                      ),
                       onTap: () => context.push('/market/coin/${asset.id}'),
                     ),
                   ),
@@ -77,11 +84,15 @@ class WatchlistPage extends ConsumerWidget {
               );
             },
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => Center(child: Text(e.toString())),
+            error: (e, _) => Center(
+              child: Text(localizedErrorMessage(l10n, e)),
+            ),
           );
         },
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text(e.toString())),
+        error: (e, _) => Center(
+          child: Text(localizedErrorMessage(l10n, e)),
+        ),
       ),
     );
   }

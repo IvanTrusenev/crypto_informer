@@ -1,0 +1,63 @@
+{
+  "@@locale": "en",
+  "appTitle": "Crypto Informer",
+  "navMarket": "Market",
+  "navWatchlist": "Watchlist",
+  "navAbout": "About",
+  "marketTitle": "Market",
+  "marketEmpty": "No data",
+  "marketAssetSubtitle": "{symbol} · {change}",
+  "@marketAssetSubtitle": {
+    "placeholders": {
+      "symbol": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "retryAction": "Retry",
+  "tooltipWatchlistRemove": "Remove from watchlist",
+  "tooltipWatchlistAdd": "Add to watchlist",
+  "coinTitleFallback": "Coin",
+  "coinSectionDescription": "Description",
+  "coinChange24h": "{percent}% in 24h",
+  "@coinChange24h": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "watchlistTitle": "Watchlist",
+  "watchlistEmptyBody": "Add coins with the star on the Market screen.",
+  "watchlistPartialMissing": "Some favorites are not in the current market top ({missing}). Open a coin from Market or refresh the list.",
+  "@watchlistPartialMissing": {
+    "placeholders": {
+      "missing": {
+        "type": "int"
+      }
+    }
+  },
+  "aboutTitle": "About",
+  "aboutHeadline": "Crypto Informer",
+  "aboutTagline": "OTUS course project: cryptocurrency informer.",
+  "aboutSectionArchitecture": "Architecture",
+  "aboutArchitectureBulletList": "• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router and StatefulShellRoute for navigation\n• Material 3",
+  "aboutSectionData": "Data",
+  "aboutDataBody": "Prices and descriptions: public CoinGecko API (rate limits apply).",
+  "errorEmptyResponse": "Empty server response",
+  "errorCoinNotFound": "Coin not found",
+  "errorTimeout": "Request timed out. Check your connection.",
+  "errorServer": "Server error ({statusCode})",
+  "@errorServer": {
+    "placeholders": {
+      "statusCode": {
+        "type": "int"
+      }
+    }
+  },
+  "errorNetwork": "Network error",
+  "errorUnexpected": "Something went wrong"
+}
