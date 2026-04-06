@@ -48,7 +48,6 @@ class SettingsPage extends ConsumerWidget {
               InputDecorator(
                 decoration: InputDecoration(
                   labelText: l10n.settingsLanguageSection,
-                  border: const OutlineInputBorder(),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<AppLocalePreference>(
@@ -78,7 +77,6 @@ class SettingsPage extends ConsumerWidget {
               InputDecorator(
                 decoration: InputDecoration(
                   labelText: l10n.settingsThemeSection,
-                  border: const OutlineInputBorder(),
                 ),
                 child: DropdownButtonHideUnderline(
                   child: DropdownButton<AppThemePreference>(

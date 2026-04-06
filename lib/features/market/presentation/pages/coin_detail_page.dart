@@ -47,9 +47,10 @@ class CoinDetailPage extends ConsumerWidget {
       body: async.when(
         data: (detail) {
           final change = detail.priceChangePercent24h;
+          final finance = context.financeColors;
           final changeColor = change != null && change >= 0
-              ? Colors.green.shade700
-              : Colors.red.shade700;
+              ? finance.pricePositive
+              : finance.priceNegative;
           final percentLabel = change == null
               ? ''
               : l10n.coinChange24h(
@@ -90,7 +91,7 @@ class CoinDetailPage extends ConsumerWidget {
                 Text(
                   percentLabel,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: context.theme.textTheme.labelLarge?.copyWith(
                     color: changeColor,
                     fontWeight: FontWeight.w600,
                   ),

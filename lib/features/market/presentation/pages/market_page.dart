@@ -100,10 +100,10 @@ class _MarketTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = context.theme;
+    final finance = context.financeColors;
     final change = asset.priceChangePercent24h;
-    final changeColor = change >= 0
-        ? Colors.green.shade700
-        : Colors.red.shade700;
+    final changeColor =
+        change >= 0 ? finance.pricePositive : finance.priceNegative;
     final changeStr =
         '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
 
@@ -124,7 +124,7 @@ class _MarketTile extends StatelessWidget {
       title: Text(asset.name),
       subtitle: Text(
         l10n.marketAssetSubtitle(asset.symbol, changeStr),
-        style: TextStyle(color: changeColor),
+        style: theme.textTheme.bodySmall?.copyWith(color: changeColor),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
