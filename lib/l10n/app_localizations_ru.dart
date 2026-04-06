@@ -12,6 +12,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get appTitle => 'Crypto Informer';
 
   @override
+  String get offlineNoConnection => 'Нет связи. Показаны сохранённые данные.';
+
+  @override
   String get navMarket => 'Рынок';
 
   @override
@@ -111,6 +114,13 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get aboutArchitectureBulletList =>
       '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой';
+
+  @override
+  String get aboutSectionOffline => 'Офлайн';
+
+  @override
+  String get aboutOfflineBody =>
+      'Ориентация на работу без сети: после успешной загрузки список рынка и детали монет сохраняются в локальной базе SQLite. Без интернета отображаются последние сохранённые данные. Над нижней навигацией показывается баннер, когда устройство сообщает об отсутствии связи.';
 
   @override
   String get aboutSectionData => 'Данные';

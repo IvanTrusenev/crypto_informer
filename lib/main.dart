@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/localization/locale_resolution.dart';
 import 'package:crypto_informer/core/router/app_router.dart';
@@ -7,9 +9,14 @@ import 'package:crypto_informer/features/settings/presentation/providers/app_set
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    sqfliteFfiInit();
+    databaseFactory = databaseFactoryFfi;
+  }
   runApp(const ProviderScope(child: CryptoInformerApp()));
 }
 

@@ -36,6 +36,16 @@ class AboutContent extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         Text(
+          l10n.aboutSectionOffline,
+          style: theme.textTheme.titleMedium,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          l10n.aboutOfflineBody,
+          style: theme.textTheme.bodyMedium,
+        ),
+        const SizedBox(height: 24),
+        Text(
           l10n.aboutSectionData,
           style: theme.textTheme.titleMedium,
         ),

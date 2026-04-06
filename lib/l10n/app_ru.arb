@@ -1,6 +1,7 @@
 {
   "@@locale": "ru",
   "appTitle": "Crypto Informer",
+  "offlineNoConnection": "Нет связи. Показаны сохранённые данные.",
   "navMarket": "Рынок",
   "navWatchlist": "Избранное",
   "navSettings": "Настройки",
@@ -56,6 +57,8 @@
   "aboutTagline": "Курсовой проект OTUS: информер криптовалют.",
   "aboutSectionArchitecture": "Архитектура",
   "aboutArchitectureBulletList": "• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой",
+  "aboutSectionOffline": "Офлайн",
+  "aboutOfflineBody": "Ориентация на работу без сети: после успешной загрузки список рынка и детали монет сохраняются в локальной базе SQLite. Без интернета отображаются последние сохранённые данные. Над нижней навигацией показывается баннер, когда устройство сообщает об отсутствии связи.",
   "aboutSectionData": "Данные",
   "aboutDataBody": "Курсы и описания: публичный API CoinGecko (есть лимиты запросов).",
   "errorEmptyResponse": "Пустой ответ сервера",

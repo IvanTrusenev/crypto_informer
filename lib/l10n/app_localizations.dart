@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Crypto Informer'**
   String get appTitle;
 
+  /// No description provided for @offlineNoConnection.
+  ///
+  /// In en, this message translates to:
+  /// **'No connection. Showing saved data.'**
+  String get offlineNoConnection;
+
   /// No description provided for @navMarket.
   ///
   /// In en, this message translates to:
@@ -289,6 +295,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes'**
   String get aboutArchitectureBulletList;
+
+  /// No description provided for @aboutSectionOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline'**
+  String get aboutSectionOffline;
+
+  /// No description provided for @aboutOfflineBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline-first: after a successful load, the market list and coin details are stored in a local SQLite database. Without a network you still see the last saved data. A banner above the bottom navigation appears when the device reports no connection.'**
+  String get aboutOfflineBody;
 
   /// No description provided for @aboutSectionData.
   ///
