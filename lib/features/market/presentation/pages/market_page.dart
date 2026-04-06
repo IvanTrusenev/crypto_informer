@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
+import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
@@ -97,7 +98,7 @@ class _MarketTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    final theme = context.theme;
     final change = asset.priceChangePercent24h;
     final changeColor = change >= 0
         ? Colors.green.shade700

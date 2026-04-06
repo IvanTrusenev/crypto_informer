@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
+import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
@@ -55,7 +56,7 @@ class WatchlistPage extends ConsumerWidget {
                       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
                       child: Text(
                         l10n.watchlistPartialMissing(missing),
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: context.theme.textTheme.bodySmall,
                       ),
                     ),
                   ...items.map(

@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
+import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -36,7 +37,7 @@ class CoinDetailPage extends ConsumerWidget {
                 : l10n.tooltipWatchlistAdd,
             icon: Icon(
               inList ? Icons.star : Icons.star_border,
-              color: inList ? Theme.of(context).colorScheme.primary : null,
+              color: inList ? context.theme.colorScheme.primary : null,
             ),
             onPressed: () =>
                 ref.read(watchlistProvider.notifier).toggle(coinId),
@@ -74,14 +75,14 @@ class CoinDetailPage extends ConsumerWidget {
               Text(
                 detail.symbol,
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: context.theme.textTheme.titleLarge,
               ),
               if (detail.currentPriceUsd != null) ...[
                 const SizedBox(height: 8),
                 Text(
                   priceFormat.format(detail.currentPriceUsd),
                   textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: context.theme.textTheme.headlineSmall,
                 ),
               ],
               if (change != null) ...[
@@ -100,12 +101,12 @@ class CoinDetailPage extends ConsumerWidget {
                 const SizedBox(height: 24),
                 Text(
                   l10n.coinSectionDescription,
-                  style: Theme.of(context).textTheme.titleMedium,
+                  style: context.theme.textTheme.titleMedium,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   detail.description!,
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: context.theme.textTheme.bodyMedium,
                 ),
               ],
             ],
