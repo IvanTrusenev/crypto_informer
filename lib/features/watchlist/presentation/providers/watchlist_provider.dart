@@ -5,8 +5,8 @@ const _kWatchlistIds = 'watchlist_coin_ids';
 
 final watchlistProvider =
     AsyncNotifierProvider<WatchlistNotifier, List<String>>(
-  WatchlistNotifier.new,
-);
+      WatchlistNotifier.new,
+    );
 
 class WatchlistNotifier extends AsyncNotifier<List<String>> {
   @override

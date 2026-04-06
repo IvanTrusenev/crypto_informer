@@ -135,8 +135,8 @@ CryptoCoinDetail _cryptoCoinDetailFromJson(Map<String, dynamic> m) {
     name: m['name'] as String? ?? '',
     description: m['description'] as String?,
     currentPriceUsd: (m['current_price_usd'] as num?)?.toDouble(),
-    priceChangePercent24h:
-        (m['price_change_percentage_24h'] as num?)?.toDouble(),
+    priceChangePercent24h: (m['price_change_percentage_24h'] as num?)
+        ?.toDouble(),
     imageUrl: image is String && image.isNotEmpty ? image : null,
   );
 }

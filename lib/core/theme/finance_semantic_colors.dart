@@ -12,9 +12,7 @@ class FinanceSemanticColors extends ThemeExtension<FinanceSemanticColors> {
     final isDark = scheme.brightness == Brightness.dark;
     return FinanceSemanticColors(
       priceNegative: scheme.error,
-      pricePositive: isDark
-          ? const Color(0xFF81C784)
-          : const Color(0xFF2E7D32),
+      pricePositive: isDark ? const Color(0xFF81C784) : const Color(0xFF2E7D32),
     );
   }
 

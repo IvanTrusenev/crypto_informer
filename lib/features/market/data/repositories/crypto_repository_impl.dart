@@ -2,8 +2,11 @@ import 'package:crypto_informer/features/market/data/datasources/crypto_local_da
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_asset_model.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_model.dart';
+import 'package:crypto_informer/features/market/data/utils/price_chart_sampling.dart';
+import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail.dart';
+import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 class CryptoRepositoryImpl implements CryptoRepository {
@@ -53,5 +56,19 @@ class CryptoRepositoryImpl implements CryptoRepository {
       if (cached != null) return cached;
       rethrow;
     }
+  }
+
+  @override
+  Future<List<PriceChartPoint>> getPriceChart(
+    String coinId, {
+    ChartPeriod period = ChartPeriod.days7,
+    String vsCurrency = 'usd',
+  }) async {
+    final raw = await _remote.fetchMarketChart(
+      coinId,
+      period: period,
+      vsCurrency: vsCurrency,
+    );
+    return samplePriceChartPoints(raw);
   }
 }

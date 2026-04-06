@@ -88,6 +88,16 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get coinPriceChartTitle => 'Price chart (USD)';
+
+  @override
+  String get coinPriceChartHint =>
+      'Historical prices are loaded from the network.';
+
+  @override
+  String get coinChartNoData => 'No data for this period.';
+
+  @override
   String get watchlistTitle => 'Watchlist';
 
   @override
@@ -113,21 +123,21 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes';
+      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period';
 
   @override
   String get aboutSectionOffline => 'Offline';
 
   @override
   String get aboutOfflineBody =>
-      'Offline-first: after a successful load, the market list and coin details are stored in a local SQLite database. Without a network you still see the last saved data. A banner above the bottom navigation appears when the device reports no connection.';
+      'Offline-first: after a successful load, the market list and full coin card (price, 24h change, description) are stored in a local SQLite database. Without a network you still see that saved data. The price chart is not cached—it is fetched only when online. A banner above the bottom navigation appears when the device reports no connection.';
 
   @override
   String get aboutSectionData => 'Data';
 
   @override
   String get aboutDataBody =>
-      'Prices and descriptions: public CoinGecko API (rate limits apply).';
+      'CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).';
 
   @override
   String get errorEmptyResponse => 'Empty server response';

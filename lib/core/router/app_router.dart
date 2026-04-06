@@ -9,10 +9,12 @@ import 'package:go_router/go_router.dart';
 
 final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
 final _marketShellKey = GlobalKey<NavigatorState>(debugLabel: 'marketShell');
-final _watchlistShellKey =
-    GlobalKey<NavigatorState>(debugLabel: 'watchlistShell');
-final _settingsShellKey =
-    GlobalKey<NavigatorState>(debugLabel: 'settingsShell');
+final _watchlistShellKey = GlobalKey<NavigatorState>(
+  debugLabel: 'watchlistShell',
+);
+final _settingsShellKey = GlobalKey<NavigatorState>(
+  debugLabel: 'settingsShell',
+);
 
 final appRouterProvider = Provider<GoRouter>((ref) {
   return GoRouter(

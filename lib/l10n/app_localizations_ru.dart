@@ -88,6 +88,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get coinPriceChartTitle => 'График цены (USD)';
+
+  @override
+  String get coinPriceChartHint => 'История цен загружается из сети.';
+
+  @override
+  String get coinChartNoData => 'Нет данных за выбранный период.';
+
+  @override
   String get watchlistTitle => 'Избранное';
 
   @override
@@ -113,21 +122,21 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой';
+      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой\n• Экран монеты: график цены в USD (fl_chart) с выбором периода';
 
   @override
   String get aboutSectionOffline => 'Офлайн';
 
   @override
   String get aboutOfflineBody =>
-      'Ориентация на работу без сети: после успешной загрузки список рынка и детали монет сохраняются в локальной базе SQLite. Без интернета отображаются последние сохранённые данные. Над нижней навигацией показывается баннер, когда устройство сообщает об отсутствии связи.';
+      'Ориентация на работу без сети: после успешной загрузки список рынка и полная карточка монеты (цена, изменение за 24ч, описание) сохраняются в локальной базе SQLite. Без интернета видны эти сохранённые данные. График цены в базу не пишется — история запрашивается только при наличии сети. Над нижней навигацией показывается баннер, когда устройство сообщает об отсутствии связи.';
 
   @override
   String get aboutSectionData => 'Данные';
 
   @override
   String get aboutDataBody =>
-      'Курсы и описания: публичный API CoinGecko (есть лимиты запросов).';
+      'Публичный REST API CoinGecko (есть лимиты запросов): список рынка и детали монеты (пути вида /coins/…), а также временной ряд market_chart для графика цены в USD (периоды от 1D до MAX).';
 
   @override
   String get errorEmptyResponse => 'Пустой ответ сервера';

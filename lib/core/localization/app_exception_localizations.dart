@@ -7,8 +7,7 @@ extension AppExceptionLocalizations on AppException {
       AppErrorCode.emptyResponse => l10n.errorEmptyResponse,
       AppErrorCode.coinNotFound => l10n.errorCoinNotFound,
       AppErrorCode.timeout => l10n.errorTimeout,
-      AppErrorCode.serverError =>
-        l10n.errorServer(statusCode ?? 0),
+      AppErrorCode.serverError => l10n.errorServer(statusCode ?? 0),
       AppErrorCode.network => l10n.errorNetwork,
     };
   }

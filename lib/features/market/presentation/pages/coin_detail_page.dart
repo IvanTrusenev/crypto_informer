@@ -1,28 +1,37 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
+import 'package:crypto_informer/features/market/presentation/widgets/coin_price_chart_section.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-class CoinDetailPage extends ConsumerWidget {
+class CoinDetailPage extends ConsumerStatefulWidget {
   const CoinDetailPage({required this.coinId, super.key});
 
   final String coinId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CoinDetailPage> createState() => _CoinDetailPageState();
+}
+
+class _CoinDetailPageState extends ConsumerState<CoinDetailPage> {
+  ChartPeriod _chartPeriod = ChartPeriod.days7;
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final priceFormat = NumberFormat.currency(
       locale: Localizations.localeOf(context).toString(),
       symbol: r'$',
       decimalDigits: 2,
     );
-    final async = ref.watch(coinDetailProvider(coinId));
+    final async = ref.watch(coinDetailProvider(widget.coinId));
     final watchlistAsync = ref.watch(watchlistProvider);
-    final inList = (watchlistAsync.valueOrNull ?? []).contains(coinId);
+    final inList = (watchlistAsync.valueOrNull ?? []).contains(widget.coinId);
 
     return Scaffold(
       appBar: AppBar(
@@ -40,7 +49,7 @@ class CoinDetailPage extends ConsumerWidget {
               color: inList ? context.theme.colorScheme.primary : null,
             ),
             onPressed: () =>
-                ref.read(watchlistProvider.notifier).toggle(coinId),
+                ref.read(watchlistProvider.notifier).toggle(widget.coinId),
           ),
         ],
       ),
@@ -97,6 +106,12 @@ class CoinDetailPage extends ConsumerWidget {
                   ),
                 ),
               ],
+              const SizedBox(height: 24),
+              CoinPriceChartSection(
+                coinId: widget.coinId,
+                period: _chartPeriod,
+                onPeriodChanged: (p) => setState(() => _chartPeriod = p),
+              ),
               if (detail.description != null &&
                   detail.description!.isNotEmpty) ...[
                 const SizedBox(height: 24),

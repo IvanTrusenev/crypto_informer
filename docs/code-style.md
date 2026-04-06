@@ -60,24 +60,34 @@ flutter test
 
 #### `market` — рынок и деталь монеты
 
-Центральная фича данных: CoinGecko по сети + кэш SQLite, экраны списка и деталей.
+Центральная фича данных: CoinGecko по сети + кэш SQLite для списка и карточки монеты; на экране деталей дополнительно **график цены** (только сеть, без записи в БД).
 
 ```
 lib/features/market/
   domain/
-    entities/           # CryptoAsset, CryptoCoinDetail
-    repositories/       # абстрактный CryptoRepository
+    chart_period.dart   # период для market_chart (1D … MAX)
+    entities/           # CryptoAsset, CryptoCoinDetail, PriceChartPoint
+    repositories/       # абстрактный CryptoRepository (+ getPriceChart)
     usecases/           # GetMarketAssets, GetCoinDetail (обёртки над репозиторием)
   data/
-    datasources/        # CryptoRemoteDataSource, CryptoLocalDataSource (+ реализации)
+    datasources/        # remote/local (+ fetchMarketChart в remote)
     models/             # маппинг JSON API → entity
-    repositories/       # CryptoRepositoryImpl (remote + local, offline-first)
+    utils/              # price_chart_sampling (прореживание точек для отрисовки)
+    repositories/       # CryptoRepositoryImpl (offline-first для рынка/карточки)
   presentation/
     pages/              # MarketPage, CoinDetailPage
-    providers/          # databaseProvider, cryptoRepositoryProvider, marketAssetsProvider, coinDetailProvider
+    widgets/            # coin_price_chart_section (график + чипы периода)
+    providers/          # …, coinChartArgs, coinPriceChartProvider
 ```
 
-Провайдеры здесь собирают зависимости из `core` (Dio, открытие БД) и фичи `data`; страницы только читают `FutureProvider` / `family` и отображают состояние.
+**Данные и кэш**
+
+| Данные | Источник | Локальный кэш |
+|--------|----------|----------------|
+| Список рынка, карточка монеты (описание, цена, 24ч) | CoinGecko (`/coins/markets`, `/coins/{id}`) | SQLite через `CryptoLocalDataSource` |
+| История цен для графика | CoinGecko `/coins/{id}/market_chart` | нет (каждый раз с сети; при ошибке — сообщение и «Повторить») |
+
+Провайдеры собирают зависимости из `core` (Dio, БД) и `data`; `coinPriceChartProvider` зависит от `cryptoRepositoryProvider` и по ключу `CoinChartArgs` (id монеты + `ChartPeriod`). Отрисовка — пакет **`fl_chart`** (`LineChart`).
 
 #### `watchlist` — избранное
 

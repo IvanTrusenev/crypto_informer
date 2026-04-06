@@ -27,8 +27,8 @@ class CryptoInformerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final platformLocale = WidgetsBinding.instance.platformDispatcher.locale;
-    final settings = ref.watch(appSettingsProvider).valueOrNull ??
-        AppSettings.initial;
+    final settings =
+        ref.watch(appSettingsProvider).valueOrNull ?? AppSettings.initial;
     final locale = resolveAppLocale(
       settings.localePreference,
       platformLocale,

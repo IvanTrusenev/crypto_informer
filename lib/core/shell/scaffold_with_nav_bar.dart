@@ -45,13 +45,11 @@ class ScaffoldWithNavBar extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           l10n.offlineNoConnection,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodyMedium
+                          style: Theme.of(context).textTheme.bodyMedium
                               ?.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onErrorContainer,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onErrorContainer,
                               ),
                         ),
                       ),

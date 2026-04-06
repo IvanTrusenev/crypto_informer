@@ -248,6 +248,24 @@ abstract class AppLocalizations {
   /// **'{percent}% in 24h'**
   String coinChange24h(String percent);
 
+  /// No description provided for @coinPriceChartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price chart (USD)'**
+  String get coinPriceChartTitle;
+
+  /// No description provided for @coinPriceChartHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Historical prices are loaded from the network.'**
+  String get coinPriceChartHint;
+
+  /// No description provided for @coinChartNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'No data for this period.'**
+  String get coinChartNoData;
+
   /// No description provided for @watchlistTitle.
   ///
   /// In en, this message translates to:
@@ -293,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutArchitectureBulletList.
   ///
   /// In en, this message translates to:
-  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes'**
+  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
   String get aboutArchitectureBulletList;
 
   /// No description provided for @aboutSectionOffline.
@@ -305,7 +323,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutOfflineBody.
   ///
   /// In en, this message translates to:
-  /// **'Offline-first: after a successful load, the market list and coin details are stored in a local SQLite database. Without a network you still see the last saved data. A banner above the bottom navigation appears when the device reports no connection.'**
+  /// **'Offline-first: after a successful load, the market list and full coin card (price, 24h change, description) are stored in a local SQLite database. Without a network you still see that saved data. The price chart is not cached—it is fetched only when online. A banner above the bottom navigation appears when the device reports no connection.'**
   String get aboutOfflineBody;
 
   /// No description provided for @aboutSectionData.
@@ -317,7 +335,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutDataBody.
   ///
   /// In en, this message translates to:
-  /// **'Prices and descriptions: public CoinGecko API (rate limits apply).'**
+  /// **'CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).'**
   String get aboutDataBody;
 
   /// No description provided for @errorEmptyResponse.

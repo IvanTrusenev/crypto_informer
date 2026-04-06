@@ -47,9 +47,8 @@ class MarketPage extends ConsumerWidget {
                   inWatchlist: inList,
                   l10n: l10n,
                   onTap: () => context.push('/market/coin/${asset.id}'),
-                  onToggleStar: () => ref
-                      .read(watchlistProvider.notifier)
-                      .toggle(asset.id),
+                  onToggleStar: () =>
+                      ref.read(watchlistProvider.notifier).toggle(asset.id),
                 );
               },
             ),
@@ -102,17 +101,18 @@ class _MarketTile extends StatelessWidget {
     final theme = context.theme;
     final finance = context.financeColors;
     final change = asset.priceChangePercent24h;
-    final changeColor =
-        change >= 0 ? finance.pricePositive : finance.priceNegative;
-    final changeStr =
-        '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
+    final changeColor = change >= 0
+        ? finance.pricePositive
+        : finance.priceNegative;
+    final changeStr = '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
 
     return ListTile(
       onTap: onTap,
       leading: CircleAvatar(
         backgroundColor: theme.colorScheme.surfaceContainerHighest,
-        backgroundImage:
-            asset.imageUrl != null ? NetworkImage(asset.imageUrl!) : null,
+        backgroundImage: asset.imageUrl != null
+            ? NetworkImage(asset.imageUrl!)
+            : null,
         child: asset.imageUrl == null
             ? Text(
                 asset.symbol.length >= 2

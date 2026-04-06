@@ -9,8 +9,8 @@ const _kLegacyUseDarkTheme = 'app_use_dark_theme';
 
 final appSettingsProvider =
     AsyncNotifierProvider<AppSettingsNotifier, AppSettings>(
-  AppSettingsNotifier.new,
-);
+      AppSettingsNotifier.new,
+    );
 
 class AppSettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
