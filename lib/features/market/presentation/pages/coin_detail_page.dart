@@ -1,0 +1,112 @@
+import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
+import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
+class CoinDetailPage extends ConsumerWidget {
+  const CoinDetailPage({required this.coinId, super.key});
+
+  final String coinId;
+
+  static final _price = NumberFormat.currency(symbol: r'$', decimalDigits: 2);
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final async = ref.watch(coinDetailProvider(coinId));
+    final watchlistAsync = ref.watch(watchlistProvider);
+    final inList = (watchlistAsync.valueOrNull ?? []).contains(coinId);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: async.maybeWhen(
+          data: (d) => Text(d.name),
+          orElse: () => const Text('Монета'),
+        ),
+        actions: [
+          IconButton(
+            tooltip: inList ? 'Убрать из избранного' : 'В избранное',
+            icon: Icon(
+              inList ? Icons.star : Icons.star_border,
+              color: inList ? Theme.of(context).colorScheme.primary : null,
+            ),
+            onPressed: () =>
+                ref.read(watchlistProvider.notifier).toggle(coinId),
+          ),
+        ],
+      ),
+      body: async.when(
+        data: (detail) {
+          final change = detail.priceChangePercent24h;
+          final changeColor = change != null && change >= 0
+              ? Colors.green.shade700
+              : Colors.red.shade700;
+
+          return ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              if (detail.imageUrl != null)
+                Center(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: Image.network(
+                      detail.imageUrl!,
+                      height: 120,
+                      width: 120,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                ),
+              const SizedBox(height: 16),
+              Text(
+                detail.symbol,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              if (detail.currentPriceUsd != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  _price.format(detail.currentPriceUsd),
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ],
+              if (change != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  '${change >= 0 ? '+' : ''}'
+                  '${change.toStringAsFixed(2)}% за 24ч',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: changeColor,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+              if (detail.description != null &&
+                  detail.description!.isNotEmpty) ...[
+                const SizedBox(height: 24),
+                Text(
+                  'Описание',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  detail.description!,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
+            ],
+          );
+        },
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (e, _) => Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Text(e.toString(), textAlign: TextAlign.center),
+          ),
+        ),
+      ),
+    );
+  }
+}
