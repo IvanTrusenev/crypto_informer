@@ -3,6 +3,7 @@ import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
+import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,8 +49,8 @@ class WatchlistPage extends ConsumerWidget {
               }
               final missing = ids.length - items.length;
 
-              return ListView(
-                padding: const EdgeInsets.symmetric(vertical: 8),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   if (missing > 0)
                     Padding(
@@ -59,26 +60,76 @@ class WatchlistPage extends ConsumerWidget {
                         style: context.theme.textTheme.bodySmall,
                       ),
                     ),
-                  ...items.map(
-                    (asset) => ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: asset.imageUrl != null
-                            ? NetworkImage(asset.imageUrl!)
-                            : null,
-                        child: asset.imageUrl == null
-                            ? Text(
-                                asset.symbol.length >= 2
-                                    ? asset.symbol.substring(0, 2)
-                                    : asset.symbol,
-                              )
-                            : null,
+                  Expanded(
+                    child: RefreshIndicator(
+                      onRefresh: () =>
+                          ref.refresh(marketAssetsProvider.future),
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final columns =
+                              marketListCrossAxisCount(constraints.maxWidth);
+                          if (columns == 1) {
+                            return ListView.separated(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              itemCount: items.length,
+                              separatorBuilder: (context, index) =>
+                                  const Divider(height: 1),
+                              itemBuilder: (context, index) {
+                                final asset = items[index];
+                                return CryptoAssetListTile(
+                                  asset: asset,
+                                  priceText: priceFormat.format(
+                                    asset.currentPriceUsd,
+                                  ),
+                                  inWatchlist: true,
+                                  l10n: l10n,
+                                  onTap: () => context.push(
+                                    '/market/coin/${asset.id}',
+                                  ),
+                                  onToggleStar: () => ref
+                                      .read(watchlistProvider.notifier)
+                                      .toggle(asset.id),
+                                );
+                              },
+                            );
+                          }
+                          return GridView.builder(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.all(8),
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: columns,
+                              mainAxisExtent: 96,
+                              crossAxisSpacing: 10,
+                              mainAxisSpacing: 8,
+                            ),
+                            itemCount: items.length,
+                            itemBuilder: (context, index) {
+                              final asset = items[index];
+                              return Card(
+                                clipBehavior: Clip.antiAlias,
+                                margin: EdgeInsets.zero,
+                                child: CryptoAssetListTile(
+                                  asset: asset,
+                                  priceText: priceFormat.format(
+                                    asset.currentPriceUsd,
+                                  ),
+                                  inWatchlist: true,
+                                  l10n: l10n,
+                                  onTap: () => context.push(
+                                    '/market/coin/${asset.id}',
+                                  ),
+                                  onToggleStar: () => ref
+                                      .read(watchlistProvider.notifier)
+                                      .toggle(asset.id),
+                                  dense: true,
+                                ),
+                              );
+                            },
+                          );
+                        },
                       ),
-                      title: Text(asset.name),
-                      subtitle: Text(asset.symbol),
-                      trailing: Text(
-                        priceFormat.format(asset.currentPriceUsd),
-                      ),
-                      onTap: () => context.push('/market/coin/${asset.id}'),
                     ),
                   ),
                 ],
