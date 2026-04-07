@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
@@ -54,59 +55,68 @@ class CoinPriceChartSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 16),
-        BlocBuilder<CoinPriceChartCubit, CoinPriceChartState>(
-          builder: (context, state) => switch (state) {
-            CoinPriceChartInitial() || CoinPriceChartLoading() =>
-              const SizedBox(
-                height: 200,
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            CoinPriceChartLoaded(:final points) => points.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 24),
-                    child: Text(
-                      l10n.coinChartNoData,
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  )
-                : SizedBox(
-                    height: 240,
-                    child: LineChart(
-                      _buildLineChartData(
-                        context,
-                        points,
-                        NumberFormat.currency(
-                          locale: Localizations.localeOf(context).toString(),
-                          symbol: r'$',
-                          decimalDigits: 2,
+        BlocBuilder<PriceAlertCubit, PriceAlertState>(
+          builder: (context, alertState) {
+            final alertThreshold =
+                alertState.alertFor(coinId)?.thresholdPrice;
+
+            return BlocBuilder<CoinPriceChartCubit, CoinPriceChartState>(
+              builder: (context, state) => switch (state) {
+                CoinPriceChartInitial() || CoinPriceChartLoading() =>
+                  const SizedBox(
+                    height: 200,
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                CoinPriceChartLoaded(:final points) => points.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 24),
+                        child: Text(
+                          l10n.coinChartNoData,
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                        Localizations.localeOf(context).toString(),
+                      )
+                    : SizedBox(
+                        height: 240,
+                        child: LineChart(
+                          _buildLineChartData(
+                            context,
+                            points,
+                            NumberFormat.currency(
+                              locale:
+                                  Localizations.localeOf(context).toString(),
+                              symbol: r'$',
+                              decimalDigits: 2,
+                            ),
+                            Localizations.localeOf(context).toString(),
+                            alertThreshold: alertThreshold,
+                          ),
+                        ),
                       ),
+                CoinPriceChartError(:final error) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    child: Column(
+                      children: [
+                        Text(
+                          localizedErrorMessage(l10n, error),
+                          textAlign: TextAlign.center,
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                        const SizedBox(height: 12),
+                        TextButton.icon(
+                          onPressed: () => context
+                              .read<CoinPriceChartCubit>()
+                              .loadChart(coinId, period: period),
+                          icon: const Icon(Icons.refresh),
+                          label: Text(l10n.retryAction),
+                        ),
+                      ],
                     ),
                   ),
-            CoinPriceChartError(:final error) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                child: Column(
-                  children: [
-                    Text(
-                      localizedErrorMessage(l10n, error),
-                      textAlign: TextAlign.center,
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                    const SizedBox(height: 12),
-                    TextButton.icon(
-                      onPressed: () => context
-                          .read<CoinPriceChartCubit>()
-                          .loadChart(coinId, period: period),
-                      icon: const Icon(Icons.refresh),
-                      label: Text(l10n.retryAction),
-                    ),
-                  ],
-                ),
-              ),
+              },
+            );
           },
         ),
       ],
@@ -117,8 +127,9 @@ class CoinPriceChartSection extends StatelessWidget {
     BuildContext context,
     List<PriceChartPoint> points,
     NumberFormat priceFormat,
-    String localeName,
-  ) {
+    String localeName, {
+    double? alertThreshold,
+  }) {
     final scheme = Theme.of(context).colorScheme;
     final lineColor = scheme.primary;
     final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -134,6 +145,10 @@ class CoinPriceChartSection extends StatelessWidget {
     final ys = points.map((e) => e.priceUsd).toList();
     var minY = ys.reduce(math.min);
     var maxY = ys.reduce(math.max);
+    if (alertThreshold != null) {
+      minY = math.min(minY, alertThreshold);
+      maxY = math.max(maxY, alertThreshold);
+    }
     if (minY == maxY) {
       minY = minY * 0.995;
       maxY = maxY * 1.005;
@@ -155,6 +170,28 @@ class CoinPriceChartSection extends StatelessWidget {
       minY: minY,
       maxY: maxY,
       clipData: const FlClipData.all(),
+      extraLinesData: ExtraLinesData(
+        horizontalLines: [
+          if (alertThreshold != null)
+            HorizontalLine(
+              y: alertThreshold,
+              color: Colors.red,
+              strokeWidth: 1.5,
+              dashArray: [8, 4],
+              label: HorizontalLineLabel(
+                show: true,
+                alignment: Alignment.topRight,
+                padding: const EdgeInsets.only(right: 4, bottom: 2),
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                ),
+                labelResolver: (_) => _compactUsd(alertThreshold),
+              ),
+            ),
+        ],
+      ),
       gridData: FlGridData(
         drawVerticalLine: false,
         horizontalInterval: (maxY - minY) / 4,

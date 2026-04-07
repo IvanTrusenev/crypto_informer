@@ -6,6 +6,7 @@ import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/localization/locale_resolution.dart';
 import 'package:crypto_informer/core/router/app_router.dart';
 import 'package:crypto_informer/core/theme/app_theme.dart';
+import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
@@ -35,6 +36,9 @@ Future<void> main() async {
         BlocProvider.value(value: marketCubit),
         BlocProvider(
           create: (_) => WatchlistCubit(sl())..loadIds(),
+        ),
+        BlocProvider(
+          create: (_) => PriceAlertCubit(sl())..loadAlerts(),
         ),
       ],
       child: const CryptoInformerApp(),

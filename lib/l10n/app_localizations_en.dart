@@ -194,4 +194,62 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorUnexpected => 'Something went wrong';
+
+  @override
+  String get alertDialogTitle => 'Price alert';
+
+  @override
+  String alertCurrentPrice(String price) {
+    return 'Current price: $price';
+  }
+
+  @override
+  String get alertThresholdLabel => 'Target price (USD)';
+
+  @override
+  String get alertDirectionAbove => 'Above';
+
+  @override
+  String get alertDirectionBelow => 'Below';
+
+  @override
+  String get alertSetAction => 'Set alert';
+
+  @override
+  String get alertRemoveAction => 'Remove alert';
+
+  @override
+  String get alertCancelAction => 'Cancel';
+
+  @override
+  String get alertInvalidPrice => 'Enter a valid price';
+
+  @override
+  String alertSetConfirmation(String coinName) {
+    return 'Alert set for $coinName';
+  }
+
+  @override
+  String get alertRemovedConfirmation => 'Alert removed';
+
+  @override
+  String alertTriggeredTitle(String coinName) {
+    return '$coinName';
+  }
+
+  @override
+  String alertTriggeredAbove(String price) {
+    return 'Price crossed above $price';
+  }
+
+  @override
+  String alertTriggeredBelow(String price) {
+    return 'Price dropped below $price';
+  }
+
+  @override
+  String get tooltipAlertSet => 'Set price alert';
+
+  @override
+  String get tooltipAlertActive => 'Price alert active';
 }

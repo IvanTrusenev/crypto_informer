@@ -195,4 +195,62 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get errorUnexpected => 'Что-то пошло не так';
+
+  @override
+  String get alertDialogTitle => 'Уведомление о цене';
+
+  @override
+  String alertCurrentPrice(String price) {
+    return 'Текущая цена: $price';
+  }
+
+  @override
+  String get alertThresholdLabel => 'Целевая цена (USD)';
+
+  @override
+  String get alertDirectionAbove => 'Выше';
+
+  @override
+  String get alertDirectionBelow => 'Ниже';
+
+  @override
+  String get alertSetAction => 'Установить';
+
+  @override
+  String get alertRemoveAction => 'Удалить уведомление';
+
+  @override
+  String get alertCancelAction => 'Отмена';
+
+  @override
+  String get alertInvalidPrice => 'Введите корректную цену';
+
+  @override
+  String alertSetConfirmation(String coinName) {
+    return 'Уведомление установлено для $coinName';
+  }
+
+  @override
+  String get alertRemovedConfirmation => 'Уведомление удалено';
+
+  @override
+  String alertTriggeredTitle(String coinName) {
+    return '$coinName';
+  }
+
+  @override
+  String alertTriggeredAbove(String price) {
+    return 'Цена поднялась выше $price';
+  }
+
+  @override
+  String alertTriggeredBelow(String price) {
+    return 'Цена опустилась ниже $price';
+  }
+
+  @override
+  String get tooltipAlertSet => 'Установить уведомление';
+
+  @override
+  String get tooltipAlertActive => 'Уведомление активно';
 }

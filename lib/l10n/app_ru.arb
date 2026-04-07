@@ -92,5 +92,56 @@
     }
   },
   "errorNetwork": "Ошибка сети",
-  "errorUnexpected": "Что-то пошло не так"
+  "errorUnexpected": "Что-то пошло не так",
+  "alertDialogTitle": "Уведомление о цене",
+  "alertCurrentPrice": "Текущая цена: {price}",
+  "@alertCurrentPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertThresholdLabel": "Целевая цена (USD)",
+  "alertDirectionAbove": "Выше",
+  "alertDirectionBelow": "Ниже",
+  "alertSetAction": "Установить",
+  "alertRemoveAction": "Удалить уведомление",
+  "alertCancelAction": "Отмена",
+  "alertInvalidPrice": "Введите корректную цену",
+  "alertSetConfirmation": "Уведомление установлено для {coinName}",
+  "@alertSetConfirmation": {
+    "placeholders": {
+      "coinName": {
+        "type": "String"
+      }
+    }
+  },
+  "alertRemovedConfirmation": "Уведомление удалено",
+  "alertTriggeredTitle": "{coinName}",
+  "@alertTriggeredTitle": {
+    "placeholders": {
+      "coinName": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggeredAbove": "Цена поднялась выше {price}",
+  "@alertTriggeredAbove": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggeredBelow": "Цена опустилась ниже {price}",
+  "@alertTriggeredBelow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "tooltipAlertSet": "Установить уведомление",
+  "tooltipAlertActive": "Уведомление активно"
 }

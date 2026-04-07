@@ -427,6 +427,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Something went wrong'**
   String get errorUnexpected;
+
+  /// No description provided for @alertDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Price alert'**
+  String get alertDialogTitle;
+
+  /// No description provided for @alertCurrentPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Current price: {price}'**
+  String alertCurrentPrice(String price);
+
+  /// No description provided for @alertThresholdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Target price (USD)'**
+  String get alertThresholdLabel;
+
+  /// No description provided for @alertDirectionAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Above'**
+  String get alertDirectionAbove;
+
+  /// No description provided for @alertDirectionBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Below'**
+  String get alertDirectionBelow;
+
+  /// No description provided for @alertSetAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Set alert'**
+  String get alertSetAction;
+
+  /// No description provided for @alertRemoveAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove alert'**
+  String get alertRemoveAction;
+
+  /// No description provided for @alertCancelAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get alertCancelAction;
+
+  /// No description provided for @alertInvalidPrice.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid price'**
+  String get alertInvalidPrice;
+
+  /// No description provided for @alertSetConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert set for {coinName}'**
+  String alertSetConfirmation(String coinName);
+
+  /// No description provided for @alertRemovedConfirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert removed'**
+  String get alertRemovedConfirmation;
+
+  /// No description provided for @alertTriggeredTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{coinName}'**
+  String alertTriggeredTitle(String coinName);
+
+  /// No description provided for @alertTriggeredAbove.
+  ///
+  /// In en, this message translates to:
+  /// **'Price crossed above {price}'**
+  String alertTriggeredAbove(String price);
+
+  /// No description provided for @alertTriggeredBelow.
+  ///
+  /// In en, this message translates to:
+  /// **'Price dropped below {price}'**
+  String alertTriggeredBelow(String price);
+
+  /// No description provided for @tooltipAlertSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set price alert'**
+  String get tooltipAlertSet;
+
+  /// No description provided for @tooltipAlertActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Price alert active'**
+  String get tooltipAlertActive;
 }
 
 class _AppLocalizationsDelegate

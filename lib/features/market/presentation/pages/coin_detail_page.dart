@@ -4,6 +4,8 @@ import 'package:crypto_informer/core/di/service_locator.dart';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
+import 'package:crypto_informer/features/alerts/presentation/widgets/set_price_alert_dialog.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_detail_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
@@ -70,6 +72,38 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                 },
               ),
               actions: [
+                BlocBuilder<PriceAlertCubit, PriceAlertState>(
+                  builder: (context, alertState) {
+                    final hasAlert =
+                        alertState.alertFor(widget.coinId) != null;
+                    return BlocBuilder<CoinDetailCubit, CoinDetailState>(
+                      builder: (context, detailState) {
+                        final detail = switch (detailState) {
+                          CoinDetailLoaded(:final detail) => detail,
+                          _ => null,
+                        };
+                        return IconButton(
+                          icon: Icon(
+                            hasAlert
+                                ? Icons.notifications_active
+                                : Icons.notifications_none,
+                          ),
+                          tooltip: hasAlert
+                              ? l10n.tooltipAlertActive
+                              : l10n.tooltipAlertSet,
+                          onPressed: detail?.currentPriceUsd == null
+                              ? null
+                              : () => showSetPriceAlertDialog(
+                                    context,
+                                    coinId: widget.coinId,
+                                    coinName: detail!.name,
+                                    currentPrice: detail.currentPriceUsd!,
+                                  ),
+                        );
+                      },
+                    );
+                  },
+                ),
                 AnimatedWatchlistIconButton(
                   isInWatchlist: inList,
                   tooltip: inList

@@ -92,5 +92,56 @@
     }
   },
   "errorNetwork": "Network error",
-  "errorUnexpected": "Something went wrong"
+  "errorUnexpected": "Something went wrong",
+  "alertDialogTitle": "Price alert",
+  "alertCurrentPrice": "Current price: {price}",
+  "@alertCurrentPrice": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertThresholdLabel": "Target price (USD)",
+  "alertDirectionAbove": "Above",
+  "alertDirectionBelow": "Below",
+  "alertSetAction": "Set alert",
+  "alertRemoveAction": "Remove alert",
+  "alertCancelAction": "Cancel",
+  "alertInvalidPrice": "Enter a valid price",
+  "alertSetConfirmation": "Alert set for {coinName}",
+  "@alertSetConfirmation": {
+    "placeholders": {
+      "coinName": {
+        "type": "String"
+      }
+    }
+  },
+  "alertRemovedConfirmation": "Alert removed",
+  "alertTriggeredTitle": "{coinName}",
+  "@alertTriggeredTitle": {
+    "placeholders": {
+      "coinName": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggeredAbove": "Price crossed above {price}",
+  "@alertTriggeredAbove": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "alertTriggeredBelow": "Price dropped below {price}",
+  "@alertTriggeredBelow": {
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "tooltipAlertSet": "Set price alert",
+  "tooltipAlertActive": "Price alert active"
 }
