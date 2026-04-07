@@ -490,10 +490,15 @@ class _SortSegment extends StatelessWidget {
                 ),
                 if (selected) ...[
                   const SizedBox(width: 1),
-                  Icon(
-                    ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                    size: 10,
-                    color: scheme.onSecondaryContainer,
+                  AnimatedRotation(
+                    turns: ascending ? 0 : 0.5,
+                    duration: const Duration(milliseconds: 320),
+                    curve: Curves.easeInOutCubic,
+                    child: Icon(
+                      Icons.arrow_upward,
+                      size: 13,
+                      color: scheme.onSecondaryContainer,
+                    ),
                   ),
                 ],
               ],
