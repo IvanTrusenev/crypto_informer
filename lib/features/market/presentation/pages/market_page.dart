@@ -16,6 +16,10 @@ import 'package:intl/intl.dart';
 /// Высота одной строки «поиск + сортировка» на широком экране.
 const double _kMarketWideFilterBarHeight = 42;
 
+/// Высота фильтр-бара (включая padding 8+8) для узкого / широкого экрана.
+const double _kFilterBarNarrowHeight = 92;
+const double _kFilterBarWideHeight = _kMarketWideFilterBarHeight + 16;
+
 int _compareMarketCapPair(CryptoAsset a, CryptoAsset b, bool ascending) {
   final ca = a.marketCapUsd;
   final cb = b.marketCapUsd;
@@ -172,62 +176,141 @@ class _MarketPageState extends State<MarketPage> {
           _sortAscending,
         );
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final wide = constraints.maxWidth >= 560;
-                  final searchField = _buildSearchField(l10n);
-                  final sortSection = _MarketSortSection(
-                    title: l10n.marketSortSectionTitle,
-                    fillHeight: wide,
-                    child: _buildSortControls(context, l10n),
-                  );
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final wide = constraints.maxWidth >= 560;
+            final columns = marketListCrossAxisCount(constraints.maxWidth);
 
-                  if (wide) {
-                    return SizedBox(
-                      height: _kMarketWideFilterBarHeight,
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Expanded(
-                            flex: 3,
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: searchField,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(flex: 2, child: sortSection),
-                        ],
+            final searchField = _buildSearchField(l10n);
+            final sortSection = _MarketSortSection(
+              title: l10n.marketSortSectionTitle,
+              fillHeight: wide,
+              child: _buildSortControls(context, l10n),
+            );
+
+            Widget filterBar;
+            if (wide) {
+              filterBar = SizedBox(
+                height: _kMarketWideFilterBarHeight,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 3,
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: searchField,
                       ),
-                    );
-                  }
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      searchField,
-                      const SizedBox(height: 8),
-                      sortSection,
-                    ],
-                  );
-                },
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(flex: 2, child: sortSection),
+                  ],
+                ),
+              );
+            } else {
+              filterBar = Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  searchField,
+                  const SizedBox(height: 8),
+                  sortSection,
+                ],
+              );
+            }
+
+            final filterHeight =
+                wide ? _kFilterBarWideHeight : _kFilterBarNarrowHeight;
+
+            return RefreshIndicator(
+              onRefresh: () => context.read<MarketCubit>().refresh(),
+              child: CustomScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                slivers: [
+                  SliverPersistentHeader(
+                    floating: true,
+                    delegate: _FilterBarDelegate(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                        child: filterBar,
+                      ),
+                      height: filterHeight,
+                    ),
+                  ),
+                  if (items.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: Text(l10n.marketEmpty)),
+                    )
+                  else if (display.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: Text(l10n.marketSearchNoResults)),
+                    )
+                  else if (columns == 1)
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      sliver: SliverList.separated(
+                        itemCount: display.length,
+                        separatorBuilder: (_, _) => const Divider(height: 1),
+                        itemBuilder: (context, index) {
+                          final asset = display[index];
+                          final inList = watchlistIds.contains(asset.id);
+                          return CryptoAssetListTile(
+                            asset: asset,
+                            priceText:
+                                priceFormat.format(asset.currentPriceUsd),
+                            inWatchlist: inList,
+                            l10n: l10n,
+                            onTap: () =>
+                                context.push('/market/coin/${asset.id}'),
+                            onToggleStar: () => context
+                                .read<WatchlistCubit>()
+                                .toggle(asset.id),
+                          );
+                        },
+                      ),
+                    )
+                  else
+                    SliverPadding(
+                      padding: const EdgeInsets.all(8),
+                      sliver: SliverGrid(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final asset = display[index];
+                            final inList = watchlistIds.contains(asset.id);
+                            return Card(
+                              clipBehavior: Clip.antiAlias,
+                              margin: EdgeInsets.zero,
+                              child: CryptoAssetListTile(
+                                asset: asset,
+                                priceText:
+                                    priceFormat.format(asset.currentPriceUsd),
+                                inWatchlist: inList,
+                                l10n: l10n,
+                                onTap: () =>
+                                    context.push('/market/coin/${asset.id}'),
+                                onToggleStar: () => context
+                                    .read<WatchlistCubit>()
+                                    .toggle(asset.id),
+                                dense: true,
+                              ),
+                            );
+                          },
+                          childCount: display.length,
+                        ),
+                        gridDelegate:
+                            SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisExtent: 96,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 8,
+                        ),
+                      ),
+                    ),
+                ],
               ),
-            ),
-            Expanded(
-              child: _MarketListBody(
-                items: items,
-                displayItems: display,
-                watchlistIds: watchlistIds,
-                priceFormat: priceFormat,
-                l10n: l10n,
-                onRefresh: () => context.read<MarketCubit>().refresh(),
-              ),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -504,92 +587,32 @@ class _SortSegment extends StatelessWidget {
   }
 }
 
-class _MarketListBody extends StatelessWidget {
-  const _MarketListBody({
-    required this.items,
-    required this.displayItems,
-    required this.watchlistIds,
-    required this.priceFormat,
-    required this.l10n,
-    required this.onRefresh,
-  });
+class _FilterBarDelegate extends SliverPersistentHeaderDelegate {
+  _FilterBarDelegate({required this.child, required this.height});
 
-  final List<CryptoAsset> items;
-  final List<CryptoAsset> displayItems;
-  final List<String> watchlistIds;
-  final NumberFormat priceFormat;
-  final AppLocalizations l10n;
-  final Future<void> Function() onRefresh;
+  final Widget child;
+  final double height;
 
   @override
-  Widget build(BuildContext context) {
-    if (items.isEmpty) {
-      return Center(child: Text(l10n.marketEmpty));
-    }
-    if (displayItems.isEmpty) {
-      return Center(child: Text(l10n.marketSearchNoResults));
-    }
+  double get minExtent => height;
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final columns = marketListCrossAxisCount(constraints.maxWidth);
-        if (columns == 1) {
-          return RefreshIndicator(
-            onRefresh: onRefresh,
-            child: ListView.separated(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              itemCount: displayItems.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final asset = displayItems[index];
-                final inList = watchlistIds.contains(asset.id);
-                return CryptoAssetListTile(
-                  asset: asset,
-                  priceText: priceFormat.format(asset.currentPriceUsd),
-                  inWatchlist: inList,
-                  l10n: l10n,
-                  onTap: () => context.push('/market/coin/${asset.id}'),
-                  onToggleStar: () =>
-                      context.read<WatchlistCubit>().toggle(asset.id),
-                );
-              },
-            ),
-          );
-        }
-        return RefreshIndicator(
-          onRefresh: onRefresh,
-          child: GridView.builder(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(8),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: columns,
-              mainAxisExtent: 96,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 8,
-            ),
-            itemCount: displayItems.length,
-            itemBuilder: (context, index) {
-              final asset = displayItems[index];
-              final inList = watchlistIds.contains(asset.id);
-              return Card(
-                clipBehavior: Clip.antiAlias,
-                margin: EdgeInsets.zero,
-                child: CryptoAssetListTile(
-                  asset: asset,
-                  priceText: priceFormat.format(asset.currentPriceUsd),
-                  inWatchlist: inList,
-                  l10n: l10n,
-                  onTap: () => context.push('/market/coin/${asset.id}'),
-                  onToggleStar: () =>
-                      context.read<WatchlistCubit>().toggle(asset.id),
-                  dense: true,
-                ),
-              );
-            },
-          ),
-        );
-      },
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return Material(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      elevation: overlapsContent ? 2 : 0,
+      child: SizedBox.expand(child: child),
     );
   }
+
+  @override
+  bool shouldRebuild(covariant _FilterBarDelegate oldDelegate) =>
+      height != oldDelegate.height || child != oldDelegate.child;
 }
