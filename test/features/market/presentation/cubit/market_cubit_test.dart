@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockCryptoRepository extends Mock implements CryptoRepository {}
 
-const _btc = CryptoAsset(
+const _btc = CryptoAssetEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',

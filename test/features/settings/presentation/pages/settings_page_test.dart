@@ -1,3 +1,4 @@
+import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:crypto_informer/features/settings/presentation/pages/settings_page.dart';
@@ -11,10 +12,11 @@ void main() {
   testWidgets('renders language and theme dropdowns', (tester) async {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
+    final storage = AppKeyValueStorageImpl(prefs);
 
     await tester.pumpWidget(
       BlocProvider(
-        create: (_) => AppSettingsCubit(prefs)..loadSettings(),
+        create: (_) => AppSettingsCubit(storage)..loadSettings(),
         child: const MaterialApp(
           localizationsDelegates: AppLocalizations.localizationsDelegates,
           supportedLocales: AppLocalizations.supportedLocales,

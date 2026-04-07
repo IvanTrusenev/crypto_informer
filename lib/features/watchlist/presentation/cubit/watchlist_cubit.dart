@@ -1,5 +1,5 @@
+import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const _kWatchlistIds = 'watchlist_coin_ids';
 
@@ -17,13 +17,13 @@ class WatchlistLoaded extends WatchlistState {
 }
 
 class WatchlistCubit extends Cubit<WatchlistState> {
-  WatchlistCubit(this._prefs) : super(const WatchlistInitial());
+  WatchlistCubit(this._storage) : super(const WatchlistInitial());
 
-  final SharedPreferences _prefs;
+  final AppKeyValueStorage _storage;
 
   void loadIds() {
     final ids = List<String>.from(
-      _prefs.getStringList(_kWatchlistIds) ?? [],
+      _storage.getStringList(_kWatchlistIds) ?? [],
     );
     emit(WatchlistLoaded(ids));
   }
@@ -36,7 +36,7 @@ class WatchlistCubit extends Cubit<WatchlistState> {
     } else {
       next.add(id);
     }
-    await _prefs.setStringList(_kWatchlistIds, next);
+    await _storage.setStringList(_kWatchlistIds, next);
     emit(WatchlistLoaded(next));
   }
 

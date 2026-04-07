@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 class GetCoinDetail {
@@ -6,7 +6,7 @@ class GetCoinDetail {
 
   final CryptoRepository _repository;
 
-  Future<CryptoCoinDetail> call(String id) {
+  Future<CryptoCoinDetailEntity> call(String id) {
     return _repository.getCoinDetail(id);
   }
 }

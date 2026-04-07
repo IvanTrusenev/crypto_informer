@@ -1,6 +1,6 @@
+import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const _kLocalePreference = 'app_locale_preference';
 const _kThemePreference = 'app_theme_preference';
@@ -20,9 +20,9 @@ class AppSettingsLoaded extends AppSettingsState {
 }
 
 class AppSettingsCubit extends Cubit<AppSettingsState> {
-  AppSettingsCubit(this._prefs) : super(const AppSettingsInitial());
+  AppSettingsCubit(this._storage) : super(const AppSettingsInitial());
 
-  final SharedPreferences _prefs;
+  final AppKeyValueStorage _storage;
 
   void loadSettings() {
     final settings = AppSettings(
@@ -33,7 +33,7 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
   }
 
   AppLocalePreference _readLocale() {
-    final raw = _prefs.getString(_kLocalePreference);
+    final raw = _storage.getString(_kLocalePreference);
     return switch (raw) {
       'ru' => AppLocalePreference.ru,
       'en' => AppLocalePreference.en,
@@ -42,7 +42,7 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
   }
 
   AppThemePreference _readTheme() {
-    final raw = _prefs.getString(_kThemePreference);
+    final raw = _storage.getString(_kThemePreference);
     if (raw != null) {
       return switch (raw) {
         'light' => AppThemePreference.light,
@@ -50,7 +50,7 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
         _ => AppThemePreference.system,
       };
     }
-    return switch (_prefs.getBool(_kLegacyUseDarkTheme)) {
+    return switch (_storage.getBool(_kLegacyUseDarkTheme)) {
       true => AppThemePreference.dark,
       false => AppThemePreference.light,
       null => AppThemePreference.system,
@@ -60,11 +60,11 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
   Future<void> setLocalePreference(AppLocalePreference value) async {
     switch (value) {
       case AppLocalePreference.system:
-        await _prefs.remove(_kLocalePreference);
+        await _storage.remove(_kLocalePreference);
       case AppLocalePreference.ru:
-        await _prefs.setString(_kLocalePreference, 'ru');
+        await _storage.setString(_kLocalePreference, 'ru');
       case AppLocalePreference.en:
-        await _prefs.setString(_kLocalePreference, 'en');
+        await _storage.setString(_kLocalePreference, 'en');
     }
     final current = _currentSettings;
     emit(
@@ -80,13 +80,13 @@ class AppSettingsCubit extends Cubit<AppSettingsState> {
   Future<void> setThemePreference(AppThemePreference value) async {
     switch (value) {
       case AppThemePreference.system:
-        await _prefs.remove(_kThemePreference);
+        await _storage.remove(_kThemePreference);
       case AppThemePreference.light:
-        await _prefs.setString(_kThemePreference, 'light');
+        await _storage.setString(_kThemePreference, 'light');
       case AppThemePreference.dark:
-        await _prefs.setString(_kThemePreference, 'dark');
+        await _storage.setString(_kThemePreference, 'dark');
     }
-    await _prefs.remove(_kLegacyUseDarkTheme);
+    await _storage.remove(_kLegacyUseDarkTheme);
     final current = _currentSettings;
     emit(
       AppSettingsLoaded(

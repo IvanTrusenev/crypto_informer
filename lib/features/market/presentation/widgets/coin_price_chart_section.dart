@@ -5,7 +5,7 @@ import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
-import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
+import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -125,7 +125,7 @@ class CoinPriceChartSection extends StatelessWidget {
 
   LineChartData _buildLineChartData(
     BuildContext context,
-    List<PriceChartPoint> points,
+    List<PriceChartPointEntity> points,
     NumberFormat priceFormat,
     String localeName, {
     double? alertThreshold,

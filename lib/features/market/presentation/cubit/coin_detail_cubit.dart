@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -16,7 +16,7 @@ class CoinDetailLoading extends CoinDetailState {
 
 class CoinDetailLoaded extends CoinDetailState {
   const CoinDetailLoaded(this.detail);
-  final CryptoCoinDetail detail;
+  final CryptoCoinDetailEntity detail;
 }
 
 class CoinDetailError extends CoinDetailState {

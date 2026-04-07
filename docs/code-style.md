@@ -38,11 +38,61 @@ flutter test
 
 Помимо линтера, в репозитории приняты такие ориентиры:
 
-- **Общее** — `lib/core/` (роутинг, тема, сеть, БД, локализация, ошибки).
+- **Общее** — `lib/core/` (роутинг, тема, сеть, хранилище, локализация, ошибки, расширения).
 - **Импорты** — пакетный стиль `package:crypto_informer/...`.
-- **Состояние и DI** — `flutter_riverpod`; навигация — `go_router` с `StatefulShellRoute`.
+- **Состояние и DI** — `flutter_bloc` (Cubit), `get_it`; навигация — `go_router` с `StatefulShellRoute`.
 
 Эти пункты дополняют, но не заменяют правила из `very_good_analysis`.
+
+### Именование моделей данных
+
+| Постфикс | Назначение | Пример |
+|----------|------------|--------|
+| `Entity` | Доменные сущности (чистая модель без зависимостей) | `CryptoAssetEntity`, `CryptoCoinDetailEntity`, `PriceChartPointEntity` |
+| `Dto` | Сетевые модели (Data Transfer Object) — маппинг JSON API → домен | `CryptoAssetDto`, `CryptoCoinDetailDto`, `CoinImageDto`, `CoinMarketDataDto`, `PriceChartPointDto` |
+| `Dao` | Модели локальной БД (Data Access Object) — маппинг SQLite ↔ домен | `CryptoAssetDao`, `CryptoCoinDetailDao` |
+
+### Сериализация моделей (`json_serializable`)
+
+Для Dto и Dao используется пакет **`json_serializable`** с кодогенерацией (`build_runner`).
+
+| Тип модели | Аннотация | `fromJson` | `toJson` |
+|------------|-----------|------------|----------|
+| **Dto** | `@JsonSerializable(createToJson: false)` | ✅ генерируется | ❌ подавлен — DTO используется только для десериализации ответов API |
+| **Dao** | `@JsonSerializable()` | ✅ генерируется | ✅ генерируется — нужен для записи/чтения JSON в SQLite |
+
+Модели данных — **чистые контейнеры**: они хранят данные «как есть» из JSON, без нормализации или бизнес-логики. Вся нормализация (приведение `symbol` к верхнему регистру, фильтрация пустых строк `imageUrl`, очистка HTML из `description`) выполняется в **маппер-расширениях** при переходе Dto/Dao → Entity.
+
+Вложенные JSON-структуры API отображаются **вложенными Dto-моделями** (например, `CoinImageDto`, `CoinMarketDataDto`), а не `readValue`-хелперами — модель остаётся зеркалом структуры JSON.
+
+Для маппинга JSON-ключей применяется `@JsonKey`:
+
+- `name` — имя ключа в JSON, если отличается от имени поля (`current_price` → `currentPriceUsd`).
+- `defaultValue` — значение по умолчанию, если ключ отсутствует или `null`.
+
+Сгенерированные файлы `*.g.dart` находятся рядом с моделями и **не редактируются вручную**. Перегенерация:
+
+```bash
+dart run build_runner build --delete-conflicting-outputs
+```
+
+> REST-клиент (`core/network/rest/coingecko_rest_client.g.dart`) исключён из `build_runner` через `build.yaml` — его `.g.dart` поддерживается вручную.
+
+### Маппинг между слоями (`data/mapper/`)
+
+Преобразование между Dto/Dao и Entity выделено в **отдельные файлы-маппер** на основе `extension`:
+
+| Файл | Extension | Направление |
+|------|-----------|-------------|
+| `crypto_asset_dto_mapper.dart` | `CryptoAssetDtoMapper` on `CryptoAssetDto` | Dto → Entity (`toEntity()`) |
+| `crypto_coin_detail_dto_mapper.dart` | `CryptoCoinDetailDtoMapper` on `CryptoCoinDetailDto` | Dto → Entity (`toEntity()`) |
+| `crypto_asset_dao_mapper.dart` | `CryptoAssetDaoMapper` on `CryptoAssetDao` | Dao → Entity |
+| `crypto_asset_dao_from_entity_mapper.dart` | `CryptoAssetDaoFromEntityMapper` on `CryptoAssetEntity` | Entity → Dao |
+| `crypto_coin_detail_dao_mapper.dart` | `CryptoCoinDetailDaoMapper` on `CryptoCoinDetailDao` | Dao → Entity |
+| `crypto_coin_detail_dao_from_entity_mapper.dart` | `CryptoCoinDetailDaoFromEntityMapper` on `CryptoCoinDetailEntity` | Entity → Dao |
+| `price_chart_point_dto_mapper.dart` | `PriceChartPointDtoMapper` on `PriceChartPointDto` | Dto → Entity |
+
+**Один extension — один файл.** Имя файла соответствует имени extension. Нейминг: постфикс `Mapper`. Модели данных (Dto/Dao) **не содержат** методов `toEntity()`/`fromEntity()` и **не выполняют нормализацию данных** — вся логика преобразования и нормализации (например, `symbol.toUpperCase()`, фильтрация пустого `imageUrl`) сосредоточена в маппер-расширениях.
 
 ### Структура фич (`lib/features/<имя_фичи>/`)
 
@@ -51,8 +101,8 @@ flutter test
 | Слой | Назначение | Типичное содержимое |
 |------|------------|---------------------|
 | **domain** | Правила и контракты без Flutter/Dio/sqflite | сущности (`entities`), интерфейсы репозиториев, use case-ы |
-| **data** | Реализация доступа к данным | модели (JSON ↔ domain), datasources (remote/local), `*RepositoryImpl` |
-| **presentation** | UI и привязка к состоянию | страницы (`pages/`), виджеты (`widgets/`), провайдеры Riverpod (`providers/`) |
+| **data** | Реализация доступа к данным | DTO (сеть, `*_dto.dart`), DAO (БД, `*_dao.dart`), datasources (remote/local), `*RepositoryImpl` |
+| **presentation** | UI и привязка к состоянию | страницы (`pages/`), виджеты (`widgets/`), кубиты (`cubit/`) |
 
 **Зависимости между слоями одной фичи:** `presentation` → `domain` (и опосредованно через интерфейсы репозитория); `data` → `domain` (реализует контракты). `domain` не импортирует `data` и `presentation`.
 
@@ -66,18 +116,19 @@ flutter test
 lib/features/market/
   domain/
     chart_period.dart   # период для market_chart (1D … MAX)
-    entities/           # CryptoAsset, CryptoCoinDetail, PriceChartPoint
+    entities/           # CryptoAssetEntity, CryptoCoinDetailEntity, PriceChartPointEntity
     repositories/       # абстрактный CryptoRepository (+ getPriceChart)
     usecases/           # GetMarketAssets, GetCoinDetail (обёртки над репозиторием)
   data/
     datasources/        # remote/local (+ fetchMarketChart в remote)
-    models/             # маппинг JSON API → entity
+    mapper/             # extension-маппер: Dto/Dao ↔ Entity (один файл — один маппер)
+    models/             # *_dto.dart (сеть), *_dao.dart (БД); вложенные DTO для сложных JSON (CoinImageDto, CoinMarketDataDto)
     utils/              # price_chart_sampling (прореживание точек для отрисовки)
     repositories/       # CryptoRepositoryImpl (offline-first для рынка/карточки)
   presentation/
     pages/              # MarketPage, CoinDetailPage
     widgets/            # coin_price_chart_section (график + чипы периода)
-    providers/          # …, coinChartArgs, coinPriceChartProvider
+    cubit/              # MarketCubit, CoinDetailCubit, CoinPriceChartCubit
 ```
 
 **Данные и кэш**
@@ -87,7 +138,7 @@ lib/features/market/
 | Список рынка, карточка монеты (описание, цена, 24ч) | CoinGecko (`/coins/markets`, `/coins/{id}`) | SQLite через `CryptoLocalDataSource` |
 | История цен для графика | CoinGecko `/coins/{id}/market_chart` | нет (каждый раз с сети; при ошибке — сообщение и «Повторить») |
 
-Провайдеры собирают зависимости из `core` (Dio, БД) и `data`; `coinPriceChartProvider` зависит от `cryptoRepositoryProvider` и по ключу `CoinChartArgs` (id монеты + `ChartPeriod`). Отрисовка — пакет **`fl_chart`** (`LineChart`).
+Кубиты получают зависимости через `get_it`. `CoinPriceChartCubit` зависит от `CryptoRepository` и запрашивает данные по паре (id монеты + `ChartPeriod`). Отрисовка — пакет **`fl_chart`** (`LineChart`).
 
 #### `watchlist` — избранное
 
@@ -97,10 +148,10 @@ lib/features/market/
 lib/features/watchlist/
   presentation/
     pages/              # WatchlistPage
-    providers/          # watchlist_provider (список id + синхронизация с prefs)
+    cubit/              # WatchlistCubit (список id + синхронизация с prefs)
 ```
 
-Отдельного `domain`/`data` нет: предметная область минимальна, доступ к хранилищу сосредоточен в провайдере.
+Отдельного `domain`/`data` нет: предметная область минимальна, доступ к хранилищу сосредоточен в кубите.
 
 #### `settings` — настройки приложения
 
@@ -112,7 +163,7 @@ lib/features/settings/
     app_settings.dart   # модель настроек + enum-ы предпочтений
   presentation/
     pages/              # SettingsPage
-    providers/          # app_settings_provider (чтение/запись SharedPreferences)
+    cubit/              # AppSettingsCubit (чтение/запись SharedPreferences)
 ```
 
 #### `about` — текст «О программе»
@@ -129,9 +180,26 @@ lib/features/about/
 
 Строки — из `lib/l10n` через `context.l10n`; дублировать текст в коде не нужно.
 
+### Хранилище (`lib/core/storage/`)
+
+Хранилище разделено на две подсистемы, каждая инкапсулирована через абстракцию:
+
+| Подсистема | Абстракция | Реализация | Назначение |
+|------------|-----------|------------|------------|
+| `storage/sql/` | `AppDatabase` | `AppDatabaseImpl` (sqflite) | SQL-база данных (кэш рынка, деталей монет) |
+| `storage/shared_pref/` | `AppKeyValueStorage` | `AppKeyValueStorageImpl` (SharedPreferences) | Key-value хранилище (настройки, watchlist, алерты) |
+
+Потребители зависят от **абстракций**, а не от конкретных реализаций (`SharedPreferences`, `Database`). Реализации регистрируются в `service_locator.dart`.
+
+### Расширения (`lib/core/extensions/`)
+
+Общие extension-методы, переиспользуемые несколькими фичами:
+
+- `NullableStringX` on `String?` — `.nonEmpty` (фильтрация пустых строк), `.cleanHtml()` (очистка HTML-тегов).
+
 ### Граница с `lib/core`
 
-В `core` лежит то, что **переиспользуется несколькими фичами** или относится к «каркасу» приложения: `app_router`, `scaffold_with_nav_bar`, `dio_provider`, `openAppDatabase`, тема, расширения `BuildContext`, общие ошибки. Фича `market` использует `core` для сети и файла БД, но **смысловые** модели рынка и репозиторий объявлены внутри `features/market`, чтобы не раздувать `core` предметной логикой.
+В `core` лежит то, что **переиспользуется несколькими фичами** или относится к «каркасу» приложения: `app_router`, `scaffold_with_nav_bar`, `network/rest`, `storage/sql`, `storage/shared_pref`, тема, расширения, общие ошибки. Фича `market` использует `core` для сети и хранилища, но **смысловые** модели рынка и репозиторий объявлены внутри `features/market`, чтобы не раздувать `core` предметной логикой.
 
 ## Ссылки
 

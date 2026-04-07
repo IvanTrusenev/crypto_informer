@@ -1,6 +1,6 @@
 /// Доменная сущность актива для списка рынка (без зависимостей от JSON / Dio).
-class CryptoAsset {
-  const CryptoAsset({
+class CryptoAssetEntity {
+  const CryptoAssetEntity({
     required this.id,
     required this.symbol,
     required this.name,

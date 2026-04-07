@@ -1,5 +1,5 @@
 import 'package:crypto_informer/features/market/data/utils/price_chart_sampling.dart';
-import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
+import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -7,7 +7,7 @@ void main() {
     test('reduces large input to maxPoints', () {
       final points = List.generate(
         500,
-        (i) => PriceChartPoint(
+        (i) => PriceChartPointEntity(
           timestamp: DateTime(2024).add(Duration(hours: i)),
           priceUsd: 100.0 + i,
         ),
@@ -23,11 +23,11 @@ void main() {
 
     test('returns copy if input is shorter than maxPoints', () {
       final points = [
-        PriceChartPoint(
+        PriceChartPointEntity(
           timestamp: DateTime(2024),
           priceUsd: 100,
         ),
-        PriceChartPoint(
+        PriceChartPointEntity(
           timestamp: DateTime(2024, 1, 2),
           priceUsd: 110,
         ),

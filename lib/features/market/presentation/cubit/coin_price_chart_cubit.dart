@@ -1,5 +1,5 @@
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
-import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
+import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -17,7 +17,7 @@ class CoinPriceChartLoading extends CoinPriceChartState {
 
 class CoinPriceChartLoaded extends CoinPriceChartState {
   const CoinPriceChartLoaded(this.points);
-  final List<PriceChartPoint> points;
+  final List<PriceChartPointEntity> points;
 }
 
 class CoinPriceChartError extends CoinPriceChartState {

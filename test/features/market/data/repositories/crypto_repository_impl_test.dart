@@ -1,10 +1,15 @@
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
+import 'package:crypto_informer/features/market/data/models/coin_image_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_market_data_dto.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail.dart';
-import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -12,17 +17,7 @@ class MockRemote extends Mock implements CryptoRemoteDataSource {}
 
 class MockLocal extends Mock implements CryptoLocalDataSource {}
 
-const _btcJson = <String, dynamic>{
-  'id': 'bitcoin',
-  'symbol': 'btc',
-  'name': 'Bitcoin',
-  'current_price': 65000.0,
-  'price_change_percentage_24h': 2.5,
-  'market_cap': 1200000000000.0,
-  'image': 'https://example.com/btc.png',
-};
-
-const _btcEntity = CryptoAsset(
+const _btcDto = CryptoAssetDto(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',
@@ -32,17 +27,27 @@ const _btcEntity = CryptoAsset(
   imageUrl: 'https://example.com/btc.png',
 );
 
-const _detailJson = <String, dynamic>{
-  'id': 'bitcoin',
-  'symbol': 'btc',
-  'name': 'Bitcoin',
-  'description': {'en': 'A digital currency'},
-  'market_data': {
-    'current_price': {'usd': 65000},
-    'price_change_percentage_24h': 2.5,
-  },
-  'image': {'large': 'https://example.com/btc_large.png'},
-};
+const _btcEntity = CryptoAssetEntity(
+  id: 'bitcoin',
+  symbol: 'BTC',
+  name: 'Bitcoin',
+  currentPriceUsd: 65000,
+  priceChangePercent24h: 2.5,
+  marketCapUsd: 1200000000000,
+  imageUrl: 'https://example.com/btc.png',
+);
+
+const _detailDto = CryptoCoinDetailDto(
+  id: 'bitcoin',
+  symbol: 'BTC',
+  name: 'Bitcoin',
+  description: {'en': 'A digital currency'},
+  image: CoinImageDto(large: 'https://example.com/btc_large.png'),
+  marketData: CoinMarketDataDto(
+    currentPrice: {'usd': 65000.0},
+    priceChangePercentage24h: 2.5,
+  ),
+);
 
 void main() {
   late MockRemote remote;
@@ -56,9 +61,9 @@ void main() {
   });
 
   setUpAll(() {
-    registerFallbackValue(<CryptoAsset>[]);
+    registerFallbackValue(<CryptoAssetEntity>[]);
     registerFallbackValue(
-      const CryptoCoinDetail(id: '', symbol: '', name: ''),
+      const CryptoCoinDetailEntity(id: '', symbol: '', name: ''),
     );
     registerFallbackValue(ChartPeriod.days7);
   });
@@ -75,7 +80,7 @@ void main() {
           order: any(named: 'order'),
           ids: any(named: 'ids'),
         ),
-      ).thenAnswer((_) async => [_btcJson]);
+      ).thenAnswer((_) async => [_btcDto]);
       when(
         () => local.replaceMarketAssets(
           any(),
@@ -136,7 +141,7 @@ void main() {
       when(() => local.readCoinDetail(any()))
           .thenAnswer((_) async => null);
       when(() => remote.fetchCoin(any()))
-          .thenAnswer((_) async => _detailJson);
+          .thenAnswer((_) async => _detailDto);
       when(() => local.saveCoinDetail(any()))
           .thenAnswer((_) async {});
 
@@ -149,7 +154,7 @@ void main() {
 
     test('returns cache on network error', () async {
       when(() => local.readCoinDetail(any())).thenAnswer(
-        (_) async => const CryptoCoinDetail(
+        (_) async => const CryptoCoinDetailEntity(
           id: 'bitcoin',
           symbol: 'BTC',
           name: 'Bitcoin',
@@ -166,10 +171,11 @@ void main() {
 
   group('getPriceChart', () {
     test('returns sampled points from network', () async {
-      final points = List.generate(
+      final dtos = List.generate(
         300,
-        (i) => PriceChartPoint(
-          timestamp: DateTime(2024, 1, 1 + i),
+        (i) => PriceChartPointDto(
+          timestampMs:
+              DateTime(2024, 1, 1 + i).millisecondsSinceEpoch,
           priceUsd: 100.0 + i,
         ),
       );
@@ -179,7 +185,7 @@ void main() {
           period: any(named: 'period'),
           vsCurrency: any(named: 'vsCurrency'),
         ),
-      ).thenAnswer((_) async => points);
+      ).thenAnswer((_) async => dtos);
 
       final result = await repo.getPriceChart(
         'bitcoin',

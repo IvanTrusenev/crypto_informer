@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
@@ -149,7 +149,7 @@ class _MarketPageState extends State<MarketPage> {
 
   Widget _buildLoaded(
     BuildContext context,
-    List<CryptoAsset> items,
+    List<CryptoAssetEntity> items,
     NumberFormat priceFormat,
     AppLocalizations l10n, {
     required bool isLoadingMore,

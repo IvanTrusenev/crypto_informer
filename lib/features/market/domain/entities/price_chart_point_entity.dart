@@ -1,6 +1,6 @@
 /// Точка временного ряда цены (USD) для графика.
-class PriceChartPoint {
-  const PriceChartPoint({
+class PriceChartPointEntity {
+  const PriceChartPointEntity({
     required this.timestamp,
     required this.priceUsd,
   });

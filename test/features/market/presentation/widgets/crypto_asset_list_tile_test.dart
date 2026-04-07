@@ -1,11 +1,11 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  const asset = CryptoAsset(
+  const asset = CryptoAssetEntity(
     id: 'bitcoin',
     symbol: 'BTC',
     name: 'Bitcoin',

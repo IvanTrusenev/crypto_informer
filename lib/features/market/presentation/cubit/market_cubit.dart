@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,7 +30,7 @@ class MarketLoaded extends MarketState {
     this.sortAscending = true,
   });
 
-  final List<CryptoAsset> assets;
+  final List<CryptoAssetEntity> assets;
   final int page;
   final bool hasMore;
   final bool isLoadingMore;
@@ -40,7 +40,7 @@ class MarketLoaded extends MarketState {
   final bool sortAscending;
 
   MarketLoaded copyWith({
-    List<CryptoAsset>? assets,
+    List<CryptoAssetEntity>? assets,
     int? page,
     bool? hasMore,
     bool? isLoadingMore,
@@ -72,7 +72,7 @@ class MarketCubit extends Cubit<MarketState> {
 
   final CryptoRepository _repository;
 
-  List<CryptoAsset> _browseCache = const [];
+  List<CryptoAssetEntity> _browseCache = const [];
   int _browsePage = 1;
   bool _browseHasMore = true;
 
@@ -116,7 +116,7 @@ class MarketCubit extends Cubit<MarketState> {
         _searchIds = await _repository.searchCoinIds(query);
         final chunk = _searchIds.take(_kPageSize).toList();
         final assets = chunk.isEmpty
-            ? <CryptoAsset>[]
+            ? <CryptoAssetEntity>[]
             : await _repository.getMarketAssets(
                 ids: chunk,
                 perPage: _kPageSize,

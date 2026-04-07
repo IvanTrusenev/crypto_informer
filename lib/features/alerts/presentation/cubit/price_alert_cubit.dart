@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/features/alerts/domain/price_alert.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 const _kPriceAlerts = 'price_alerts_v1';
 
@@ -20,12 +20,12 @@ class PriceAlertState {
 }
 
 class PriceAlertCubit extends Cubit<PriceAlertState> {
-  PriceAlertCubit(this._prefs) : super(const PriceAlertState([]));
+  PriceAlertCubit(this._storage) : super(const PriceAlertState([]));
 
-  final SharedPreferences _prefs;
+  final AppKeyValueStorage _storage;
 
   void loadAlerts() {
-    final raw = _prefs.getString(_kPriceAlerts);
+    final raw = _storage.getString(_kPriceAlerts);
     if (raw == null || raw.isEmpty) {
       emit(const PriceAlertState([]));
       return;
@@ -48,9 +48,7 @@ class PriceAlertCubit extends Cubit<PriceAlertState> {
     emit(PriceAlertState(next));
   }
 
-  /// Checks current market prices against active alerts.
-  /// Returns triggered alerts and removes them from state.
-  List<PriceAlert> checkAndConsume(List<CryptoAsset> assets) {
+  List<PriceAlert> checkAndConsume(List<CryptoAssetEntity> assets) {
     final priceMap = {for (final a in assets) a.id: a.currentPriceUsd};
     final triggered = <PriceAlert>[];
 
@@ -74,5 +72,5 @@ class PriceAlertCubit extends Cubit<PriceAlertState> {
   }
 
   Future<void> _persist(List<PriceAlert> alerts) =>
-      _prefs.setString(_kPriceAlerts, PriceAlert.encodeList(alerts));
+      _storage.setString(_kPriceAlerts, PriceAlert.encodeList(alerts));
 }

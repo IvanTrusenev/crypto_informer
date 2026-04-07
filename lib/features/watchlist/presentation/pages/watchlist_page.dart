@@ -1,7 +1,7 @@
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
@@ -66,12 +66,12 @@ class WatchlistPage extends StatelessWidget {
   Widget _buildList(
     BuildContext context,
     List<String> ids,
-    List<CryptoAsset> allAssets,
+    List<CryptoAssetEntity> allAssets,
     NumberFormat priceFormat,
     AppLocalizations l10n,
   ) {
     final byId = {for (final a in allAssets) a.id: a};
-    final items = <CryptoAsset>[];
+    final items = <CryptoAssetEntity>[];
     for (final id in ids) {
       final a = byId[id];
       if (a != null) items.add(a);

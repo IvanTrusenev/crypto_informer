@@ -2,13 +2,14 @@ import 'dart:isolate';
 
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_asset_model.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_model.dart';
+import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dto_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dto_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/price_chart_point_dto_mapper.dart';
 import 'package:crypto_informer/features/market/data/utils/price_chart_sampling.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail.dart';
-import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 class CryptoRepositoryImpl implements CryptoRepository {
@@ -18,14 +19,14 @@ class CryptoRepositoryImpl implements CryptoRepository {
   final CryptoLocalDataSource _local;
 
   @override
-  Future<List<CryptoAsset>> getMarketAssets({
+  Future<List<CryptoAssetEntity>> getMarketAssets({
     String vsCurrency = 'usd',
     int page = 1,
     int perPage = 50,
     String order = 'market_cap_desc',
     List<String>? ids,
   }) async {
-    List<CryptoAsset>? cached;
+    List<CryptoAssetEntity>? cached;
     if (page == 1 && ids == null) {
       try {
         cached = await _local.readMarketAssets(vsCurrency: vsCurrency);
@@ -35,7 +36,7 @@ class CryptoRepositoryImpl implements CryptoRepository {
     }
 
     try {
-      final rows = await _remote.fetchMarkets(
+      final models = await _remote.fetchMarkets(
         vsCurrency: vsCurrency,
         page: page,
         perPage: perPage,
@@ -43,10 +44,7 @@ class CryptoRepositoryImpl implements CryptoRepository {
         ids: ids,
       );
       final list = await Isolate.run(
-        () => rows
-            .map(CryptoAssetModel.fromJson)
-            .map((m) => m.toEntity())
-            .toList(),
+        () => models.map((m) => m.toEntity()).toList(),
       );
       if (ids == null) {
         await _local.replaceMarketAssets(list, vsCurrency: vsCurrency);
@@ -63,8 +61,8 @@ class CryptoRepositoryImpl implements CryptoRepository {
       _remote.searchCoins(query);
 
   @override
-  Future<CryptoCoinDetail> getCoinDetail(String id) async {
-    CryptoCoinDetail? cached;
+  Future<CryptoCoinDetailEntity> getCoinDetail(String id) async {
+    CryptoCoinDetailEntity? cached;
     try {
       cached = await _local.readCoinDetail(id);
     } on Object {
@@ -72,8 +70,8 @@ class CryptoRepositoryImpl implements CryptoRepository {
     }
 
     try {
-      final row = await _remote.fetchCoin(id);
-      final detail = CryptoCoinDetailModel.fromJson(row).toEntity();
+      final model = await _remote.fetchCoin(id);
+      final detail = model.toEntity();
       await _local.saveCoinDetail(detail);
       return detail;
     } on Object {
@@ -83,16 +81,19 @@ class CryptoRepositoryImpl implements CryptoRepository {
   }
 
   @override
-  Future<List<PriceChartPoint>> getPriceChart(
+  Future<List<PriceChartPointEntity>> getPriceChart(
     String coinId, {
     ChartPeriod period = ChartPeriod.days7,
     String vsCurrency = 'usd',
   }) async {
-    final raw = await _remote.fetchMarketChart(
+    final dtos = await _remote.fetchMarketChart(
       coinId,
       period: period,
       vsCurrency: vsCurrency,
     );
-    return Isolate.run(() => samplePriceChartPoints(raw));
+    return Isolate.run(() {
+      final entities = dtos.map((d) => d.toEntity()).toList();
+      return samplePriceChartPoints(entities);
+    });
   }
 }

@@ -1,6 +1,6 @@
 /// Расширенная карточка монеты для экрана деталей.
-class CryptoCoinDetail {
-  const CryptoCoinDetail({
+class CryptoCoinDetailEntity {
+  const CryptoCoinDetailEntity({
     required this.id,
     required this.symbol,
     required this.name,

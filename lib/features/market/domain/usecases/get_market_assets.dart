@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 class GetMarketAssets {
@@ -6,7 +6,7 @@ class GetMarketAssets {
 
   final CryptoRepository _repository;
 
-  Future<List<CryptoAsset>> call({String vsCurrency = 'usd'}) {
+  Future<List<CryptoAssetEntity>> call({String vsCurrency = 'usd'}) {
     return _repository.getMarketAssets(vsCurrency: vsCurrency);
   }
 }
