@@ -353,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutArchitectureBulletList.
   ///
   /// In en, this message translates to:
-  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
+  /// **'• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/rest)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
   String get aboutArchitectureBulletList;
 
   /// No description provided for @aboutSectionCache.
@@ -385,6 +385,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Data'**
   String get aboutSectionData;
+
+  /// No description provided for @aboutSectionNetworking.
+  ///
+  /// In en, this message translates to:
+  /// **'Networking'**
+  String get aboutSectionNetworking;
+
+  /// No description provided for @aboutNetworkingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Dio HTTP client with Retrofit-generated REST API interface (core/network/rest). The REST client is injected through an abstraction, following clean architecture principles.'**
+  String get aboutNetworkingBody;
 
   /// No description provided for @aboutDataBody.
   ///

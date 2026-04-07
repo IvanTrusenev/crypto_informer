@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/error/app_exception.dart';
+import 'package:crypto_informer/core/network/rest/coingecko_rest_client.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
 import 'package:dio/dio.dart';
@@ -26,9 +27,9 @@ abstract interface class CryptoRemoteDataSource {
 }
 
 class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
-  CryptoRemoteDataSourceImpl(this._dio);
+  CryptoRemoteDataSourceImpl(this._client);
 
-  final Dio _dio;
+  final CoinGeckoRestClient _client;
 
   @override
   Future<List<Map<String, dynamic>>> fetchMarkets({
@@ -39,22 +40,13 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
     List<String>? ids,
   }) async {
     try {
-      final queryParameters = <String, dynamic>{
-        'vs_currency': vsCurrency,
-        'order': order,
-        'per_page': perPage,
-        'page': page,
-        'sparkline': false,
-        if (ids != null && ids.isNotEmpty) 'ids': ids.join(','),
-      };
-      final response = await _dio.get<List<dynamic>>(
-        '/coins/markets',
-        queryParameters: queryParameters,
+      final list = await _client.fetchMarkets(
+        vsCurrency,
+        order,
+        perPage,
+        page,
+        ids: ids != null && ids.isNotEmpty ? ids.join(',') : null,
       );
-      final list = response.data;
-      if (list == null) {
-        throw const AppException(AppErrorCode.emptyResponse);
-      }
       return list.whereType<Map<String, dynamic>>().toList(growable: false);
     } on DioException catch (e) {
       throw _mapDioException(e);
@@ -64,12 +56,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   @override
   Future<List<String>> searchCoins(String query) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/search',
-        queryParameters: {'query': query},
-      );
-      final data = response.data;
-      if (data == null) return const [];
+      final data = await _client.search(query);
       final coins = data['coins'];
       if (coins is! List) return const [];
       return coins
@@ -84,12 +71,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   @override
   Future<Map<String, dynamic>> fetchCoin(String id) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>('/coins/$id');
-      final data = response.data;
-      if (data == null) {
-        throw const AppException(AppErrorCode.emptyResponse);
-      }
-      return data;
+      return await _client.fetchCoin(id);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         throw const AppException(AppErrorCode.coinNotFound);
@@ -105,17 +87,11 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
     String vsCurrency = 'usd',
   }) async {
     try {
-      final response = await _dio.get<Map<String, dynamic>>(
-        '/coins/$id/market_chart',
-        queryParameters: {
-          'vs_currency': vsCurrency,
-          'days': period.apiDays,
-        },
+      final data = await _client.fetchMarketChart(
+        id,
+        vsCurrency,
+        period.apiDays,
       );
-      final data = response.data;
-      if (data == null) {
-        throw const AppException(AppErrorCode.emptyResponse);
-      }
       return _parseMarketChartPrices(data);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {

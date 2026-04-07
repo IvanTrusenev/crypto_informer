@@ -29,7 +29,7 @@
 | Состояние | `flutter_bloc` (Cubit) |
 | DI | `get_it` |
 | Навигация | `go_router`, `StatefulShellRoute` |
-| HTTP | `dio` |
+| HTTP | `dio` + `retrofit` (REST-клиент с кодогенерацией) |
 | Локальное хранилище | `sqflite`, `shared_preferences` |
 | Фоновые вычисления | `Isolate.run` (парсинг JSON, сэмплинг графика) |
 | Desktop SQLite | `sqflite_common_ffi` (инициализация в `main.dart`) |
@@ -64,13 +64,21 @@ flutter run
 
 ```
 lib/
-  core/           # роутер, тема, сеть, БД, локализация, оболочка с навигацией
-  features/       # market, watchlist, settings, about
+  core/
+    network/
+      rest/       # Retrofit REST-клиент (Dio), инкапсуляция HTTP-транспорта
+    di/           # service_locator (get_it) — DI через абстракции
+    router/       # go_router
+    database/     # SQLite (sqflite)
+    ...           # тема, локализация, оболочка с навигацией
+  features/       # market, watchlist, settings, about, alerts
   l10n/           # ARB и сгенерированные локализации
   main.dart
 test/
 docs/             # документация проекта
 ```
+
+Приложение следует принципам **чистой архитектуры**: REST-клиент инкапсулирован в `core/network/rest/`, зависимости прокидываются через абстракции (интерфейсы). Структура `network/` подготовлена для расширения (например, `core/network/ws/` для вебсокетов).
 
 Подробная структура слоёв внутри `features/` (market, watchlist, settings, about) — в [docs/code-style.md](docs/code-style.md), раздел **«Структура фич»**.
 

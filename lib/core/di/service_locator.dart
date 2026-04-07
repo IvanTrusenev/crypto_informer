@@ -1,4 +1,5 @@
 import 'package:crypto_informer/core/database/app_database.dart';
+import 'package:crypto_informer/core/network/rest/coingecko_rest_client.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
@@ -22,8 +23,11 @@ Future<void> initServiceLocator() async {
         ),
       ),
     )
+    ..registerLazySingleton<CoinGeckoRestClient>(
+      () => CoinGeckoRestClient(sl()),
+    )
     ..registerLazySingleton<CryptoRemoteDataSource>(
-      () => CryptoRemoteDataSourceImpl(sl()),
+      () => CryptoRemoteDataSourceImpl(sl<CoinGeckoRestClient>()),
     );
 
   final prefs = await SharedPreferences.getInstance();

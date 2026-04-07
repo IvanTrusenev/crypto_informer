@@ -66,7 +66,7 @@
   "aboutHeadline": "Crypto Informer",
   "aboutTagline": "OTUS course project: cryptocurrency informer.",
   "aboutSectionArchitecture": "Architecture",
-  "aboutArchitectureBulletList": "• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period",
+  "aboutArchitectureBulletList": "• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/rest)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period",
   "aboutSectionCache": "Local cache",
   "aboutCacheCoins": "{count, plural, =0{No coins cached} =1{1 coin cached} other{{count} coins cached}}",
   "@aboutCacheCoins": {
@@ -79,6 +79,8 @@
   "aboutSectionOffline": "Offline",
   "aboutOfflineBody": "Offline-first: after a successful load, the market list and full coin card (price, 24h change, description) are stored in a local SQLite database. Without a network you still see that saved data. The price chart is not cached—it is fetched only when online. A banner above the bottom navigation appears when the device reports no connection.",
   "aboutSectionData": "Data",
+  "aboutSectionNetworking": "Networking",
+  "aboutNetworkingBody": "Dio HTTP client with Retrofit-generated REST API interface (core/network/rest). The REST client is injected through an abstraction, following clean architecture principles.",
   "aboutDataBody": "CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).",
   "errorEmptyResponse": "Empty server response",
   "errorCoinNotFound": "Coin not found",
