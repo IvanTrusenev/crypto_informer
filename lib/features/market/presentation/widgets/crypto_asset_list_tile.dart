@@ -53,18 +53,21 @@ class CryptoAssetListTile extends StatelessWidget {
       dense: dense,
       visualDensity: dense ? VisualDensity.compact : VisualDensity.standard,
       onTap: onTap,
-      leading: CircleAvatar(
-        backgroundColor: theme.colorScheme.surfaceContainerHighest,
-        backgroundImage: asset.imageUrl != null
-            ? NetworkImage(asset.imageUrl!)
-            : null,
-        child: asset.imageUrl == null
-            ? Text(
-                asset.symbol.length >= 2
-                    ? asset.symbol.substring(0, 2)
-                    : asset.symbol,
-              )
-            : null,
+      leading: Hero(
+        tag: 'coin_avatar_${asset.id}',
+        child: CircleAvatar(
+          backgroundColor: theme.colorScheme.surfaceContainerHighest,
+          backgroundImage: asset.imageUrl != null
+              ? NetworkImage(asset.imageUrl!)
+              : null,
+          child: asset.imageUrl == null
+              ? Text(
+                  asset.symbol.length >= 2
+                      ? asset.symbol.substring(0, 2)
+                      : asset.symbol,
+                )
+              : null,
+        ),
       ),
       title: Text(asset.name),
       subtitle: Text(

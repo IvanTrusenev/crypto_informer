@@ -11,16 +11,29 @@
 - **Offline-first** — успешные ответы API для **списка рынка** и **полной карточки монеты** кэшируются в **SQLite** (`sqflite`); без сети показываются последние сохранённые данные. **График цены** при офлайне недоступен (нужна сеть). Над нижней навигацией отображается баннер при отсутствии связи (`connectivity_plus`).
 - **Локализация** — ARB-файлы в `lib/l10n/`, генерация через `flutter gen-l10n` (см. `l10n.yaml`).
 
+## Скриншоты
+
+| Рынок (светлая) | Деталь монеты | Избранное | Настройки (тёмная) |
+|:---:|:---:|:---:|:---:|
+| ![Market](docs/screenshots/market_light.png) | ![Detail](docs/screenshots/coin_detail.png) | ![Watchlist](docs/screenshots/watchlist.png) | ![Settings](docs/screenshots/settings_dark.png) |
+
+| Offline-баннер | График цены |
+|:---:|:---:|
+| ![Offline](docs/screenshots/offline_banner.png) | ![Chart](docs/screenshots/price_chart.png) |
+
 ## Стек
 
 | Область | Технологии |
 |--------|------------|
 | UI | Flutter, Material 3, графики — [`fl_chart`](https://pub.dev/packages/fl_chart) |
-| Состояние / DI | `flutter_riverpod` |
+| Состояние | `flutter_bloc` (Cubit) |
+| DI | `get_it` |
 | Навигация | `go_router`, `StatefulShellRoute` |
 | HTTP | `dio` |
 | Локальное хранилище | `sqflite`, `shared_preferences` |
+| Фоновые вычисления | `Isolate.run` (парсинг JSON, сэмплинг графика) |
 | Desktop SQLite | `sqflite_common_ffi` (инициализация в `main.dart`) |
+| Тесты | `flutter_test`, `bloc_test`, `mocktail` |
 
 ## Требования
 

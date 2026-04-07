@@ -1,0 +1,75 @@
+import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
+import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/presentation/pages/market_page.dart';
+import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
+import 'package:crypto_informer/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MockCryptoRepository extends Mock implements CryptoRepository {}
+
+const _btc = CryptoAsset(
+  id: 'bitcoin',
+  symbol: 'BTC',
+  name: 'Bitcoin',
+  currentPriceUsd: 65000,
+  priceChangePercent24h: 2.5,
+);
+
+Widget _buildApp({required MarketCubit marketCubit}) {
+  SharedPreferences.setMockInitialValues({});
+  return FutureBuilder<SharedPreferences>(
+    future: SharedPreferences.getInstance(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) {
+        return const MaterialApp(home: SizedBox());
+      }
+      return MultiBlocProvider(
+        providers: [
+          BlocProvider.value(value: marketCubit),
+          BlocProvider(
+            create: (_) => WatchlistCubit(snapshot.data!)..loadIds(),
+          ),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: Locale('en'),
+          home: MarketPage(),
+        ),
+      );
+    },
+  );
+}
+
+void main() {
+  testWidgets('shows list when loaded', (tester) async {
+    final repo = MockCryptoRepository();
+    when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
+        .thenAnswer((_) async => [_btc]);
+    final cubit = MarketCubit(repo);
+    await cubit.loadAssets();
+
+    await tester.pumpWidget(_buildApp(marketCubit: cubit));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Bitcoin'), findsOneWidget);
+  });
+
+  testWidgets('shows error on failure', (tester) async {
+    final repo = MockCryptoRepository();
+    when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
+        .thenThrow(Exception('fail'));
+    final cubit = MarketCubit(repo);
+    await cubit.loadAssets();
+
+    await tester.pumpWidget(_buildApp(marketCubit: cubit));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(FilledButton), findsOneWidget);
+  });
+}

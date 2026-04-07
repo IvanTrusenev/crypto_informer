@@ -353,8 +353,20 @@ abstract class AppLocalizations {
   /// No description provided for @aboutArchitectureBulletList.
   ///
   /// In en, this message translates to:
-  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
+  /// **'• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
   String get aboutArchitectureBulletList;
+
+  /// No description provided for @aboutSectionCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Local cache'**
+  String get aboutSectionCache;
+
+  /// No description provided for @aboutCacheCoins.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No coins cached} =1{1 coin cached} other{{count} coins cached}}'**
+  String aboutCacheCoins(int count);
 
   /// No description provided for @aboutSectionOffline.
   ///

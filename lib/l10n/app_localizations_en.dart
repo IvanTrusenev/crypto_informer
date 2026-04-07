@@ -144,7 +144,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• Riverpod for state and dependency injection\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period';
+      '• Feature-first domain / data / presentation layers\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period';
+
+  @override
+  String get aboutSectionCache => 'Local cache';
+
+  @override
+  String aboutCacheCoins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count coins cached',
+      one: '1 coin cached',
+      zero: 'No coins cached',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get aboutSectionOffline => 'Offline';

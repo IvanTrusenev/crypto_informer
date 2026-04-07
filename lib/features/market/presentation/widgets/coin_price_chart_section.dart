@@ -5,15 +5,14 @@ import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point.dart';
-import 'package:crypto_informer/features/market/presentation/providers/coin_chart_args.dart';
-import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 
 /// Блок графика цены и выбора периода на экране монеты.
-class CoinPriceChartSection extends ConsumerWidget {
+class CoinPriceChartSection extends StatelessWidget {
   const CoinPriceChartSection({
     required this.coinId,
     required this.period,
@@ -26,19 +25,14 @@ class CoinPriceChartSection extends ConsumerWidget {
   final ValueChanged<ChartPeriod> onPeriodChanged;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
     final theme = context.theme;
-    final args = CoinChartArgs(coinId: coinId, period: period);
-    final chartAsync = ref.watch(coinPriceChartProvider(args));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.coinPriceChartTitle,
-          style: theme.textTheme.titleMedium,
-        ),
+        Text(l10n.coinPriceChartTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: 4),
         Text(
           l10n.coinPriceChartHint,
@@ -60,60 +54,60 @@ class CoinPriceChartSection extends ConsumerWidget {
           ],
         ),
         const SizedBox(height: 16),
-        chartAsync.when(
-          data: (points) {
-            if (points.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Text(
-                  l10n.coinChartNoData,
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+        BlocBuilder<CoinPriceChartCubit, CoinPriceChartState>(
+          builder: (context, state) => switch (state) {
+            CoinPriceChartInitial() || CoinPriceChartLoading() =>
+              const SizedBox(
+                height: 200,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            CoinPriceChartLoaded(:final points) => points.isEmpty
+                ? Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Text(
+                      l10n.coinChartNoData,
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  )
+                : SizedBox(
+                    height: 240,
+                    child: LineChart(
+                      _buildLineChartData(
+                        context,
+                        points,
+                        NumberFormat.currency(
+                          locale: Localizations.localeOf(context).toString(),
+                          symbol: r'$',
+                          decimalDigits: 2,
+                        ),
+                        Localizations.localeOf(context).toString(),
+                      ),
+                    ),
                   ),
-                ),
-              );
-            }
-            final locale = Localizations.localeOf(context).toString();
-            final priceFormat = NumberFormat.currency(
-              locale: locale,
-              symbol: r'$',
-              decimalDigits: 2,
-            );
-            return SizedBox(
-              height: 240,
-              child: LineChart(
-                _buildLineChartData(
-                  context,
-                  points,
-                  priceFormat,
-                  locale,
+            CoinPriceChartError(:final error) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                child: Column(
+                  children: [
+                    Text(
+                      localizedErrorMessage(l10n, error),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: () => context
+                          .read<CoinPriceChartCubit>()
+                          .loadChart(coinId, period: period),
+                      icon: const Icon(Icons.refresh),
+                      label: Text(l10n.retryAction),
+                    ),
+                  ],
                 ),
               ),
-            );
           },
-          loading: () => const SizedBox(
-            height: 200,
-            child: Center(child: CircularProgressIndicator()),
-          ),
-          error: (e, _) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              children: [
-                Text(
-                  localizedErrorMessage(l10n, e),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-                TextButton.icon(
-                  onPressed: () => ref.invalidate(coinPriceChartProvider(args)),
-                  icon: const Icon(Icons.refresh),
-                  label: Text(l10n.retryAction),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
     );
@@ -128,9 +122,9 @@ class CoinPriceChartSection extends ConsumerWidget {
     final scheme = Theme.of(context).colorScheme;
     final lineColor = scheme.primary;
     final textStyle = Theme.of(context).textTheme.bodySmall?.copyWith(
-      color: scheme.onSurfaceVariant,
-      fontSize: 10,
-    );
+          color: scheme.onSurfaceVariant,
+          fontSize: 10,
+        );
 
     final spots = <FlSpot>[
       for (var i = 0; i < points.length; i++)
@@ -149,9 +143,8 @@ class CoinPriceChartSection extends ConsumerWidget {
     maxY += pad;
 
     final maxX = (points.length - 1).toDouble();
-    final bottomInterval = points.length > 4
-        ? (maxX / 3).clamp(1.0, maxX)
-        : 1.0;
+    final bottomInterval =
+        points.length > 4 ? (maxX / 3).clamp(1.0, maxX) : 1.0;
 
     final dateFmt = DateFormat.Md(localeName);
     final tooltipDateFmt = DateFormat.yMMMd(localeName);
@@ -187,10 +180,7 @@ class CoinPriceChartSection extends ConsumerWidget {
               }
               return SideTitleWidget(
                 meta: meta,
-                child: Text(
-                  _compactUsd(value),
-                  style: textStyle,
-                ),
+                child: Text(_compactUsd(value), style: textStyle),
               );
             },
           ),
@@ -262,18 +252,10 @@ class CoinPriceChartSection extends ConsumerWidget {
 
   static String _compactUsd(double v) {
     final abs = v.abs();
-    if (abs >= 1e9) {
-      return '\$${(v / 1e9).toStringAsFixed(1)}B';
-    }
-    if (abs >= 1e6) {
-      return '\$${(v / 1e6).toStringAsFixed(1)}M';
-    }
-    if (abs >= 1e3) {
-      return '\$${(v / 1e3).toStringAsFixed(1)}k';
-    }
-    if (abs >= 1) {
-      return '\$${v.toStringAsFixed(2)}';
-    }
+    if (abs >= 1e9) return '\$${(v / 1e9).toStringAsFixed(1)}B';
+    if (abs >= 1e6) return '\$${(v / 1e6).toStringAsFixed(1)}M';
+    if (abs >= 1e3) return '\$${(v / 1e3).toStringAsFixed(1)}k';
+    if (abs >= 1) return '\$${v.toStringAsFixed(2)}';
     return '\$${v.toStringAsFixed(4)}';
   }
 }

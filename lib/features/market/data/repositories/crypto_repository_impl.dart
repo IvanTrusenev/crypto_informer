@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_asset_model.dart';
@@ -16,7 +18,9 @@ class CryptoRepositoryImpl implements CryptoRepository {
   final CryptoLocalDataSource _local;
 
   @override
-  Future<List<CryptoAsset>> getMarketAssets({String vsCurrency = 'usd'}) async {
+  Future<List<CryptoAsset>> getMarketAssets({
+    String vsCurrency = 'usd',
+  }) async {
     List<CryptoAsset>? cached;
     try {
       cached = await _local.readMarketAssets(vsCurrency: vsCurrency);
@@ -26,10 +30,12 @@ class CryptoRepositoryImpl implements CryptoRepository {
 
     try {
       final rows = await _remote.fetchMarkets(vsCurrency: vsCurrency);
-      final list = rows
-          .map(CryptoAssetModel.fromJson)
-          .map((m) => m.toEntity())
-          .toList();
+      final list = await Isolate.run(
+        () => rows
+            .map(CryptoAssetModel.fromJson)
+            .map((m) => m.toEntity())
+            .toList(),
+      );
       await _local.replaceMarketAssets(list, vsCurrency: vsCurrency);
       return list;
     } on Object {
@@ -69,6 +75,6 @@ class CryptoRepositoryImpl implements CryptoRepository {
       period: period,
       vsCurrency: vsCurrency,
     );
-    return samplePriceChartPoints(raw);
+    return Isolate.run(() => samplePriceChartPoints(raw));
   }
 }

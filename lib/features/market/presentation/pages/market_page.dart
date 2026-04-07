@@ -4,30 +4,24 @@ import 'package:crypto_informer/core/localization/app_exception_localizations.da
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dart';
 import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
-import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
-import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-/// Высота одной строки «поиск + сортировка» на широком экране (без IntrinsicHeight / LayoutBuilder).
+/// Высота одной строки «поиск + сортировка» на широком экране.
 const double _kMarketWideFilterBarHeight = 42;
 
 int _compareMarketCapPair(CryptoAsset a, CryptoAsset b, bool ascending) {
   final ca = a.marketCapUsd;
   final cb = b.marketCapUsd;
-  if (ca == null && cb == null) {
-    return 0;
-  }
-  if (ca == null) {
-    return 1;
-  }
-  if (cb == null) {
-    return -1;
-  }
+  if (ca == null && cb == null) return 0;
+  if (ca == null) return 1;
+  if (cb == null) return -1;
   final c = ca.compareTo(cb);
   return ascending ? c : -c;
 }
@@ -49,15 +43,12 @@ List<CryptoAsset> _filterAndSortMarket(
             )
             .toList();
 
-  if (sortColumn == null) {
-    return list;
-  }
+  if (sortColumn == null) return list;
 
   switch (sortColumn) {
     case MarketSortColumn.name:
       list.sort((a, b) {
-        final c =
-            a.name.toLowerCase().compareTo(b.name.toLowerCase());
+        final c = a.name.toLowerCase().compareTo(b.name.toLowerCase());
         return sortAscending ? c : -c;
       });
     case MarketSortColumn.price:
@@ -71,14 +62,14 @@ List<CryptoAsset> _filterAndSortMarket(
   return list;
 }
 
-class MarketPage extends ConsumerStatefulWidget {
+class MarketPage extends StatefulWidget {
   const MarketPage({super.key});
 
   @override
-  ConsumerState<MarketPage> createState() => _MarketPageState();
+  State<MarketPage> createState() => _MarketPageState();
 }
 
-class _MarketPageState extends ConsumerState<MarketPage> {
+class _MarketPageState extends State<MarketPage> {
   final _searchController = TextEditingController();
   Timer? _searchDebounce;
   String _searchQuery = '';
@@ -95,9 +86,7 @@ class _MarketPageState extends ConsumerState<MarketPage> {
   void _scheduleSearchUpdate(String text) {
     _searchDebounce?.cancel();
     _searchDebounce = Timer(const Duration(milliseconds: 350), () {
-      if (!mounted) {
-        return;
-      }
+      if (!mounted) return;
       setState(() => _searchQuery = text.trim());
     });
   }
@@ -128,178 +117,199 @@ class _MarketPageState extends ConsumerState<MarketPage> {
       symbol: r'$',
       decimalDigits: 2,
     );
-    final async = ref.watch(marketAssetsProvider);
-    final watchlistAsync = ref.watch(watchlistProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.marketTitle)),
-      body: async.when(
-        data: (items) {
-          final watchlistIds = watchlistAsync.valueOrNull ?? [];
-          final display = _filterAndSortMarket(
-            items,
-            _searchQuery,
-            _sortColumn,
-            _sortAscending,
-          );
-
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final wide = constraints.maxWidth >= 560;
-                    final searchField = ListenableBuilder(
-                      listenable: _searchController,
-                      builder: (context, _) {
-                        return TextField(
-                          controller: _searchController,
-                          onChanged: _scheduleSearchUpdate,
-                          textInputAction: TextInputAction.search,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            hintText: l10n.marketSearchHint,
-                            prefixIcon: const Icon(Icons.search, size: 20),
-                            suffixIcon: _searchController.text.isEmpty
-                                ? null
-                                : IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      _searchDebounce?.cancel();
-                                      _searchController.clear();
-                                      setState(() => _searchQuery = '');
-                                    },
-                                  ),
-                          ),
-                        );
-                      },
-                    );
-
-                    final resetStyle = TextButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    );
-
-                    final sortControls = Row(
-                      children: [
-                        Expanded(
-                          child: _SegmentedMarketSortBar(
-                            selectedColumn: _sortColumn,
-                            ascending: _sortAscending,
-                            onSegmentTap: _onSortSegmentTapped,
-                            l10n: l10n,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        TextButton(
-                          style: resetStyle,
-                          onPressed: _onSortReset,
-                          child: Text(
-                            l10n.marketSortReset,
-                            style: Theme.of(context).textTheme.labelMedium,
-                          ),
-                        ),
-                      ],
-                    );
-
-                    final sortSection = _MarketSortSection(
-                      title: l10n.marketSortSectionTitle,
-                      fillHeight: wide,
-                      child: sortControls,
-                    );
-
-                    if (wide) {
-                      return SizedBox(
-                        height: _kMarketWideFilterBarHeight,
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Expanded(
-                              flex: 3,
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: searchField,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(flex: 2, child: sortSection),
-                          ],
-                        ),
-                      );
-                    }
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        searchField,
-                        const SizedBox(height: 8),
-                        sortSection,
-                      ],
-                    );
-                  },
+      body: BlocBuilder<MarketCubit, MarketState>(
+        builder: (context, marketState) {
+          return switch (marketState) {
+            MarketInitial() || MarketLoading() =>
+              const Center(child: CircularProgressIndicator()),
+            MarketLoaded(:final assets) =>
+              _buildLoaded(context, assets, priceFormat, l10n),
+            MarketError(:final error) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        localizedErrorMessage(l10n, error),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      FilledButton(
+                        onPressed: () =>
+                            context.read<MarketCubit>().loadAssets(),
+                        child: Text(l10n.retryAction),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-              Expanded(
-                child: _MarketListBody(
-                  items: items,
-                  displayItems: display,
-                  watchlistIds: watchlistIds,
-                  priceFormat: priceFormat,
-                  l10n: l10n,
-                  onRefresh: () => ref.refresh(marketAssetsProvider.future),
-                ),
-              ),
-            ],
-          );
+          };
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  localizedErrorMessage(l10n, e),
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                FilledButton(
-                  onPressed: () => ref.invalidate(marketAssetsProvider),
-                  child: Text(l10n.retryAction),
-                ),
-              ],
+      ),
+    );
+  }
+
+  Widget _buildLoaded(
+    BuildContext context,
+    List<CryptoAsset> items,
+    NumberFormat priceFormat,
+    AppLocalizations l10n,
+  ) {
+    return BlocBuilder<WatchlistCubit, WatchlistState>(
+      builder: (context, wlState) {
+        final watchlistIds = switch (wlState) {
+          WatchlistLoaded(:final ids) => ids,
+          _ => <String>[],
+        };
+        final display = _filterAndSortMarket(
+          items,
+          _searchQuery,
+          _sortColumn,
+          _sortAscending,
+        );
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final wide = constraints.maxWidth >= 560;
+                  final searchField = _buildSearchField(l10n);
+                  final sortSection = _MarketSortSection(
+                    title: l10n.marketSortSectionTitle,
+                    fillHeight: wide,
+                    child: _buildSortControls(context, l10n),
+                  );
+
+                  if (wide) {
+                    return SizedBox(
+                      height: _kMarketWideFilterBarHeight,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            flex: 3,
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: searchField,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(flex: 2, child: sortSection),
+                        ],
+                      ),
+                    );
+                  }
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      searchField,
+                      const SizedBox(height: 8),
+                      sortSection,
+                    ],
+                  );
+                },
+              ),
             ),
+            Expanded(
+              child: _MarketListBody(
+                items: items,
+                displayItems: display,
+                watchlistIds: watchlistIds,
+                priceFormat: priceFormat,
+                l10n: l10n,
+                onRefresh: () => context.read<MarketCubit>().refresh(),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSearchField(AppLocalizations l10n) {
+    return ListenableBuilder(
+      listenable: _searchController,
+      builder: (context, _) {
+        return TextField(
+          controller: _searchController,
+          onChanged: _scheduleSearchUpdate,
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            isDense: true,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 6,
+            ),
+            hintText: l10n.marketSearchHint,
+            prefixIcon: const Icon(Icons.search, size: 20),
+            suffixIcon: _searchController.text.isEmpty
+                ? null
+                : IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () {
+                      _searchDebounce?.cancel();
+                      _searchController.clear();
+                      setState(() => _searchQuery = '');
+                    },
+                  ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortControls(BuildContext context, AppLocalizations l10n) {
+    final resetStyle = TextButton.styleFrom(
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      minimumSize: Size.zero,
+      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+
+    return Row(
+      children: [
+        Expanded(
+          child: _SegmentedMarketSortBar(
+            selectedColumn: _sortColumn,
+            ascending: _sortAscending,
+            onSegmentTap: _onSortSegmentTapped,
+            l10n: l10n,
           ),
         ),
-      ),
+        const SizedBox(width: 4),
+        TextButton(
+          style: resetStyle,
+          onPressed: _onSortReset,
+          child: Text(
+            l10n.marketSortReset,
+            style: Theme.of(context).textTheme.labelMedium,
+          ),
+        ),
+      ],
     );
   }
 }
 
-/// Скругление и обводка как у [InputDecoration] из темы (поле поиска на рынке).
+/// Скругление и обводка как у [InputDecoration] из темы.
 OutlineInputBorder _outlineInputBorderFromTheme(
   ThemeData theme,
   ColorScheme scheme,
 ) {
   final inputTheme = theme.inputDecorationTheme;
   final shape = inputTheme.enabledBorder ?? inputTheme.border;
-  if (shape is OutlineInputBorder) {
-    return shape;
-  }
+  if (shape is OutlineInputBorder) return shape;
   return OutlineInputBorder(
     borderRadius: BorderRadius.circular(12),
     borderSide: BorderSide(color: scheme.outline),
   );
 }
 
-/// Рамка с подписью: одна строка по высоте с полем поиска (в широкой вёрстке).
 class _MarketSortSection extends StatelessWidget {
   const _MarketSortSection({
     required this.title,
@@ -351,9 +361,7 @@ class _MarketSortSection extends StatelessWidget {
         ),
       ),
       child: fillHeight
-          ? SizedBox.expand(
-              child: Center(child: inner),
-            )
+          ? SizedBox.expand(child: Center(child: inner))
           : inner,
     );
   }
@@ -462,15 +470,16 @@ class _SortSegment extends StatelessWidget {
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          fontSize: 10,
-                          height: 1,
-                          color: selected
-                              ? scheme.onSecondaryContainer
-                              : scheme.onSurface,
-                          fontWeight:
-                              selected ? FontWeight.w600 : FontWeight.w400,
-                        ),
+                    style:
+                        Theme.of(context).textTheme.labelSmall?.copyWith(
+                              fontSize: 10,
+                              height: 1,
+                              color: selected
+                                  ? scheme.onSecondaryContainer
+                                  : scheme.onSurface,
+                              fontWeight:
+                                  selected ? FontWeight.w600 : FontWeight.w400,
+                            ),
                   ),
                 ),
                 if (selected) ...[
@@ -495,7 +504,7 @@ class _SortSegment extends StatelessWidget {
   }
 }
 
-class _MarketListBody extends ConsumerWidget {
+class _MarketListBody extends StatelessWidget {
   const _MarketListBody({
     required this.items,
     required this.displayItems,
@@ -513,7 +522,7 @@ class _MarketListBody extends ConsumerWidget {
   final Future<void> Function() onRefresh;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     if (items.isEmpty) {
       return Center(child: Text(l10n.marketEmpty));
     }
@@ -542,7 +551,7 @@ class _MarketListBody extends ConsumerWidget {
                   l10n: l10n,
                   onTap: () => context.push('/market/coin/${asset.id}'),
                   onToggleStar: () =>
-                      ref.read(watchlistProvider.notifier).toggle(asset.id),
+                      context.read<WatchlistCubit>().toggle(asset.id),
                 );
               },
             ),
@@ -573,7 +582,7 @@ class _MarketListBody extends ConsumerWidget {
                   l10n: l10n,
                   onTap: () => context.push('/market/coin/${asset.id}'),
                   onToggleStar: () =>
-                      ref.read(watchlistProvider.notifier).toggle(asset.id),
+                      context.read<WatchlistCubit>().toggle(asset.id),
                   dense: true,
                 ),
               );

@@ -143,7 +143,24 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• Riverpod для состояния и DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой\n• Экран монеты: график цены в USD (fl_chart) с выбором периода';
+      '• Слои domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• BLoC (Cubit) для управления состоянием, get_it для DI\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой\n• Экран монеты: график цены в USD (fl_chart) с выбором периода';
+
+  @override
+  String get aboutSectionCache => 'Локальный кэш';
+
+  @override
+  String aboutCacheCoins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count монет в кэше',
+      many: '$count монет в кэше',
+      few: '$count монеты в кэше',
+      one: '1 монета в кэше',
+      zero: 'Монеты не кэшированы',
+    );
+    return '$_temp0';
+  }
 
   @override
   String get aboutSectionOffline => 'Офлайн';

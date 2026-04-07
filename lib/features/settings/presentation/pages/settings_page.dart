@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/features/about/presentation/about_dialog.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
-import 'package:crypto_informer/features/settings/presentation/providers/app_settings_provider.dart';
+import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 String _languageMenuLabel(AppLocalizations l10n, AppLocalePreference v) {
   return switch (v) {
@@ -30,90 +30,89 @@ const _languageDropdownOrder = <AppLocalePreference>[
   AppLocalePreference.ru,
 ];
 
-class SettingsPage extends ConsumerWidget {
+class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final asyncSettings = ref.watch(appSettingsProvider);
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
-      body: asyncSettings.when(
-        data: (settings) {
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              InputDecorator(
-                decoration: InputDecoration(
-                  labelText: l10n.settingsLanguageSection,
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<AppLocalePreference>(
-                    value: settings.localePreference,
-                    isExpanded: true,
-                    isDense: true,
-                    items: [
-                      for (final v in _languageDropdownOrder)
-                        DropdownMenuItem<AppLocalePreference>(
-                          value: v,
-                          child: Text(_languageMenuLabel(l10n, v)),
-                        ),
-                    ],
-                    onChanged: (v) {
-                      if (v != null) {
-                        unawaited(
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setLocalePreference(v),
-                        );
-                      }
-                    },
+      body: BlocBuilder<AppSettingsCubit, AppSettingsState>(
+        builder: (context, state) => switch (state) {
+          AppSettingsInitial() =>
+            const Center(child: CircularProgressIndicator()),
+          AppSettingsLoaded(:final settings) => ListView(
+              padding: const EdgeInsets.all(16),
+              children: [
+                InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: l10n.settingsLanguageSection,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<AppLocalePreference>(
+                      value: settings.localePreference,
+                      isExpanded: true,
+                      isDense: true,
+                      items: [
+                        for (final v in _languageDropdownOrder)
+                          DropdownMenuItem<AppLocalePreference>(
+                            value: v,
+                            child: Text(_languageMenuLabel(l10n, v)),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) {
+                          unawaited(
+                            context
+                                .read<AppSettingsCubit>()
+                                .setLocalePreference(v),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              InputDecorator(
-                decoration: InputDecoration(
-                  labelText: l10n.settingsThemeSection,
-                ),
-                child: DropdownButtonHideUnderline(
-                  child: DropdownButton<AppThemePreference>(
-                    value: settings.themePreference,
-                    isExpanded: true,
-                    isDense: true,
-                    items: [
-                      for (final v in AppThemePreference.values)
-                        DropdownMenuItem<AppThemePreference>(
-                          value: v,
-                          child: Text(_themeMenuLabel(l10n, v)),
-                        ),
-                    ],
-                    onChanged: (v) {
-                      if (v != null) {
-                        unawaited(
-                          ref
-                              .read(appSettingsProvider.notifier)
-                              .setThemePreference(v),
-                        );
-                      }
-                    },
+                const SizedBox(height: 24),
+                InputDecorator(
+                  decoration: InputDecoration(
+                    labelText: l10n.settingsThemeSection,
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<AppThemePreference>(
+                      value: settings.themePreference,
+                      isExpanded: true,
+                      isDense: true,
+                      items: [
+                        for (final v in AppThemePreference.values)
+                          DropdownMenuItem<AppThemePreference>(
+                            value: v,
+                            child: Text(_themeMenuLabel(l10n, v)),
+                          ),
+                      ],
+                      onChanged: (v) {
+                        if (v != null) {
+                          unawaited(
+                            context
+                                .read<AppSettingsCubit>()
+                                .setThemePreference(v),
+                          );
+                        }
+                      },
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              ListTile(
-                leading: const Icon(Icons.info_outline),
-                title: Text(l10n.settingsAbout),
-                trailing: const Icon(Icons.chevron_right),
-                onTap: () => unawaited(showAboutAppDialog(context)),
-              ),
-            ],
-          );
+                const SizedBox(height: 24),
+                ListTile(
+                  leading: const Icon(Icons.info_outline),
+                  title: Text(l10n.settingsAbout),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => unawaited(showAboutAppDialog(context)),
+                ),
+              ],
+            ),
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('$e')),
       ),
     );
   }
