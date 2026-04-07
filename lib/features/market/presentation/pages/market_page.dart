@@ -396,6 +396,7 @@ class _SegmentedMarketSortBar extends StatelessWidget {
       child: SizedBox(
         height: 22,
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Expanded(
               child: _SortSegment(
@@ -463,36 +464,39 @@ class _SortSegment extends StatelessWidget {
       color: selected ? scheme.secondaryContainer : Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 3),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  overflow: TextOverflow.ellipsis,
-                  maxLines: 1,
-                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        fontSize: 10,
-                        height: 1,
-                        color: selected
-                            ? scheme.onSecondaryContainer
-                            : scheme.onSurface,
-                        fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w400,
-                      ),
+        child: SizedBox.expand(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 3),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Text(
+                    label,
+                    textAlign: TextAlign.center,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          fontSize: 10,
+                          height: 1,
+                          color: selected
+                              ? scheme.onSecondaryContainer
+                              : scheme.onSurface,
+                          fontWeight:
+                              selected ? FontWeight.w600 : FontWeight.w400,
+                        ),
+                  ),
                 ),
-              ),
-              if (selected) ...[
-                const SizedBox(width: 1),
-                Icon(
-                  ascending ? Icons.arrow_upward : Icons.arrow_downward,
-                  size: 10,
-                  color: scheme.onSecondaryContainer,
-                ),
+                if (selected) ...[
+                  const SizedBox(width: 1),
+                  Icon(
+                    ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                    size: 10,
+                    color: scheme.onSecondaryContainer,
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
