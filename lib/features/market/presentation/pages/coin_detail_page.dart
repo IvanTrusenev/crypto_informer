@@ -5,6 +5,7 @@ import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/coin_price_chart_section.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:crypto_informer/features/watchlist/presentation/widgets/animated_watchlist_icon_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -40,14 +41,11 @@ class _CoinDetailPageState extends ConsumerState<CoinDetailPage> {
           orElse: () => Text(l10n.coinTitleFallback),
         ),
         actions: [
-          IconButton(
+          AnimatedWatchlistIconButton(
+            isInWatchlist: inList,
             tooltip: inList
                 ? l10n.tooltipWatchlistRemove
                 : l10n.tooltipWatchlistAdd,
-            icon: Icon(
-              inList ? Icons.star : Icons.star_border,
-              color: inList ? context.theme.colorScheme.primary : null,
-            ),
             onPressed: () =>
                 ref.read(watchlistProvider.notifier).toggle(widget.coinId),
           ),

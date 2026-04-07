@@ -7,6 +7,7 @@ import 'package:crypto_informer/features/market/domain/entities/crypto_asset.dar
 import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
 import 'package:crypto_informer/features/market/presentation/providers/crypto_providers.dart';
 import 'package:crypto_informer/features/watchlist/presentation/providers/watchlist_provider.dart';
+import 'package:crypto_informer/features/watchlist/presentation/widgets/animated_watchlist_icon_button.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -649,15 +650,14 @@ class _MarketTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(priceText, style: theme.textTheme.titleMedium),
-          IconButton(
-            icon: Icon(
-              inWatchlist ? Icons.star : Icons.star_border,
-              color: inWatchlist ? theme.colorScheme.primary : null,
-            ),
+          AnimatedWatchlistIconButton(
+            isInWatchlist: inWatchlist,
             onPressed: onToggleStar,
             tooltip: inWatchlist
                 ? l10n.tooltipWatchlistRemove
                 : l10n.tooltipWatchlistAdd,
+            visualDensity:
+                dense ? VisualDensity.compact : VisualDensity.standard,
           ),
         ],
       ),
