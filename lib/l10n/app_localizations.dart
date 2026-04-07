@@ -218,17 +218,17 @@ abstract class AppLocalizations {
   /// **'Sorting'**
   String get marketSortSectionTitle;
 
-  /// No description provided for @marketSortName.
+  /// No description provided for @marketSortId.
   ///
   /// In en, this message translates to:
-  /// **'Name'**
-  String get marketSortName;
+  /// **'ID'**
+  String get marketSortId;
 
-  /// No description provided for @marketSortPrice.
+  /// No description provided for @marketSortVolume.
   ///
   /// In en, this message translates to:
-  /// **'Price'**
-  String get marketSortPrice;
+  /// **'Volume'**
+  String get marketSortVolume;
 
   /// No description provided for @marketSortMarketCap.
   ///

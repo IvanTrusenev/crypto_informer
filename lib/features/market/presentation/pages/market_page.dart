@@ -20,41 +20,6 @@ const double _kMarketWideFilterBarHeight = 42;
 const double _kFilterBarNarrowHeight = 92;
 const double _kFilterBarWideHeight = _kMarketWideFilterBarHeight + 16;
 
-int _compareMarketCapPair(CryptoAsset a, CryptoAsset b, bool ascending) {
-  final ca = a.marketCapUsd;
-  final cb = b.marketCapUsd;
-  if (ca == null && cb == null) return 0;
-  if (ca == null) return 1;
-  if (cb == null) return -1;
-  final c = ca.compareTo(cb);
-  return ascending ? c : -c;
-}
-
-List<CryptoAsset> _sortMarket(
-  List<CryptoAsset> source,
-  MarketSortColumn? sortColumn,
-  bool sortAscending,
-) {
-  if (sortColumn == null) return source;
-
-  final list = List<CryptoAsset>.from(source);
-  switch (sortColumn) {
-    case MarketSortColumn.name:
-      list.sort((a, b) {
-        final c = a.name.toLowerCase().compareTo(b.name.toLowerCase());
-        return sortAscending ? c : -c;
-      });
-    case MarketSortColumn.price:
-      list.sort((a, b) {
-        final c = a.currentPriceUsd.compareTo(b.currentPriceUsd);
-        return sortAscending ? c : -c;
-      });
-    case MarketSortColumn.marketCap:
-      list.sort((a, b) => _compareMarketCapPair(a, b, sortAscending));
-  }
-  return list;
-}
-
 class MarketPage extends StatefulWidget {
   const MarketPage({super.key});
 
@@ -66,8 +31,6 @@ class _MarketPageState extends State<MarketPage> {
   final _searchController = TextEditingController();
   final _scrollController = ScrollController();
   Timer? _searchDebounce;
-  MarketSortColumn? _sortColumn;
-  bool _sortAscending = true;
 
   @override
   void initState() {
@@ -101,21 +64,24 @@ class _MarketPageState extends State<MarketPage> {
   }
 
   void _onSortSegmentTapped(MarketSortColumn column) {
-    setState(() {
-      if (_sortColumn == column) {
-        _sortAscending = !_sortAscending;
-      } else {
-        _sortColumn = column;
-        _sortAscending = marketSortDefaultAscending(column);
-      }
-    });
+    final cubit = context.read<MarketCubit>();
+    final current = cubit.state;
+    final prevColumn =
+        current is MarketLoaded ? current.sortColumn : null;
+    final prevAsc =
+        current is! MarketLoaded || current.sortAscending;
+
+    final bool ascending;
+    if (prevColumn == column) {
+      ascending = !prevAsc;
+    } else {
+      ascending = marketSortDefaultAscending(column);
+    }
+    unawaited(cubit.setSort(column, ascending: ascending));
   }
 
   void _onSortReset() {
-    setState(() {
-      _sortColumn = null;
-      _sortAscending = true;
-    });
+    unawaited(context.read<MarketCubit>().setSort(null, ascending: true));
   }
 
   @override
@@ -140,6 +106,8 @@ class _MarketPageState extends State<MarketPage> {
               :final hasMore,
               :final searchQuery,
               :final isSearching,
+              :final sortColumn,
+              :final sortAscending,
             ) =>
               _buildLoaded(
                 context,
@@ -150,6 +118,8 @@ class _MarketPageState extends State<MarketPage> {
                 hasMore: hasMore,
                 searchQuery: searchQuery,
                 isSearching: isSearching,
+                sortColumn: sortColumn,
+                sortAscending: sortAscending,
               ),
             MarketError(:final error) => Center(
                 child: Padding(
@@ -186,6 +156,8 @@ class _MarketPageState extends State<MarketPage> {
     required bool hasMore,
     required String searchQuery,
     required bool isSearching,
+    required MarketSortColumn? sortColumn,
+    required bool sortAscending,
   }) {
     return BlocBuilder<WatchlistCubit, WatchlistState>(
       builder: (context, wlState) {
@@ -193,7 +165,7 @@ class _MarketPageState extends State<MarketPage> {
           WatchlistLoaded(:final ids) => ids,
           _ => <String>[],
         };
-        final display = _sortMarket(items, _sortColumn, _sortAscending);
+        final display = items;
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -204,7 +176,12 @@ class _MarketPageState extends State<MarketPage> {
             final sortSection = _MarketSortSection(
               title: l10n.marketSortSectionTitle,
               fillHeight: wide,
-              child: _buildSortControls(context, l10n),
+              child: _buildSortControls(
+                context,
+                l10n,
+                sortColumn: sortColumn,
+                sortAscending: sortAscending,
+              ),
             );
 
             Widget filterBar;
@@ -384,7 +361,12 @@ class _MarketPageState extends State<MarketPage> {
     );
   }
 
-  Widget _buildSortControls(BuildContext context, AppLocalizations l10n) {
+  Widget _buildSortControls(
+    BuildContext context,
+    AppLocalizations l10n, {
+    required MarketSortColumn? sortColumn,
+    required bool sortAscending,
+  }) {
     final resetStyle = TextButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       minimumSize: Size.zero,
@@ -395,8 +377,8 @@ class _MarketPageState extends State<MarketPage> {
       children: [
         Expanded(
           child: _SegmentedMarketSortBar(
-            selectedColumn: _sortColumn,
-            ascending: _sortAscending,
+            selectedColumn: sortColumn,
+            ascending: sortAscending,
             onSegmentTap: _onSortSegmentTapped,
             l10n: l10n,
           ),
@@ -513,10 +495,10 @@ class _SegmentedMarketSortBar extends StatelessWidget {
           children: [
             Expanded(
               child: _SortSegment(
-                label: l10n.marketSortName,
-                selected: selectedColumn == MarketSortColumn.name,
+                label: l10n.marketSortId,
+                selected: selectedColumn == MarketSortColumn.id,
                 ascending: ascending,
-                onTap: () => onSegmentTap(MarketSortColumn.name),
+                onTap: () => onSegmentTap(MarketSortColumn.id),
               ),
             ),
             VerticalDivider(
@@ -528,10 +510,10 @@ class _SegmentedMarketSortBar extends StatelessWidget {
             ),
             Expanded(
               child: _SortSegment(
-                label: l10n.marketSortPrice,
-                selected: selectedColumn == MarketSortColumn.price,
+                label: l10n.marketSortVolume,
+                selected: selectedColumn == MarketSortColumn.volume,
                 ascending: ascending,
-                onTap: () => onSegmentTap(MarketSortColumn.price),
+                onTap: () => onSegmentTap(MarketSortColumn.volume),
               ),
             ),
             VerticalDivider(

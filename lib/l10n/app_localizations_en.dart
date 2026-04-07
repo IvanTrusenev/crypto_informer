@@ -69,10 +69,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketSortSectionTitle => 'Sorting';
 
   @override
-  String get marketSortName => 'Name';
+  String get marketSortId => 'ID';
 
   @override
-  String get marketSortPrice => 'Price';
+  String get marketSortVolume => 'Volume';
 
   @override
   String get marketSortMarketCap => 'Market cap';

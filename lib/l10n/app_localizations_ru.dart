@@ -69,10 +69,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get marketSortSectionTitle => 'Сортировка';
 
   @override
-  String get marketSortName => 'Имя';
+  String get marketSortId => 'ID';
 
   @override
-  String get marketSortPrice => 'Цена';
+  String get marketSortVolume => 'Объём';
 
   @override
   String get marketSortMarketCap => 'Капитализация';
