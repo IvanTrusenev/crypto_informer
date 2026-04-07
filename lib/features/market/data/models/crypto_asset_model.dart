@@ -8,6 +8,7 @@ class CryptoAssetModel {
     required this.currentPriceUsd,
     required this.priceChangePercent24h,
     this.marketCapUsd,
+    this.totalVolumeUsd,
     this.imageUrl,
   });
 
@@ -20,6 +21,7 @@ class CryptoAssetModel {
       priceChangePercent24h:
           (json['price_change_percentage_24h'] as num?)?.toDouble() ?? 0,
       marketCapUsd: (json['market_cap'] as num?)?.toDouble(),
+      totalVolumeUsd: (json['total_volume'] as num?)?.toDouble(),
       imageUrl: (json['image'] as String?)?.isEmpty ?? true
           ? null
           : json['image'] as String,
@@ -32,6 +34,7 @@ class CryptoAssetModel {
   final double currentPriceUsd;
   final double priceChangePercent24h;
   final double? marketCapUsd;
+  final double? totalVolumeUsd;
   final String? imageUrl;
 
   CryptoAsset toEntity() {
@@ -42,6 +45,7 @@ class CryptoAssetModel {
       currentPriceUsd: currentPriceUsd,
       priceChangePercent24h: priceChangePercent24h,
       marketCapUsd: marketCapUsd,
+      totalVolumeUsd: totalVolumeUsd,
       imageUrl: imageUrl,
     );
   }
