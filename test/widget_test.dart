@@ -31,8 +31,15 @@ void main() {
   testWidgets('Приложение строит нижнюю навигацию', (tester) async {
     final prefs = await SharedPreferences.getInstance();
     final mockRepo = _MockCryptoRepository();
-    when(() => mockRepo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-        .thenAnswer((_) async => []);
+    when(
+      () => mockRepo.getMarketAssets(
+        vsCurrency: any(named: 'vsCurrency'),
+        page: any(named: 'page'),
+        perPage: any(named: 'perPage'),
+        order: any(named: 'order'),
+        ids: any(named: 'ids'),
+      ),
+    ).thenAnswer((_) async => []);
 
     final marketCubit = MarketCubit(mockRepo);
     await marketCubit.loadAssets();

@@ -30,25 +30,14 @@ int _compareMarketCapPair(CryptoAsset a, CryptoAsset b, bool ascending) {
   return ascending ? c : -c;
 }
 
-List<CryptoAsset> _filterAndSortMarket(
+List<CryptoAsset> _sortMarket(
   List<CryptoAsset> source,
-  String query,
   MarketSortColumn? sortColumn,
   bool sortAscending,
 ) {
-  final q = query.trim().toLowerCase();
-  final list = q.isEmpty
-      ? List<CryptoAsset>.from(source)
-      : source
-            .where(
-              (a) =>
-                  a.name.toLowerCase().contains(q) ||
-                  a.symbol.toLowerCase().contains(q),
-            )
-            .toList();
+  if (sortColumn == null) return source;
 
-  if (sortColumn == null) return list;
-
+  final list = List<CryptoAsset>.from(source);
   switch (sortColumn) {
     case MarketSortColumn.name:
       list.sort((a, b) {
@@ -75,13 +64,22 @@ class MarketPage extends StatefulWidget {
 
 class _MarketPageState extends State<MarketPage> {
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   Timer? _searchDebounce;
-  String _searchQuery = '';
   MarketSortColumn? _sortColumn;
   bool _sortAscending = true;
 
   @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
   void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     _searchDebounce?.cancel();
     _searchController.dispose();
     super.dispose();
@@ -89,10 +87,17 @@ class _MarketPageState extends State<MarketPage> {
 
   void _scheduleSearchUpdate(String text) {
     _searchDebounce?.cancel();
-    _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+    _searchDebounce = Timer(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      setState(() => _searchQuery = text.trim());
+      unawaited(context.read<MarketCubit>().search(text));
     });
+  }
+
+  void _onScroll() {
+    final pos = _scrollController.position;
+    if (pos.pixels >= pos.maxScrollExtent - 200) {
+      unawaited(context.read<MarketCubit>().loadMore());
+    }
   }
 
   void _onSortSegmentTapped(MarketSortColumn column) {
@@ -129,8 +134,23 @@ class _MarketPageState extends State<MarketPage> {
           return switch (marketState) {
             MarketInitial() || MarketLoading() =>
               const Center(child: CircularProgressIndicator()),
-            MarketLoaded(:final assets) =>
-              _buildLoaded(context, assets, priceFormat, l10n),
+            MarketLoaded(
+              :final assets,
+              :final isLoadingMore,
+              :final hasMore,
+              :final searchQuery,
+              :final isSearching,
+            ) =>
+              _buildLoaded(
+                context,
+                assets,
+                priceFormat,
+                l10n,
+                isLoadingMore: isLoadingMore,
+                hasMore: hasMore,
+                searchQuery: searchQuery,
+                isSearching: isSearching,
+              ),
             MarketError(:final error) => Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
@@ -161,20 +181,19 @@ class _MarketPageState extends State<MarketPage> {
     BuildContext context,
     List<CryptoAsset> items,
     NumberFormat priceFormat,
-    AppLocalizations l10n,
-  ) {
+    AppLocalizations l10n, {
+    required bool isLoadingMore,
+    required bool hasMore,
+    required String searchQuery,
+    required bool isSearching,
+  }) {
     return BlocBuilder<WatchlistCubit, WatchlistState>(
       builder: (context, wlState) {
         final watchlistIds = switch (wlState) {
           WatchlistLoaded(:final ids) => ids,
           _ => <String>[],
         };
-        final display = _filterAndSortMarket(
-          items,
-          _searchQuery,
-          _sortColumn,
-          _sortAscending,
-        );
+        final display = _sortMarket(items, _sortColumn, _sortAscending);
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -224,6 +243,7 @@ class _MarketPageState extends State<MarketPage> {
             return RefreshIndicator(
               onRefresh: () => context.read<MarketCubit>().refresh(),
               child: CustomScrollView(
+                controller: _scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
                   SliverPersistentHeader(
@@ -236,15 +256,20 @@ class _MarketPageState extends State<MarketPage> {
                       height: filterHeight,
                     ),
                   ),
-                  if (items.isEmpty)
-                    SliverFillRemaining(
+                  if (isSearching)
+                    const SliverFillRemaining(
                       hasScrollBody: false,
-                      child: Center(child: Text(l10n.marketEmpty)),
+                      child: Center(child: CircularProgressIndicator()),
                     )
-                  else if (display.isEmpty)
+                  else if (items.isEmpty && searchQuery.isNotEmpty)
                     SliverFillRemaining(
                       hasScrollBody: false,
                       child: Center(child: Text(l10n.marketSearchNoResults)),
+                    )
+                  else if (items.isEmpty)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(child: Text(l10n.marketEmpty)),
                     )
                   else if (columns == 1)
                     SliverPadding(
@@ -307,6 +332,17 @@ class _MarketPageState extends State<MarketPage> {
                         ),
                       ),
                     ),
+                  if (isLoadingMore)
+                    const SliverToBoxAdapter(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 24),
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                    )
+                  else if (hasMore && display.isNotEmpty)
+                    const SliverToBoxAdapter(
+                      child: SizedBox(height: 80),
+                    ),
                 ],
               ),
             );
@@ -339,7 +375,7 @@ class _MarketPageState extends State<MarketPage> {
                     onPressed: () {
                       _searchDebounce?.cancel();
                       _searchController.clear();
-                      setState(() => _searchQuery = '');
+                      context.read<MarketCubit>().clearSearch();
                     },
                   ),
           ),

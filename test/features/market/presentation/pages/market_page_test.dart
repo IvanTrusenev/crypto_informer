@@ -49,8 +49,15 @@ Widget _buildApp({required MarketCubit marketCubit}) {
 void main() {
   testWidgets('shows list when loaded', (tester) async {
     final repo = MockCryptoRepository();
-    when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-        .thenAnswer((_) async => [_btc]);
+    when(
+      () => repo.getMarketAssets(
+        vsCurrency: any(named: 'vsCurrency'),
+        page: any(named: 'page'),
+        perPage: any(named: 'perPage'),
+        order: any(named: 'order'),
+        ids: any(named: 'ids'),
+      ),
+    ).thenAnswer((_) async => [_btc]);
     final cubit = MarketCubit(repo);
     await cubit.loadAssets();
 
@@ -62,8 +69,15 @@ void main() {
 
   testWidgets('shows error on failure', (tester) async {
     final repo = MockCryptoRepository();
-    when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-        .thenThrow(Exception('fail'));
+    when(
+      () => repo.getMarketAssets(
+        vsCurrency: any(named: 'vsCurrency'),
+        page: any(named: 'page'),
+        perPage: any(named: 'perPage'),
+        order: any(named: 'order'),
+        ids: any(named: 'ids'),
+      ),
+    ).thenThrow(Exception('fail'));
     final cubit = MarketCubit(repo);
     await cubit.loadAssets();
 

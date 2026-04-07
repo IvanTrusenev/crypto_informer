@@ -4,7 +4,17 @@ import 'package:crypto_informer/features/market/domain/entities/price_chart_poin
 import 'package:dio/dio.dart';
 
 abstract interface class CryptoRemoteDataSource {
-  Future<List<Map<String, dynamic>>> fetchMarkets({String vsCurrency});
+  Future<List<Map<String, dynamic>>> fetchMarkets({
+    String vsCurrency,
+    int page,
+    int perPage,
+    String order,
+    List<String>? ids,
+  });
+
+  /// Full-text search via `/search?query=...`.
+  /// Returns a list of coin IDs sorted by market cap.
+  Future<List<String>> searchCoins(String query);
 
   Future<Map<String, dynamic>> fetchCoin(String id);
 
@@ -23,23 +33,49 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   @override
   Future<List<Map<String, dynamic>>> fetchMarkets({
     String vsCurrency = 'usd',
+    int page = 1,
+    int perPage = 50,
+    String order = 'market_cap_desc',
+    List<String>? ids,
   }) async {
     try {
+      final queryParameters = <String, dynamic>{
+        'vs_currency': vsCurrency,
+        'order': order,
+        'per_page': perPage,
+        'page': page,
+        'sparkline': false,
+        if (ids != null && ids.isNotEmpty) 'ids': ids.join(','),
+      };
       final response = await _dio.get<List<dynamic>>(
         '/coins/markets',
-        queryParameters: {
-          'vs_currency': vsCurrency,
-          'order': 'market_cap_desc',
-          'per_page': 50,
-          'page': 1,
-          'sparkline': false,
-        },
+        queryParameters: queryParameters,
       );
       final list = response.data;
       if (list == null) {
         throw const AppException(AppErrorCode.emptyResponse);
       }
       return list.whereType<Map<String, dynamic>>().toList(growable: false);
+    } on DioException catch (e) {
+      throw _mapDioException(e);
+    }
+  }
+
+  @override
+  Future<List<String>> searchCoins(String query) async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/search',
+        queryParameters: {'query': query},
+      );
+      final data = response.data;
+      if (data == null) return const [];
+      final coins = data['coins'];
+      if (coins is! List) return const [];
+      return coins
+          .whereType<Map<String, dynamic>>()
+          .map((c) => c['id'] as String)
+          .toList(growable: false);
     } on DioException catch (e) {
       throw _mapDioException(e);
     }

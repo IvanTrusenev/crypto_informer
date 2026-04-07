@@ -67,8 +67,15 @@ void main() {
     test('returns data from network and caches it', () async {
       when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
           .thenAnswer((_) async => null);
-      when(() => remote.fetchMarkets(vsCurrency: any(named: 'vsCurrency')))
-          .thenAnswer((_) async => [_btcJson]);
+      when(
+        () => remote.fetchMarkets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenAnswer((_) async => [_btcJson]);
       when(
         () => local.replaceMarketAssets(
           any(),
@@ -91,8 +98,15 @@ void main() {
     test('returns cache on network error', () async {
       when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
           .thenAnswer((_) async => [_btcEntity]);
-      when(() => remote.fetchMarkets(vsCurrency: any(named: 'vsCurrency')))
-          .thenThrow(Exception('network'));
+      when(
+        () => remote.fetchMarkets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenThrow(Exception('network'));
 
       final result = await repo.getMarketAssets();
 
@@ -103,8 +117,15 @@ void main() {
     test('rethrows when no cache and network fails', () async {
       when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
           .thenAnswer((_) async => null);
-      when(() => remote.fetchMarkets(vsCurrency: any(named: 'vsCurrency')))
-          .thenThrow(Exception('network'));
+      when(
+        () => remote.fetchMarkets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenThrow(Exception('network'));
 
       expect(() => repo.getMarketAssets(), throwsA(isA<Exception>()));
     });

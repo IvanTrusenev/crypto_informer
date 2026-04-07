@@ -20,29 +20,47 @@ class CryptoRepositoryImpl implements CryptoRepository {
   @override
   Future<List<CryptoAsset>> getMarketAssets({
     String vsCurrency = 'usd',
+    int page = 1,
+    int perPage = 50,
+    String order = 'market_cap_desc',
+    List<String>? ids,
   }) async {
     List<CryptoAsset>? cached;
-    try {
-      cached = await _local.readMarketAssets(vsCurrency: vsCurrency);
-    } on Object {
-      cached = null;
+    if (page == 1 && ids == null) {
+      try {
+        cached = await _local.readMarketAssets(vsCurrency: vsCurrency);
+      } on Object {
+        cached = null;
+      }
     }
 
     try {
-      final rows = await _remote.fetchMarkets(vsCurrency: vsCurrency);
+      final rows = await _remote.fetchMarkets(
+        vsCurrency: vsCurrency,
+        page: page,
+        perPage: perPage,
+        order: order,
+        ids: ids,
+      );
       final list = await Isolate.run(
         () => rows
             .map(CryptoAssetModel.fromJson)
             .map((m) => m.toEntity())
             .toList(),
       );
-      await _local.replaceMarketAssets(list, vsCurrency: vsCurrency);
+      if (ids == null) {
+        await _local.replaceMarketAssets(list, vsCurrency: vsCurrency);
+      }
       return list;
     } on Object {
       if (cached != null) return cached;
       rethrow;
     }
   }
+
+  @override
+  Future<List<String>> searchCoinIds(String query) =>
+      _remote.searchCoins(query);
 
   @override
   Future<CryptoCoinDetail> getCoinDetail(String id) async {

@@ -25,8 +25,15 @@ void main() {
   blocTest<MarketCubit, MarketState>(
     'loadAssets emits loading then loaded',
     build: () {
-      when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-          .thenAnswer((_) async => [_btc]);
+      when(
+        () => repo.getMarketAssets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenAnswer((_) async => [_btc]);
       return MarketCubit(repo);
     },
     act: (cubit) => cubit.loadAssets(),
@@ -43,8 +50,15 @@ void main() {
   blocTest<MarketCubit, MarketState>(
     'loadAssets emits loading then error on failure',
     build: () {
-      when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-          .thenThrow(Exception('fail'));
+      when(
+        () => repo.getMarketAssets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenThrow(Exception('fail'));
       return MarketCubit(repo);
     },
     act: (cubit) => cubit.loadAssets(),

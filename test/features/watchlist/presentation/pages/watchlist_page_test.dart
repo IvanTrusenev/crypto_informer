@@ -16,8 +16,15 @@ void main() {
     SharedPreferences.setMockInitialValues({});
     final prefs = await SharedPreferences.getInstance();
     final repo = MockCryptoRepository();
-    when(() => repo.getMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-        .thenAnswer((_) async => []);
+    when(
+      () => repo.getMarketAssets(
+        vsCurrency: any(named: 'vsCurrency'),
+        page: any(named: 'page'),
+        perPage: any(named: 'perPage'),
+        order: any(named: 'order'),
+        ids: any(named: 'ids'),
+      ),
+    ).thenAnswer((_) async => []);
     final marketCubit = MarketCubit(repo);
     await marketCubit.loadAssets();
 

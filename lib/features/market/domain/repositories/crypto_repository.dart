@@ -5,7 +5,16 @@ import 'package:crypto_informer/features/market/domain/entities/price_chart_poin
 
 /// Контракт доступа к данным о криптоактивах (реализация — в data).
 abstract interface class CryptoRepository {
-  Future<List<CryptoAsset>> getMarketAssets({String vsCurrency});
+  Future<List<CryptoAsset>> getMarketAssets({
+    String vsCurrency,
+    int page,
+    int perPage,
+    String order,
+    List<String>? ids,
+  });
+
+  /// Full-text search via `/search?query=`. Returns matching coin IDs.
+  Future<List<String>> searchCoinIds(String query);
 
   Future<CryptoCoinDetail> getCoinDetail(String id);
 
