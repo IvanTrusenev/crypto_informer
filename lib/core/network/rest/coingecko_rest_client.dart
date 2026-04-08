@@ -6,8 +6,7 @@ part 'coingecko_rest_client.g.dart';
 
 @RestApi()
 abstract class CoinGeckoRestClient {
-  factory CoinGeckoRestClient(Dio dio, {String baseUrl}) =
-      _CoinGeckoRestClient;
+  factory CoinGeckoRestClient(Dio dio, {String baseUrl}) = _CoinGeckoRestClient;
 
   @GET(CoinGeckoApi.coinsMarkets)
   Future<List<dynamic>> fetchMarkets(

@@ -44,30 +44,32 @@ final appRouter = GoRouter(
                       key: state.pageKey,
                       child: CoinDetailPage(coinId: id),
                       transitionDuration: const Duration(milliseconds: 340),
-                      reverseTransitionDuration:
-                          const Duration(milliseconds: 280),
-                      transitionsBuilder: (
-                        context,
-                        animation,
-                        secondaryAnimation,
-                        child,
-                      ) {
-                        final curved = CurvedAnimation(
-                          parent: animation,
-                          curve: Curves.easeOutCubic,
-                          reverseCurve: Curves.easeInCubic,
-                        );
-                        return SlideTransition(
-                          position: Tween<Offset>(
-                            begin: const Offset(0.08, 0),
-                            end: Offset.zero,
-                          ).animate(curved),
-                          child: FadeTransition(
-                            opacity: curved,
-                            child: child,
-                          ),
-                        );
-                      },
+                      reverseTransitionDuration: const Duration(
+                        milliseconds: 280,
+                      ),
+                      transitionsBuilder:
+                          (
+                            context,
+                            animation,
+                            secondaryAnimation,
+                            child,
+                          ) {
+                            final curved = CurvedAnimation(
+                              parent: animation,
+                              curve: Curves.easeOutCubic,
+                              reverseCurve: Curves.easeInCubic,
+                            );
+                            return SlideTransition(
+                              position: Tween<Offset>(
+                                begin: const Offset(0.08, 0),
+                                end: Offset.zero,
+                              ).animate(curved),
+                              child: FadeTransition(
+                                opacity: curved,
+                                child: child,
+                              ),
+                            );
+                          },
                     );
                   },
                 ),

@@ -1,5 +1,6 @@
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/pages/watchlist_page.dart';
@@ -19,6 +20,11 @@ void main() {
     final storage = AppKeyValueStorageImpl(prefs);
     final repo = MockCryptoRepository();
     when(
+      () => repo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
+    when(
       () => repo.getMarketAssets(
         vsCurrency: any(named: 'vsCurrency'),
         page: any(named: 'page'),
@@ -27,7 +33,7 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenAnswer((_) async => []);
-    final marketCubit = MarketCubit(repo);
+    final marketCubit = MarketCubit(GetMarketAssets(repo), repo);
     await marketCubit.loadAssets();
 
     await tester.pumpWidget(

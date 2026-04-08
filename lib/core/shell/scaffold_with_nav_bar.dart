@@ -69,7 +69,8 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
             StreamBuilder<List<ConnectivityResult>>(
               stream: _stream,
               builder: (context, snapshot) {
-                final isOffline = snapshot.hasData &&
+                final isOffline =
+                    snapshot.hasData &&
                     snapshot.data!.contains(ConnectivityResult.none);
                 if (!isOffline) return const SizedBox.shrink();
                 return Material(
@@ -86,21 +87,19 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
                           Icon(
                             Icons.cloud_off_outlined,
                             size: 20,
-                            color: Theme.of(context)
-                                .colorScheme
-                                .onErrorContainer,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onErrorContainer,
                           ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
                               l10n.offlineNoConnection,
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .bodyMedium
+                              style: Theme.of(context).textTheme.bodyMedium
                                   ?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onErrorContainer,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onErrorContainer,
                                   ),
                             ),
                           ),

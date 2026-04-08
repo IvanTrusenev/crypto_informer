@@ -60,9 +60,11 @@ class _InAppNotificationState extends State<InAppNotification>
 
   void _dismiss() {
     _autoDismiss?.cancel();
-    unawaited(_controller.reverse().then((_) {
-      if (mounted) widget.onDismiss();
-    }));
+    unawaited(
+      _controller.reverse().then((_) {
+        if (mounted) widget.onDismiss();
+      }),
+    );
   }
 
   @override
@@ -95,8 +97,10 @@ class _InAppNotificationState extends State<InAppNotification>
                 onTap: _dismiss,
                 borderRadius: BorderRadius.circular(16),
                 child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   child: Row(
                     children: [
                       Icon(
@@ -121,8 +125,9 @@ class _InAppNotificationState extends State<InAppNotification>
                             Text(
                               widget.body,
                               style: theme.textTheme.bodySmall?.copyWith(
-                                color: colorScheme.onInverseSurface
-                                    .withValues(alpha: .85),
+                                color: colorScheme.onInverseSurface.withValues(
+                                  alpha: .85,
+                                ),
                               ),
                             ),
                           ],
@@ -131,8 +136,9 @@ class _InAppNotificationState extends State<InAppNotification>
                       Icon(
                         Icons.close,
                         size: 18,
-                        color:
-                            colorScheme.onInverseSurface.withValues(alpha: .6),
+                        color: colorScheme.onInverseSurface.withValues(
+                          alpha: .6,
+                        ),
                       ),
                     ],
                   ),

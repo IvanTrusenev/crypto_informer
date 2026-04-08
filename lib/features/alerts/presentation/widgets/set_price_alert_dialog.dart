@@ -50,11 +50,13 @@ class _SetPriceAlertDialogState extends State<_SetPriceAlertDialog> {
   @override
   void initState() {
     super.initState();
-    final existing =
-        context.read<PriceAlertCubit>().state.alertFor(widget.coinId);
+    final existing = context.read<PriceAlertCubit>().state.alertFor(
+      widget.coinId,
+    );
     if (existing != null) {
-      _controller =
-          TextEditingController(text: existing.thresholdPrice.toString());
+      _controller = TextEditingController(
+        text: existing.thresholdPrice.toString(),
+      );
       _isAbove = existing.isAbove;
     } else {
       _controller = TextEditingController();
@@ -162,8 +164,7 @@ class _SetPriceAlertDialogState extends State<_SetPriceAlertDialog> {
             onPressed: _remove,
             child: Text(
               l10n.alertRemoveAction,
-              style:
-                  TextStyle(color: Theme.of(context).colorScheme.error),
+              style: TextStyle(color: Theme.of(context).colorScheme.error),
             ),
           ),
         TextButton(

@@ -1,6 +1,6 @@
-import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 sealed class CoinPriceChartState {
@@ -26,14 +26,13 @@ class CoinPriceChartError extends CoinPriceChartState {
 }
 
 class CoinPriceChartCubit extends Cubit<CoinPriceChartState> {
-  CoinPriceChartCubit(this._repository)
-      : super(const CoinPriceChartInitial());
+  CoinPriceChartCubit(this._repository) : super(const CoinPriceChartInitial());
 
   final CryptoRepository _repository;
 
   Future<void> loadChart(
     String coinId, {
-    ChartPeriod period = ChartPeriod.days7,
+    ChartPeriodEnum period = ChartPeriodEnum.days7,
   }) async {
     emit(const CoinPriceChartLoading());
     try {

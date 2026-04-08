@@ -1,5 +1,5 @@
 /// Период агрегирования для CoinGecko `market_chart` (`days` query).
-enum ChartPeriod {
+enum ChartPeriodEnum {
   /// 1 день
   day1('1', '1D'),
 
@@ -19,7 +19,7 @@ enum ChartPeriod {
   max('max', 'MAX')
   ;
 
-  const ChartPeriod(this.apiDays, this.shortLabel);
+  const ChartPeriodEnum(this.apiDays, this.shortLabel);
 
   /// Значение параметра `days` в API.
   final String apiDays;

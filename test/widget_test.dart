@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
@@ -35,6 +36,11 @@ void main() {
     final AppKeyValueStorage storage = AppKeyValueStorageImpl(prefs);
     final mockRepo = _MockCryptoRepository();
     when(
+      () => mockRepo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
+    when(
       () => mockRepo.getMarketAssets(
         vsCurrency: any(named: 'vsCurrency'),
         page: any(named: 'page'),
@@ -44,7 +50,7 @@ void main() {
       ),
     ).thenAnswer((_) async => []);
 
-    final marketCubit = MarketCubit(mockRepo);
+    final marketCubit = MarketCubit(GetMarketAssets(mockRepo), mockRepo);
     await marketCubit.loadAssets();
 
     await tester.pumpWidget(

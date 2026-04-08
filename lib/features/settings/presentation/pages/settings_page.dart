@@ -41,77 +41,78 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: BlocBuilder<AppSettingsCubit, AppSettingsState>(
         builder: (context, state) => switch (state) {
-          AppSettingsInitial() =>
-            const Center(child: CircularProgressIndicator()),
+          AppSettingsInitial() => const Center(
+            child: CircularProgressIndicator(),
+          ),
           AppSettingsLoaded(:final settings) => ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: l10n.settingsLanguageSection,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<AppLocalePreference>(
-                      value: settings.localePreference,
-                      isExpanded: true,
-                      isDense: true,
-                      items: [
-                        for (final v in _languageDropdownOrder)
-                          DropdownMenuItem<AppLocalePreference>(
-                            value: v,
-                            child: Text(_languageMenuLabel(l10n, v)),
+            padding: const EdgeInsets.all(16),
+            children: [
+              InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.settingsLanguageSection,
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<AppLocalePreference>(
+                    value: settings.localePreference,
+                    isExpanded: true,
+                    isDense: true,
+                    items: [
+                      for (final v in _languageDropdownOrder)
+                        DropdownMenuItem<AppLocalePreference>(
+                          value: v,
+                          child: Text(_languageMenuLabel(l10n, v)),
+                        ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) {
+                        unawaited(
+                          context.read<AppSettingsCubit>().setLocalePreference(
+                            v,
                           ),
-                      ],
-                      onChanged: (v) {
-                        if (v != null) {
-                          unawaited(
-                            context
-                                .read<AppSettingsCubit>()
-                                .setLocalePreference(v),
-                          );
-                        }
-                      },
-                    ),
+                        );
+                      }
+                    },
                   ),
                 ),
-                const SizedBox(height: 24),
-                InputDecorator(
-                  decoration: InputDecoration(
-                    labelText: l10n.settingsThemeSection,
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<AppThemePreference>(
-                      value: settings.themePreference,
-                      isExpanded: true,
-                      isDense: true,
-                      items: [
-                        for (final v in AppThemePreference.values)
-                          DropdownMenuItem<AppThemePreference>(
-                            value: v,
-                            child: Text(_themeMenuLabel(l10n, v)),
+              ),
+              const SizedBox(height: 24),
+              InputDecorator(
+                decoration: InputDecoration(
+                  labelText: l10n.settingsThemeSection,
+                ),
+                child: DropdownButtonHideUnderline(
+                  child: DropdownButton<AppThemePreference>(
+                    value: settings.themePreference,
+                    isExpanded: true,
+                    isDense: true,
+                    items: [
+                      for (final v in AppThemePreference.values)
+                        DropdownMenuItem<AppThemePreference>(
+                          value: v,
+                          child: Text(_themeMenuLabel(l10n, v)),
+                        ),
+                    ],
+                    onChanged: (v) {
+                      if (v != null) {
+                        unawaited(
+                          context.read<AppSettingsCubit>().setThemePreference(
+                            v,
                           ),
-                      ],
-                      onChanged: (v) {
-                        if (v != null) {
-                          unawaited(
-                            context
-                                .read<AppSettingsCubit>()
-                                .setThemePreference(v),
-                          );
-                        }
-                      },
-                    ),
+                        );
+                      }
+                    },
                   ),
                 ),
-                const SizedBox(height: 24),
-                ListTile(
-                  leading: const Icon(Icons.info_outline),
-                  title: Text(l10n.settingsAbout),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => unawaited(showAboutAppDialog(context)),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: const Icon(Icons.info_outline),
+                title: Text(l10n.settingsAbout),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () => unawaited(showAboutAppDialog(context)),
+              ),
+            ],
+          ),
         },
       ),
     );

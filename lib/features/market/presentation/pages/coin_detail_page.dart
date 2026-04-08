@@ -6,7 +6,8 @@ import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/core/theme/context_theme.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/alerts/presentation/widgets/set_price_alert_dialog.dart';
-import 'package:crypto_informer/features/market/domain/chart_period.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_detail_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/coin_price_chart_section.dart';
@@ -26,7 +27,7 @@ class CoinDetailPage extends StatefulWidget {
 }
 
 class _CoinDetailPageState extends State<CoinDetailPage> {
-  ChartPeriod _chartPeriod = ChartPeriod.days7;
+  ChartPeriodEnum _chartPeriod = ChartPeriodEnum.days7;
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +42,7 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
       providers: [
         BlocProvider(
           create: (_) {
-            final cubit = CoinDetailCubit(sl());
+            final cubit = CoinDetailCubit(sl<GetCoinDetail>());
             unawaited(cubit.loadDetail(widget.coinId));
             return cubit;
           },
@@ -74,8 +75,7 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
               actions: [
                 BlocBuilder<PriceAlertCubit, PriceAlertState>(
                   builder: (context, alertState) {
-                    final hasAlert =
-                        alertState.alertFor(widget.coinId) != null;
+                    final hasAlert = alertState.alertFor(widget.coinId) != null;
                     return BlocBuilder<CoinDetailCubit, CoinDetailState>(
                       builder: (context, detailState) {
                         final detail = switch (detailState) {
@@ -94,11 +94,11 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                           onPressed: detail?.currentPriceUsd == null
                               ? null
                               : () => showSetPriceAlertDialog(
-                                    context,
-                                    coinId: widget.coinId,
-                                    coinName: detail!.name,
-                                    currentPrice: detail.currentPriceUsd!,
-                                  ),
+                                  context,
+                                  coinId: widget.coinId,
+                                  coinName: detail!.name,
+                                  currentPrice: detail.currentPriceUsd!,
+                                ),
                         );
                       },
                     );
@@ -109,111 +109,110 @@ class _CoinDetailPageState extends State<CoinDetailPage> {
                   tooltip: inList
                       ? l10n.tooltipWatchlistRemove
                       : l10n.tooltipWatchlistAdd,
-                  onPressed: () => context
-                      .read<WatchlistCubit>()
-                      .toggle(widget.coinId),
+                  onPressed: () =>
+                      context.read<WatchlistCubit>().toggle(widget.coinId),
                 ),
               ],
             ),
             body: BlocBuilder<CoinDetailCubit, CoinDetailState>(
               builder: (context, state) => switch (state) {
-                CoinDetailInitial() || CoinDetailLoading() =>
-                  const Center(child: CircularProgressIndicator()),
+                CoinDetailInitial() || CoinDetailLoading() => const Center(
+                  child: CircularProgressIndicator(),
+                ),
                 CoinDetailLoaded(:final detail) => ListView(
-                    padding: const EdgeInsets.all(20),
-                    children: [
-                      if (detail.imageUrl != null)
-                        Center(
-                          child: Hero(
-                            tag: 'coin_avatar_${detail.id}',
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.network(
-                                detail.imageUrl!,
-                                height: 120,
-                                width: 120,
-                                fit: BoxFit.contain,
-                              ),
+                  padding: const EdgeInsets.all(20),
+                  children: [
+                    if (detail.imageUrl != null)
+                      Center(
+                        child: Hero(
+                          tag: 'coin_avatar_${detail.id}',
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: Image.network(
+                              detail.imageUrl!,
+                              height: 120,
+                              width: 120,
+                              fit: BoxFit.contain,
                             ),
                           ),
                         ),
-                      const SizedBox(height: 16),
-                      Text(
-                        detail.symbol,
-                        textAlign: TextAlign.center,
-                        style: context.theme.textTheme.titleLarge,
                       ),
-                      if (detail.currentPriceUsd != null) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          priceFormat.format(detail.currentPriceUsd),
-                          textAlign: TextAlign.center,
-                          style: context.theme.textTheme.headlineSmall,
-                        ),
-                      ],
-                      if (detail.priceChangePercent24h != null) ...[
-                        const SizedBox(height: 4),
-                        Builder(
-                          builder: (context) {
-                            final change = detail.priceChangePercent24h!;
-                            final finance = context.financeColors;
-                            final changeColor = change >= 0
-                                ? finance.pricePositive
-                                : finance.priceNegative;
-                            final label = l10n.coinChange24h(
-                              '${change >= 0 ? '+' : ''}'
-                              '${change.toStringAsFixed(2)}',
-                            );
-                            return Text(
-                              label,
-                              textAlign: TextAlign.center,
-                              style: context.theme.textTheme.labelLarge
-                                  ?.copyWith(
-                                color: changeColor,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      CoinPriceChartSection(
-                        coinId: widget.coinId,
-                        period: _chartPeriod,
-                        onPeriodChanged: (p) {
-                          setState(() => _chartPeriod = p);
-                          unawaited(
-                            context.read<CoinPriceChartCubit>().loadChart(
-                                  widget.coinId,
-                                  period: p,
-                                ),
+                    const SizedBox(height: 16),
+                    Text(
+                      detail.symbol,
+                      textAlign: TextAlign.center,
+                      style: context.theme.textTheme.titleLarge,
+                    ),
+                    if (detail.currentPriceUsd != null) ...[
+                      const SizedBox(height: 8),
+                      Text(
+                        priceFormat.format(detail.currentPriceUsd),
+                        textAlign: TextAlign.center,
+                        style: context.theme.textTheme.headlineSmall,
+                      ),
+                    ],
+                    if (detail.priceChangePercent24h != null) ...[
+                      const SizedBox(height: 4),
+                      Builder(
+                        builder: (context) {
+                          final change = detail.priceChangePercent24h!;
+                          final finance = context.financeColors;
+                          final changeColor = change >= 0
+                              ? finance.pricePositive
+                              : finance.priceNegative;
+                          final label = l10n.coinChange24h(
+                            '${change >= 0 ? '+' : ''}'
+                            '${change.toStringAsFixed(2)}',
+                          );
+                          return Text(
+                            label,
+                            textAlign: TextAlign.center,
+                            style: context.theme.textTheme.labelLarge?.copyWith(
+                              color: changeColor,
+                              fontWeight: FontWeight.w600,
+                            ),
                           );
                         },
                       ),
-                      if (detail.description != null &&
-                          detail.description!.isNotEmpty) ...[
-                        const SizedBox(height: 24),
-                        Text(
-                          l10n.coinSectionDescription,
-                          style: context.theme.textTheme.titleMedium,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          detail.description!,
-                          style: context.theme.textTheme.bodyMedium,
-                        ),
-                      ],
                     ],
-                  ),
-                CoinDetailError(:final error) => Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        localizedErrorMessage(l10n, error),
-                        textAlign: TextAlign.center,
+                    const SizedBox(height: 24),
+                    CoinPriceChartSection(
+                      coinId: widget.coinId,
+                      period: _chartPeriod,
+                      onPeriodChanged: (p) {
+                        setState(() => _chartPeriod = p);
+                        unawaited(
+                          context.read<CoinPriceChartCubit>().loadChart(
+                            widget.coinId,
+                            period: p,
+                          ),
+                        );
+                      },
+                    ),
+                    if (detail.description != null &&
+                        detail.description!.isNotEmpty) ...[
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.coinSectionDescription,
+                        style: context.theme.textTheme.titleMedium,
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        detail.description!,
+                        style: context.theme.textTheme.bodyMedium,
+                      ),
+                    ],
+                  ],
+                ),
+                CoinDetailError(:final error) => Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      localizedErrorMessage(l10n, error),
+                      textAlign: TextAlign.center,
                     ),
                   ),
+                ),
               },
             ),
           );

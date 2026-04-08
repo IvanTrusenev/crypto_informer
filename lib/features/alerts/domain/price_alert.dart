@@ -9,11 +9,11 @@ class PriceAlert {
   });
 
   factory PriceAlert.fromJson(Map<String, dynamic> json) => PriceAlert(
-        coinId: json['coinId'] as String,
-        coinName: json['coinName'] as String,
-        thresholdPrice: (json['thresholdPrice'] as num).toDouble(),
-        isAbove: json['isAbove'] as bool,
-      );
+    coinId: json['coinId'] as String,
+    coinName: json['coinName'] as String,
+    thresholdPrice: (json['thresholdPrice'] as num).toDouble(),
+    isAbove: json['isAbove'] as bool,
+  );
 
   final String coinId;
   final String coinName;
@@ -24,11 +24,11 @@ class PriceAlert {
   final bool isAbove;
 
   Map<String, dynamic> toJson() => {
-        'coinId': coinId,
-        'coinName': coinName,
-        'thresholdPrice': thresholdPrice,
-        'isAbove': isAbove,
-      };
+    'coinId': coinId,
+    'coinName': coinName,
+    'thresholdPrice': thresholdPrice,
+    'isAbove': isAbove,
+  };
 
   static List<PriceAlert> decodeList(String raw) =>
       (jsonDecode(raw) as List<dynamic>)

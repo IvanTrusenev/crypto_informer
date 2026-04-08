@@ -1,6 +1,7 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
@@ -20,6 +21,11 @@ void main() {
 
   setUp(() {
     repo = MockCryptoRepository();
+    when(
+      () => repo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
   });
 
   blocTest<MarketCubit, MarketState>(
@@ -34,7 +40,7 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenAnswer((_) async => [_btc]);
-      return MarketCubit(repo);
+      return MarketCubit(GetMarketAssets(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [
@@ -59,12 +65,72 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenThrow(Exception('fail'));
-      return MarketCubit(repo);
+      return MarketCubit(GetMarketAssets(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [
       isA<MarketLoading>(),
       isA<MarketError>(),
+    ],
+  );
+
+  blocTest<MarketCubit, MarketState>(
+    'loadAssets emits stale from cache then fresh from network',
+    build: () {
+      const stale = CryptoAssetEntity(
+        id: 'stale',
+        symbol: 'ST',
+        name: 'Stale',
+        currentPriceUsd: 1,
+        priceChangePercent24h: 0,
+      );
+      when(
+        () => repo.getCachedMarketAssetsFirstPage(
+          vsCurrency: any(named: 'vsCurrency'),
+        ),
+      ).thenAnswer((_) async => [stale]);
+      when(
+        () => repo.getMarketAssets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenAnswer((_) async => [_btc]);
+      return MarketCubit(GetMarketAssets(repo), repo);
+    },
+    act: (cubit) => cubit.loadAssets(),
+    expect: () => [
+      isA<MarketLoading>(),
+      isA<MarketLoaded>().having((s) => s.assets.first.id, 'id', 'stale'),
+      isA<MarketLoaded>().having((s) => s.assets.first.id, 'id', 'bitcoin'),
+    ],
+  );
+
+  blocTest<MarketCubit, MarketState>(
+    'loadAssets keeps cached list when network fails after stale',
+    build: () {
+      when(
+        () => repo.getCachedMarketAssetsFirstPage(
+          vsCurrency: any(named: 'vsCurrency'),
+        ),
+      ).thenAnswer((_) async => [_btc]);
+      when(
+        () => repo.getMarketAssets(
+          vsCurrency: any(named: 'vsCurrency'),
+          page: any(named: 'page'),
+          perPage: any(named: 'perPage'),
+          order: any(named: 'order'),
+          ids: any(named: 'ids'),
+        ),
+      ).thenThrow(Exception('fail'));
+      return MarketCubit(GetMarketAssets(repo), repo);
+    },
+    act: (cubit) => cubit.loadAssets(),
+    expect: () => [
+      isA<MarketLoading>(),
+      isA<MarketLoaded>().having((s) => s.assets.length, 'len', 1),
     ],
   );
 }

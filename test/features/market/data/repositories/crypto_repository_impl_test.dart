@@ -10,7 +10,7 @@ import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_d
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
-import 'package:crypto_informer/features/market/domain/chart_period.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -66,14 +66,36 @@ void main() {
     registerFallbackValue(
       const CryptoCoinDetailDao(id: '', symbol: '', name: ''),
     );
-    registerFallbackValue(ChartPeriod.days7);
+    registerFallbackValue(ChartPeriodEnum.days7);
+  });
+
+  group('getCachedMarketAssetsFirstPage', () {
+    test('returns entities when cache has rows', () async {
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => [_btcDao]);
+      final r = await repo.getCachedMarketAssetsFirstPage();
+      expect(r?.length, 1);
+      expect(r!.first.id, 'bitcoin');
+    });
+
+    test('returns null when cache miss', () async {
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => null);
+      expect(await repo.getCachedMarketAssetsFirstPage(), isNull);
+    });
+
+    test('returns null when cache is empty list', () async {
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => []);
+      expect(await repo.getCachedMarketAssetsFirstPage(), isNull);
+    });
   });
 
   group('getMarketAssets', () {
     test('returns data from network and caches it', () async {
-      when(
-        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
-      ).thenAnswer((_) async => null);
       when(
         () => remote.fetchMarkets(
           vsCurrency: any(named: 'vsCurrency'),
@@ -100,12 +122,12 @@ void main() {
           vsCurrency: any(named: 'vsCurrency'),
         ),
       ).called(1);
+      verifyNever(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      );
     });
 
-    test('returns cache on network error', () async {
-      when(
-        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
-      ).thenAnswer((_) async => [_btcDao]);
+    test('network failure propagates (no second read from local)', () async {
       when(
         () => remote.fetchMarkets(
           vsCurrency: any(named: 'vsCurrency'),
@@ -116,33 +138,34 @@ void main() {
         ),
       ).thenThrow(Exception('network'));
 
-      final result = await repo.getMarketAssets();
+      await expectLater(repo.getMarketAssets(), throwsA(isA<Exception>()));
+      verifyNever(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      );
+    });
+  });
 
-      expect(result.length, 1);
-      expect(result.first.id, 'bitcoin');
+  group('getCachedCoinDetail', () {
+    test('returns entity when cache has row', () async {
+      when(() => local.readCoinDetail(any())).thenAnswer(
+        (_) async => const CryptoCoinDetailDao(
+          id: 'bitcoin',
+          symbol: 'BTC',
+          name: 'Bitcoin',
+        ),
+      );
+      final r = await repo.getCachedCoinDetail('bitcoin');
+      expect(r?.id, 'bitcoin');
     });
 
-    test('rethrows when no cache and network fails', () async {
-      when(
-        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
-      ).thenAnswer((_) async => null);
-      when(
-        () => remote.fetchMarkets(
-          vsCurrency: any(named: 'vsCurrency'),
-          page: any(named: 'page'),
-          perPage: any(named: 'perPage'),
-          order: any(named: 'order'),
-          ids: any(named: 'ids'),
-        ),
-      ).thenThrow(Exception('network'));
-
-      expect(() => repo.getMarketAssets(), throwsA(isA<Exception>()));
+    test('returns null when cache miss', () async {
+      when(() => local.readCoinDetail(any())).thenAnswer((_) async => null);
+      expect(await repo.getCachedCoinDetail('bitcoin'), isNull);
     });
   });
 
   group('getCoinDetail', () {
-    test('returns detail from network and caches', () async {
-      when(() => local.readCoinDetail(any())).thenAnswer((_) async => null);
+    test('returns detail from network and caches in background', () async {
       when(() => remote.fetchCoin(any())).thenAnswer((_) async => _detailDto);
       when(() => local.saveCoinDetail(any())).thenAnswer((_) async {});
 
@@ -151,21 +174,17 @@ void main() {
       expect(result.id, 'bitcoin');
       expect(result.name, 'Bitcoin');
       verify(() => local.saveCoinDetail(any())).called(1);
+      verifyNever(() => local.readCoinDetail(any()));
     });
 
-    test('returns cache on network error', () async {
-      when(() => local.readCoinDetail(any())).thenAnswer(
-        (_) async => const CryptoCoinDetailDao(
-          id: 'bitcoin',
-          symbol: 'BTC',
-          name: 'Bitcoin',
-        ),
-      );
+    test('network failure propagates (no read from local)', () async {
       when(() => remote.fetchCoin(any())).thenThrow(Exception('network'));
 
-      final result = await repo.getCoinDetail('bitcoin');
-
-      expect(result.id, 'bitcoin');
+      await expectLater(
+        repo.getCoinDetail('bitcoin'),
+        throwsA(isA<Exception>()),
+      );
+      verifyNever(() => local.readCoinDetail(any()));
     });
   });
 
@@ -188,7 +207,7 @@ void main() {
 
       final result = await repo.getPriceChart(
         'bitcoin',
-        period: ChartPeriod.days30,
+        period: ChartPeriodEnum.days30,
       );
 
       expect(result.length, lessThanOrEqualTo(240));

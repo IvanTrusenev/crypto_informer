@@ -10,8 +10,9 @@ class AboutContent extends StatelessWidget {
 
   Future<int> _cachedCoinCount() async {
     final db = sl<Database>();
-    final result =
-        await db.rawQuery('SELECT COUNT(*) AS cnt FROM coin_detail_cache');
+    final result = await db.rawQuery(
+      'SELECT COUNT(*) AS cnt FROM coin_detail_cache',
+    );
     return Sqflite.firstIntValue(result) ?? 0;
   }
 

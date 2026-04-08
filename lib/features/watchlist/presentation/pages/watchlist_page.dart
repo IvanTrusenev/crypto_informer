@@ -44,18 +44,19 @@ class WatchlistPage extends StatelessWidget {
           }
           return BlocBuilder<MarketCubit, MarketState>(
             builder: (context, marketState) => switch (marketState) {
-              MarketInitial() || MarketLoading() =>
-                const Center(child: CircularProgressIndicator()),
+              MarketInitial() || MarketLoading() => const Center(
+                child: CircularProgressIndicator(),
+              ),
               MarketLoaded(:final assets) => _buildList(
-                  context,
-                  ids,
-                  assets,
-                  priceFormat,
-                  l10n,
-                ),
+                context,
+                ids,
+                assets,
+                priceFormat,
+                l10n,
+              ),
               MarketError(:final error) => Center(
-                  child: Text(localizedErrorMessage(l10n, error)),
-                ),
+                child: Text(localizedErrorMessage(l10n, error)),
+              ),
             },
           );
         },
@@ -94,8 +95,7 @@ class WatchlistPage extends StatelessWidget {
             onRefresh: () => context.read<MarketCubit>().refresh(),
             child: LayoutBuilder(
               builder: (context, constraints) {
-                final columns =
-                    marketListCrossAxisCount(constraints.maxWidth);
+                final columns = marketListCrossAxisCount(constraints.maxWidth);
                 if (columns == 1) {
                   return ListView.separated(
                     physics: const AlwaysScrollableScrollPhysics(),
@@ -115,9 +115,8 @@ class WatchlistPage extends StatelessWidget {
                         onTap: () => context.push(
                           '/market/coin/${asset.id}',
                         ),
-                        onToggleStar: () => context
-                            .read<WatchlistCubit>()
-                            .toggle(asset.id),
+                        onToggleStar: () =>
+                            context.read<WatchlistCubit>().toggle(asset.id),
                       );
                     },
                   );
@@ -147,9 +146,8 @@ class WatchlistPage extends StatelessWidget {
                         onTap: () => context.push(
                           '/market/coin/${asset.id}',
                         ),
-                        onToggleStar: () => context
-                            .read<WatchlistCubit>()
-                            .toggle(asset.id),
+                        onToggleStar: () =>
+                            context.read<WatchlistCubit>().toggle(asset.id),
                         dense: true,
                       ),
                     );

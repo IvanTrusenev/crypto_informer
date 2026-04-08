@@ -1,7 +1,7 @@
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
-import 'package:crypto_informer/features/market/domain/chart_period.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 
 abstract interface class CryptoRemoteDataSource {
   Future<List<CryptoAssetDto>> fetchMarkets({
@@ -20,7 +20,7 @@ abstract interface class CryptoRemoteDataSource {
 
   Future<List<PriceChartPointDto>> fetchMarketChart(
     String id, {
-    required ChartPeriod period,
+    required ChartPeriodEnum period,
     required String vsCurrency,
   });
 }

@@ -49,10 +49,10 @@ class CryptoAssetListTile extends StatelessWidget {
     final finance = context.financeColors;
 
     final change = asset.priceChangePercent24h;
-    final changeColor =
-        change >= 0 ? finance.pricePositive : finance.priceNegative;
-    final changeStr =
-        '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
+    final changeColor = change >= 0
+        ? finance.pricePositive
+        : finance.priceNegative;
+    final changeStr = '${change >= 0 ? '+' : ''}${change.toStringAsFixed(2)}%';
 
     final cap = asset.marketCapUsd;
     final vol = asset.totalVolumeUsd;

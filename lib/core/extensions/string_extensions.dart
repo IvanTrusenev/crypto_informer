@@ -1,7 +1,6 @@
 extension NullableStringX on String? {
   /// Returns `null` if the string is `null` or empty, otherwise returns itself.
-  String? get nonEmpty =>
-      this != null && this!.isNotEmpty ? this : null;
+  String? get nonEmpty => this != null && this!.isNotEmpty ? this : null;
 
   /// Strips HTML tags, collapses whitespace and truncates to [maxLength].
   /// Returns `null` if the source is `null` or empty.

@@ -1,6 +1,7 @@
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_page.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
@@ -52,6 +53,11 @@ void main() {
   testWidgets('shows list when loaded', (tester) async {
     final repo = MockCryptoRepository();
     when(
+      () => repo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
+    when(
       () => repo.getMarketAssets(
         vsCurrency: any(named: 'vsCurrency'),
         page: any(named: 'page'),
@@ -60,7 +66,7 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenAnswer((_) async => [_btc]);
-    final cubit = MarketCubit(repo);
+    final cubit = MarketCubit(GetMarketAssets(repo), repo);
     await cubit.loadAssets();
 
     await tester.pumpWidget(_buildApp(marketCubit: cubit));
@@ -72,6 +78,11 @@ void main() {
   testWidgets('shows error on failure', (tester) async {
     final repo = MockCryptoRepository();
     when(
+      () => repo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
+    when(
       () => repo.getMarketAssets(
         vsCurrency: any(named: 'vsCurrency'),
         page: any(named: 'page'),
@@ -80,7 +91,7 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenThrow(Exception('fail'));
-    final cubit = MarketCubit(repo);
+    final cubit = MarketCubit(GetMarketAssets(repo), repo);
     await cubit.loadAssets();
 
     await tester.pumpWidget(_buildApp(marketCubit: cubit));

@@ -1,6 +1,6 @@
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dao.dart';
-import 'package:crypto_informer/features/market/domain/market_list_query_defaults.dart';
+import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
 
 abstract interface class CryptoLocalDataSource {
   Future<List<CryptoAssetDao>?> readMarketAssets({

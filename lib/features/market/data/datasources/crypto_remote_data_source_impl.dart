@@ -4,7 +4,7 @@ import 'package:crypto_informer/features/market/data/datasources/crypto_remote_d
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
-import 'package:crypto_informer/features/market/domain/chart_period.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 import 'package:dio/dio.dart';
 
 class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
@@ -68,7 +68,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   @override
   Future<List<PriceChartPointDto>> fetchMarketChart(
     String id, {
-    required ChartPeriod period,
+    required ChartPeriodEnum period,
     required String vsCurrency,
   }) async {
     try {

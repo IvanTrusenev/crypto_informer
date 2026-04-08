@@ -51,6 +51,18 @@ flutter test
 | `Entity` | Доменные сущности (чистая модель без зависимостей) | `CryptoAssetEntity`, `CryptoCoinDetailEntity`, `PriceChartPointEntity` |
 | `Dto` | Сетевые модели (Data Transfer Object) — маппинг JSON API → домен | `CryptoAssetDto`, `CryptoCoinDetailDto`, `CoinCurrentPriceDto`, `CoinDescriptionDto`, `CoinImageDto`, `CoinMarketDataDto`, `PriceChartPointDto` |
 | `Dao` | Модели локальной БД (Data Access Object) — маппинг SQLite ↔ домен | `CryptoAssetDao`, `CryptoCoinDetailDao` |
+| `Enum` | Доменные перечисления (value object) в `domain/value_objects/` | файл `*_enum.dart`, тип `PascalCase` + `Enum` — например `chart_period_enum.dart` / `ChartPeriodEnum` |
+
+### Value objects (`domain/value_objects/`)
+
+**Value object** в этом проекте — небольшой доменный тип **без** роли «сущности с идентичностью» (как у `*Entity` из API/кэша). Он задаёт **ограниченный набор значений**, подписи, маппинг во внешние параметры (например строка `order` для CoinGecko) или иные правила, которые не хочется размазывать по кубитам и репозиториям.
+
+| Рядом лежит | Зачем отдельно |
+|-------------|----------------|
+| **`entities/`** | Сущности описывают данные предметной области (монета, точка графика). Value object описывает *как мы параметризуем* запрос или UI (период графика, колонка сортировки). |
+| **`constants/`** | Константы — обычно скалярные дефолты (`perPage`, `order` по умолчанию). Value objects — именованные варианты с поведением: методы вроде `toApiOrder`, поля enhanced enum. |
+
+На практике в `value_objects/` лежат **доменные enum’ы** по соглашению из таблицы выше (`*_enum.dart`, тип `…Enum`). Другие виды value objects (например небольшие `final class` с инвариантами) допустимы, если они остаются в `domain` без зависимостей от Flutter и инфраструктуры.
 
 ### Сериализация моделей (`json_serializable`)
 
@@ -102,7 +114,7 @@ dart run build_runner build --delete-conflicting-outputs
 
 | Слой | Назначение | Типичное содержимое |
 |------|------------|---------------------|
-| **domain** | Правила и контракты без Flutter/Dio/sqflite | сущности (`entities`), интерфейсы репозиториев, use case-ы |
+| **domain** | Правила и контракты без Flutter/Dio/sqflite | сущности (`entities`), `constants/` (скалярные дефолты запросов), `value_objects/` (перечисления и мелкие типы — подраздел **Value objects**), интерфейсы репозиториев, use case-ы |
 | **data** | Реализация доступа к данным | DTO (сеть, `*_dto.dart`), DAO (БД, `*_dao.dart`), datasources (remote/local), `*RepositoryImpl` |
 | **presentation** | UI и привязка к состоянию | страницы (`pages/`), виджеты (`widgets/`), кубиты (`cubit/`) |
 
@@ -117,8 +129,9 @@ dart run build_runner build --delete-conflicting-outputs
 ```
 lib/features/market/
   domain/
-    chart_period.dart   # период для market_chart (1D … MAX)
+    constants/          # MarketListQueryDefaults (vsCurrency, page, perPage, order для списка рынка)
     entities/           # CryptoAssetEntity, CryptoCoinDetailEntity, PriceChartPointEntity
+    value_objects/      # ChartPeriodEnum, MarketSortColumnEnum
     repositories/       # абстрактный CryptoRepository (+ getPriceChart)
     usecases/           # GetMarketAssets, GetCoinDetail (обёртки над репозиторием)
   data/
@@ -140,7 +153,7 @@ lib/features/market/
 | Список рынка, карточка монеты (описание, цена, 24ч) | CoinGecko (`/coins/markets`, `/coins/{id}`) | SQLite через `CryptoLocalDataSource` |
 | История цен для графика | CoinGecko `/coins/{id}/market_chart` | нет (каждый раз с сети; при ошибке — сообщение и «Повторить») |
 
-Кубиты получают зависимости через `get_it`. `CoinPriceChartCubit` зависит от `CryptoRepository` и запрашивает данные по паре (id монеты + `ChartPeriod`). Отрисовка — пакет **`fl_chart`** (`LineChart`).
+Кубиты получают зависимости через `get_it`. `CoinPriceChartCubit` зависит от `CryptoRepository` и запрашивает данные по паре (id монеты + `ChartPeriodEnum`). Отрисовка — пакет **`fl_chart`** (`LineChart`).
 
 #### `watchlist` — избранное
 

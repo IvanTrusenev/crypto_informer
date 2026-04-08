@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/localization/context_l10n.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
+import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
@@ -63,19 +63,17 @@ class _MarketPageState extends State<MarketPage> {
     }
   }
 
-  void _onSortSegmentTapped(MarketSortColumn column) {
+  void _onSortSegmentTapped(MarketSortColumnEnum column) {
     final cubit = context.read<MarketCubit>();
     final current = cubit.state;
-    final prevColumn =
-        current is MarketLoaded ? current.sortColumn : null;
-    final prevAsc =
-        current is! MarketLoaded || current.sortAscending;
+    final prevColumn = current is MarketLoaded ? current.sortColumn : null;
+    final prevAsc = current is! MarketLoaded || current.sortAscending;
 
     final bool ascending;
     if (prevColumn == column) {
       ascending = !prevAsc;
     } else {
-      ascending = marketSortDefaultAscending(column);
+      ascending = column.defaultAscending;
     }
     unawaited(cubit.setSort(column, ascending: ascending));
   }
@@ -98,8 +96,8 @@ class _MarketPageState extends State<MarketPage> {
       body: BlocBuilder<MarketCubit, MarketState>(
         builder: (context, marketState) {
           return switch (marketState) {
-            MarketInitial() || MarketLoading() =>
-              const Center(child: CircularProgressIndicator()),
+            MarketInitial() ||
+            MarketLoading() => const Center(child: CircularProgressIndicator()),
             MarketLoaded(
               :final assets,
               :final isLoadingMore,
@@ -122,25 +120,24 @@ class _MarketPageState extends State<MarketPage> {
                 sortAscending: sortAscending,
               ),
             MarketError(:final error) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        localizedErrorMessage(l10n, error),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      FilledButton(
-                        onPressed: () =>
-                            context.read<MarketCubit>().loadAssets(),
-                        child: Text(l10n.retryAction),
-                      ),
-                    ],
-                  ),
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      localizedErrorMessage(l10n, error),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    FilledButton(
+                      onPressed: () => context.read<MarketCubit>().loadAssets(),
+                      child: Text(l10n.retryAction),
+                    ),
+                  ],
                 ),
               ),
+            ),
           };
         },
       ),
@@ -156,7 +153,7 @@ class _MarketPageState extends State<MarketPage> {
     required bool hasMore,
     required String searchQuery,
     required bool isSearching,
-    required MarketSortColumn? sortColumn,
+    required MarketSortColumnEnum? sortColumn,
     required bool sortAscending,
   }) {
     return BlocBuilder<WatchlistCubit, WatchlistState>(
@@ -214,8 +211,9 @@ class _MarketPageState extends State<MarketPage> {
               );
             }
 
-            final filterHeight =
-                wide ? _kFilterBarWideHeight : _kFilterBarNarrowHeight;
+            final filterHeight = wide
+                ? _kFilterBarWideHeight
+                : _kFilterBarNarrowHeight;
 
             return RefreshIndicator(
               onRefresh: () => context.read<MarketCubit>().refresh(),
@@ -259,15 +257,15 @@ class _MarketPageState extends State<MarketPage> {
                           final inList = watchlistIds.contains(asset.id);
                           return CryptoAssetListTile(
                             asset: asset,
-                            priceText:
-                                priceFormat.format(asset.currentPriceUsd),
+                            priceText: priceFormat.format(
+                              asset.currentPriceUsd,
+                            ),
                             inWatchlist: inList,
                             l10n: l10n,
                             onTap: () =>
                                 context.push('/market/coin/${asset.id}'),
-                            onToggleStar: () => context
-                                .read<WatchlistCubit>()
-                                .toggle(asset.id),
+                            onToggleStar: () =>
+                                context.read<WatchlistCubit>().toggle(asset.id),
                           );
                         },
                       ),
@@ -285,8 +283,9 @@ class _MarketPageState extends State<MarketPage> {
                               margin: EdgeInsets.zero,
                               child: CryptoAssetListTile(
                                 asset: asset,
-                                priceText:
-                                    priceFormat.format(asset.currentPriceUsd),
+                                priceText: priceFormat.format(
+                                  asset.currentPriceUsd,
+                                ),
                                 inWatchlist: inList,
                                 l10n: l10n,
                                 onTap: () =>
@@ -300,8 +299,7 @@ class _MarketPageState extends State<MarketPage> {
                           },
                           childCount: display.length,
                         ),
-                        gridDelegate:
-                            SliverGridDelegateWithFixedCrossAxisCount(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                           crossAxisCount: columns,
                           mainAxisExtent: 96,
                           crossAxisSpacing: 10,
@@ -364,7 +362,7 @@ class _MarketPageState extends State<MarketPage> {
   Widget _buildSortControls(
     BuildContext context,
     AppLocalizations l10n, {
-    required MarketSortColumn? sortColumn,
+    required MarketSortColumnEnum? sortColumn,
     required bool sortAscending,
   }) {
     final resetStyle = TextButton.styleFrom(
@@ -461,9 +459,7 @@ class _MarketSortSection extends StatelessWidget {
           side: outlineBorder.borderSide,
         ),
       ),
-      child: fillHeight
-          ? SizedBox.expand(child: Center(child: inner))
-          : inner,
+      child: fillHeight ? SizedBox.expand(child: Center(child: inner)) : inner,
     );
   }
 }
@@ -476,9 +472,9 @@ class _SegmentedMarketSortBar extends StatelessWidget {
     required this.l10n,
   });
 
-  final MarketSortColumn? selectedColumn;
+  final MarketSortColumnEnum? selectedColumn;
   final bool ascending;
-  final ValueChanged<MarketSortColumn> onSegmentTap;
+  final ValueChanged<MarketSortColumnEnum> onSegmentTap;
   final AppLocalizations l10n;
 
   @override
@@ -496,9 +492,9 @@ class _SegmentedMarketSortBar extends StatelessWidget {
             Expanded(
               child: _SortSegment(
                 label: l10n.marketSortId,
-                selected: selectedColumn == MarketSortColumn.id,
+                selected: selectedColumn == MarketSortColumnEnum.id,
                 ascending: ascending,
-                onTap: () => onSegmentTap(MarketSortColumn.id),
+                onTap: () => onSegmentTap(MarketSortColumnEnum.id),
               ),
             ),
             VerticalDivider(
@@ -511,9 +507,9 @@ class _SegmentedMarketSortBar extends StatelessWidget {
             Expanded(
               child: _SortSegment(
                 label: l10n.marketSortVolume,
-                selected: selectedColumn == MarketSortColumn.volume,
+                selected: selectedColumn == MarketSortColumnEnum.volume,
                 ascending: ascending,
-                onTap: () => onSegmentTap(MarketSortColumn.volume),
+                onTap: () => onSegmentTap(MarketSortColumnEnum.volume),
               ),
             ),
             VerticalDivider(
@@ -526,9 +522,9 @@ class _SegmentedMarketSortBar extends StatelessWidget {
             Expanded(
               child: _SortSegment(
                 label: l10n.marketSortMarketCap,
-                selected: selectedColumn == MarketSortColumn.marketCap,
+                selected: selectedColumn == MarketSortColumnEnum.marketCap,
                 ascending: ascending,
-                onTap: () => onSegmentTap(MarketSortColumn.marketCap),
+                onTap: () => onSegmentTap(MarketSortColumnEnum.marketCap),
               ),
             ),
           ],
@@ -571,16 +567,14 @@ class _SortSegment extends StatelessWidget {
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1,
-                    style:
-                        Theme.of(context).textTheme.labelSmall?.copyWith(
-                              fontSize: 10,
-                              height: 1,
-                              color: selected
-                                  ? scheme.onSecondaryContainer
-                                  : scheme.onSurface,
-                              fontWeight:
-                                  selected ? FontWeight.w600 : FontWeight.w400,
-                            ),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 10,
+                      height: 1,
+                      color: selected
+                          ? scheme.onSecondaryContainer
+                          : scheme.onSurface,
+                      fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+                    ),
                   ),
                 ),
                 if (selected) ...[
