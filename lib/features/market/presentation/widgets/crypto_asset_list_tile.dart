@@ -1,4 +1,4 @@
-import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/watchlist/presentation/widgets/animated_watchlist_icon_button.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';

@@ -2,14 +2,14 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:crypto_informer/core/di/service_locator.dart';
-import 'package:crypto_informer/core/localization/context_l10n.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/core/localization/locale_resolution.dart';
 import 'package:crypto_informer/core/router/app_router.dart';
 import 'package:crypto_informer/core/theme/app_theme.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
@@ -27,7 +27,7 @@ Future<void> main() async {
   await initServiceLocator();
 
   final marketCubit = MarketCubit(
-    sl<GetMarketAssets>(),
+    sl<GetMarketAssetsUseCase>(),
     sl<CryptoRepository>(),
   );
   unawaited(marketCubit.loadAssets());

@@ -14,8 +14,8 @@ import 'package:crypto_informer/features/market/data/datasources/crypto_remote_d
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source_impl.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -62,10 +62,10 @@ Future<void> initServiceLocator() async {
     ..registerLazySingleton<CryptoRepository>(
       () => CryptoRepositoryImpl(sl(), sl()),
     )
-    ..registerLazySingleton<GetMarketAssets>(
-      () => GetMarketAssets(sl<CryptoRepository>()),
+    ..registerLazySingleton<GetMarketAssetsUseCase>(
+      () => GetMarketAssetsUseCase(sl<CryptoRepository>()),
     )
-    ..registerLazySingleton<GetCoinDetail>(
-      () => GetCoinDetail(sl<CryptoRepository>()),
+    ..registerLazySingleton<GetCoinDetailUseCase>(
+      () => GetCoinDetailUseCase(sl<CryptoRepository>()),
     );
 }

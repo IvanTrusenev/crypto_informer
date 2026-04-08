@@ -1,6 +1,6 @@
 import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -15,11 +15,11 @@ const _fresh = CryptoCoinDetailEntity(
 
 void main() {
   late MockRepo repo;
-  late GetCoinDetail useCase;
+  late GetCoinDetailUseCase useCase;
 
   setUp(() {
     repo = MockRepo();
-    useCase = GetCoinDetail(repo);
+    useCase = GetCoinDetailUseCase(repo);
   });
 
   setUpAll(() {

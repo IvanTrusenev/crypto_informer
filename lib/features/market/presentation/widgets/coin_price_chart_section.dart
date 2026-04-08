@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
-import 'package:crypto_informer/core/localization/context_l10n.dart';
-import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart_cubit.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart/export.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,14 +16,10 @@ import 'package:intl/intl.dart';
 class CoinPriceChartSection extends StatelessWidget {
   const CoinPriceChartSection({
     required this.coinId,
-    required this.period,
-    required this.onPeriodChanged,
     super.key,
   });
 
   final String coinId;
-  final ChartPeriodEnum period;
-  final ValueChanged<ChartPeriodEnum> onPeriodChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -42,17 +38,24 @@ class CoinPriceChartSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            for (final p in ChartPeriodEnum.values)
-              FilterChip(
-                label: Text(p.shortLabel),
-                selected: p == period,
-                onSelected: (_) => onPeriodChanged(p),
-              ),
-          ],
+        BlocBuilder<CoinPriceChartCubit, CoinPriceChartState>(
+          buildWhen: (prev, next) => prev.period != next.period,
+          builder: (context, state) {
+            return Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final p in ChartPeriodEnum.values)
+                  FilterChip(
+                    label: Text(p.shortLabel),
+                    selected: p == state.period,
+                    onSelected: (_) => context
+                        .read<CoinPriceChartCubit>()
+                        .loadChart(coinId, period: p),
+                  ),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 16),
         BlocBuilder<PriceAlertCubit, PriceAlertState>(
@@ -64,7 +67,7 @@ class CoinPriceChartSection extends StatelessWidget {
                 CoinPriceChartInitial() ||
                 CoinPriceChartLoading() => const SizedBox(
                   height: 200,
-                  child: Center(child: CircularProgressIndicator()),
+                  child: CenteredCircularProgress(),
                 ),
                 CoinPriceChartLoaded(:final points) =>
                   points.isEmpty
@@ -84,19 +87,13 @@ class CoinPriceChartSection extends StatelessWidget {
                             _buildLineChartData(
                               context,
                               points,
-                              NumberFormat.currency(
-                                locale: Localizations.localeOf(
-                                  context,
-                                ).toString(),
-                                symbol: r'$',
-                                decimalDigits: 2,
-                              ),
+                              context.usdCurrencyFormat,
                               Localizations.localeOf(context).toString(),
                               alertThreshold: alertThreshold,
                             ),
                           ),
                         ),
-                CoinPriceChartError(:final error) => Padding(
+                CoinPriceChartError(:final error, :final period) => Padding(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   child: Column(
                     children: [

@@ -5,8 +5,8 @@ import 'package:crypto_informer/features/market/domain/repositories/crypto_repos
 ///
 /// Сначала кэш из SQLite (если есть), затем данные с сети. Ошибка сети после
 /// показа кэша не пробрасывается.
-class GetCoinDetail {
-  const GetCoinDetail(this._repository);
+class GetCoinDetailUseCase {
+  const GetCoinDetailUseCase(this._repository);
 
   final CryptoRepository _repository;
 

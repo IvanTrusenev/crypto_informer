@@ -1,13 +1,11 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:crypto_informer/core/localization/context_l10n.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:crypto_informer/features/alerts/presentation/widgets/in_app_notification.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
-
 /// Оболочка с нижней навигацией для трёх основных разделов приложения.
 class ScaffoldWithNavBar extends StatefulWidget {
   const ScaffoldWithNavBar({required this.navigationShell, super.key});
@@ -35,12 +33,7 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
     if (triggered.isEmpty) return;
 
     final l10n = context.l10n;
-    final locale = Localizations.localeOf(context).toString();
-    final priceFormat = NumberFormat.currency(
-      locale: locale,
-      symbol: r'$',
-      decimalDigits: 2,
-    );
+    final priceFormat = context.usdCurrencyFormat;
 
     for (final alert in triggered) {
       final body = alert.isAbove

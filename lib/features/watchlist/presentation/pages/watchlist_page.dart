@@ -1,8 +1,9 @@
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
-import 'package:crypto_informer/core/localization/context_l10n.dart';
-import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
+import 'package:crypto_informer/core/widgets/centered_error_message.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -17,11 +18,7 @@ class WatchlistPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final priceFormat = NumberFormat.currency(
-      locale: Localizations.localeOf(context).toString(),
-      symbol: r'$',
-      decimalDigits: 2,
-    );
+    final priceFormat = context.usdCurrencyFormat;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.watchlistTitle)),
@@ -44,9 +41,8 @@ class WatchlistPage extends StatelessWidget {
           }
           return BlocBuilder<MarketCubit, MarketState>(
             builder: (context, marketState) => switch (marketState) {
-              MarketInitial() || MarketLoading() => const Center(
-                child: CircularProgressIndicator(),
-              ),
+              MarketInitial() || MarketLoading() =>
+                const CenteredCircularProgress(),
               MarketLoaded(:final assets) => _buildList(
                 context,
                 ids,
@@ -54,8 +50,8 @@ class WatchlistPage extends StatelessWidget {
                 priceFormat,
                 l10n,
               ),
-              MarketError(:final error) => Center(
-                child: Text(localizedErrorMessage(l10n, error)),
+              MarketError(:final error) => CenteredErrorMessage(
+                message: localizedErrorMessage(l10n, error),
               ),
             },
           );

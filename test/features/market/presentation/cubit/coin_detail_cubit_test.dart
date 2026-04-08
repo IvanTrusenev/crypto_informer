@@ -1,8 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/coin_detail_cubit.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/coin_detail/export.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -34,7 +34,7 @@ void main() {
     'loadDetail emits loading then loaded',
     build: () {
       when(() => repo.getCoinDetail(any())).thenAnswer((_) async => _fresh);
-      return CoinDetailCubit(GetCoinDetail(repo));
+      return CoinDetailCubit(GetCoinDetailUseCase(repo));
     },
     act: (cubit) => cubit.loadDetail('bitcoin'),
     expect: () => [
@@ -51,7 +51,7 @@ void main() {
     'loadDetail emits error when no cache and network fails',
     build: () {
       when(() => repo.getCoinDetail(any())).thenThrow(Exception('fail'));
-      return CoinDetailCubit(GetCoinDetail(repo));
+      return CoinDetailCubit(GetCoinDetailUseCase(repo));
     },
     act: (cubit) => cubit.loadDetail('bitcoin'),
     expect: () => [
@@ -67,7 +67,7 @@ void main() {
         () => repo.getCachedCoinDetail(any()),
       ).thenAnswer((_) async => _stale);
       when(() => repo.getCoinDetail(any())).thenAnswer((_) async => _fresh);
-      return CoinDetailCubit(GetCoinDetail(repo));
+      return CoinDetailCubit(GetCoinDetailUseCase(repo));
     },
     act: (cubit) => cubit.loadDetail('bitcoin'),
     expect: () => [
@@ -92,7 +92,7 @@ void main() {
         () => repo.getCachedCoinDetail(any()),
       ).thenAnswer((_) async => _stale);
       when(() => repo.getCoinDetail(any())).thenThrow(Exception('fail'));
-      return CoinDetailCubit(GetCoinDetail(repo));
+      return CoinDetailCubit(GetCoinDetailUseCase(repo));
     },
     act: (cubit) => cubit.loadDetail('bitcoin'),
     expect: () => [

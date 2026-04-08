@@ -1,8 +1,8 @@
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_page.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -66,7 +66,7 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenAnswer((_) async => [_btc]);
-    final cubit = MarketCubit(GetMarketAssets(repo), repo);
+    final cubit = MarketCubit(GetMarketAssetsUseCase(repo), repo);
     await cubit.loadAssets();
 
     await tester.pumpWidget(_buildApp(marketCubit: cubit));
@@ -91,7 +91,7 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenThrow(Exception('fail'));
-    final cubit = MarketCubit(GetMarketAssets(repo), repo);
+    final cubit = MarketCubit(GetMarketAssetsUseCase(repo), repo);
     await cubit.loadAssets();
 
     await tester.pumpWidget(_buildApp(marketCubit: cubit));

@@ -1,8 +1,8 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
-import 'package:crypto_informer/features/market/domain/usecases/get_market_assets.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market_cubit.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -40,7 +40,7 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenAnswer((_) async => [_btc]);
-      return MarketCubit(GetMarketAssets(repo), repo);
+      return MarketCubit(GetMarketAssetsUseCase(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [
@@ -65,7 +65,7 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenThrow(Exception('fail'));
-      return MarketCubit(GetMarketAssets(repo), repo);
+      return MarketCubit(GetMarketAssetsUseCase(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [
@@ -98,7 +98,7 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenAnswer((_) async => [_btc]);
-      return MarketCubit(GetMarketAssets(repo), repo);
+      return MarketCubit(GetMarketAssetsUseCase(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [
@@ -125,7 +125,7 @@ void main() {
           ids: any(named: 'ids'),
         ),
       ).thenThrow(Exception('fail'));
-      return MarketCubit(GetMarketAssets(repo), repo);
+      return MarketCubit(GetMarketAssetsUseCase(repo), repo);
     },
     act: (cubit) => cubit.loadAssets(),
     expect: () => [

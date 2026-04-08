@@ -1,12 +1,10 @@
 import 'dart:async';
 
-import 'package:crypto_informer/core/localization/context_l10n.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/features/alerts/domain/price_alert.dart';
 import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
-
 /// Dialog for setting / removing a price alert on a specific coin.
 Future<void> showSetPriceAlertDialog(
   BuildContext context, {
@@ -107,11 +105,7 @@ class _SetPriceAlertDialogState extends State<_SetPriceAlertDialog> {
   @override
   Widget build(BuildContext context) {
     final l10n = context.l10n;
-    final priceFormat = NumberFormat.currency(
-      locale: Localizations.localeOf(context).toString(),
-      symbol: r'$',
-      decimalDigits: 2,
-    );
+    final priceFormat = context.usdCurrencyFormat;
     final hasExisting =
         context.read<PriceAlertCubit>().state.alertFor(widget.coinId) != null;
 

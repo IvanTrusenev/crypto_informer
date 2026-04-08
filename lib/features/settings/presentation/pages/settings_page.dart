@@ -1,6 +1,7 @@
 import 'dart:async';
 
-import 'package:crypto_informer/core/localization/context_l10n.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
+import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
 import 'package:crypto_informer/features/about/presentation/about_dialog.dart';
 import 'package:crypto_informer/features/settings/domain/app_settings.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
@@ -41,9 +42,7 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: BlocBuilder<AppSettingsCubit, AppSettingsState>(
         builder: (context, state) => switch (state) {
-          AppSettingsInitial() => const Center(
-            child: CircularProgressIndicator(),
-          ),
+          AppSettingsInitial() => const CenteredCircularProgress(),
           AppSettingsLoaded(:final settings) => ListView(
             padding: const EdgeInsets.all(16),
             children: [

@@ -4,13 +4,14 @@ import 'package:crypto_informer/features/market/domain/repositories/crypto_repos
 
 /// Список рынка со stale-while-revalidate для «основного» просмотра.
 ///
-/// Первая страница без фильтра `ids`: сначала непустой кэш SQLite (если есть),
-/// затем ответ сети. Ошибка сети после показа кэша не пробрасывается.
+/// Первая страница без фильтра `ids`: при `emitCachedFirst == true` сначала
+/// непустой кэш SQLite (если есть), затем ответ сети. При `false` кэш не
+/// читается (pull-to-refresh). Ошибка сети после показа кэша не пробрасывается.
 ///
 /// Пагинация и поиск (`ids` задан): кэш первой страницы не читается; один
 /// элемент в потоке — ответ API.
-class GetMarketAssets {
-  const GetMarketAssets(this._repository);
+class GetMarketAssetsUseCase {
+  const GetMarketAssetsUseCase(this._repository);
 
   final CryptoRepository _repository;
 
@@ -20,11 +21,13 @@ class GetMarketAssets {
     int perPage = MarketListQueryDefaults.perPage,
     String order = MarketListQueryDefaults.order,
     List<String>? ids,
+    /// Для pull-to-refresh: не отдавать кэш первой страницы, сразу сеть.
+    bool emitCachedFirst = true,
   }) async* {
     final isBrowseFirstPage =
         page == MarketListQueryDefaults.page && ids == null;
     var yieldedStale = false;
-    if (isBrowseFirstPage) {
+    if (isBrowseFirstPage && emitCachedFirst) {
       final stale = await _repository.getCachedMarketAssetsFirstPage(
         vsCurrency: vsCurrency,
       );

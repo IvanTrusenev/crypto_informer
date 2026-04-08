@@ -1,6 +1,5 @@
 import 'package:crypto_informer/core/di/service_locator.dart';
-import 'package:crypto_informer/core/localization/context_l10n.dart';
-import 'package:crypto_informer/core/theme/context_theme.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:sqflite/sqflite.dart';
 

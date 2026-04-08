@@ -1,4 +1,4 @@
-import 'package:crypto_informer/core/localization/context_l10n.dart';
+import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/features/about/presentation/widgets/about_content.dart';
 import 'package:flutter/material.dart';
 
