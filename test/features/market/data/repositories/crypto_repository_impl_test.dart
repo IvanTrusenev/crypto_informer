@@ -1,15 +1,16 @@
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
+import 'package:crypto_informer/features/market/data/models/coin_current_price_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_description_dto.dart';
 import 'package:crypto_informer/features/market/data/models/coin_image_dto.dart';
 import 'package:crypto_informer/features/market/data/models/coin_market_data_dto.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dao.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
 import 'package:crypto_informer/features/market/domain/chart_period.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
-
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 
@@ -27,7 +28,7 @@ const _btcDto = CryptoAssetDto(
   imageUrl: 'https://example.com/btc.png',
 );
 
-const _btcEntity = CryptoAssetEntity(
+const _btcDao = CryptoAssetDao(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',
@@ -41,10 +42,10 @@ const _detailDto = CryptoCoinDetailDto(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',
-  description: {'en': 'A digital currency'},
+  description: CoinDescriptionDto(byLocale: {'en': 'A digital currency'}),
   image: CoinImageDto(large: 'https://example.com/btc_large.png'),
   marketData: CoinMarketDataDto(
-    currentPrice: {'usd': 65000.0},
+    currentPrice: CoinCurrentPriceDto(byCurrency: {'usd': 65000.0}),
     priceChangePercentage24h: 2.5,
   ),
 );
@@ -61,17 +62,18 @@ void main() {
   });
 
   setUpAll(() {
-    registerFallbackValue(<CryptoAssetEntity>[]);
+    registerFallbackValue(<CryptoAssetDao>[]);
     registerFallbackValue(
-      const CryptoCoinDetailEntity(id: '', symbol: '', name: ''),
+      const CryptoCoinDetailDao(id: '', symbol: '', name: ''),
     );
     registerFallbackValue(ChartPeriod.days7);
   });
 
   group('getMarketAssets', () {
     test('returns data from network and caches it', () async {
-      when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-          .thenAnswer((_) async => null);
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => null);
       when(
         () => remote.fetchMarkets(
           vsCurrency: any(named: 'vsCurrency'),
@@ -101,8 +103,9 @@ void main() {
     });
 
     test('returns cache on network error', () async {
-      when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-          .thenAnswer((_) async => [_btcEntity]);
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => [_btcDao]);
       when(
         () => remote.fetchMarkets(
           vsCurrency: any(named: 'vsCurrency'),
@@ -120,8 +123,9 @@ void main() {
     });
 
     test('rethrows when no cache and network fails', () async {
-      when(() => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')))
-          .thenAnswer((_) async => null);
+      when(
+        () => local.readMarketAssets(vsCurrency: any(named: 'vsCurrency')),
+      ).thenAnswer((_) async => null);
       when(
         () => remote.fetchMarkets(
           vsCurrency: any(named: 'vsCurrency'),
@@ -138,12 +142,9 @@ void main() {
 
   group('getCoinDetail', () {
     test('returns detail from network and caches', () async {
-      when(() => local.readCoinDetail(any()))
-          .thenAnswer((_) async => null);
-      when(() => remote.fetchCoin(any()))
-          .thenAnswer((_) async => _detailDto);
-      when(() => local.saveCoinDetail(any()))
-          .thenAnswer((_) async {});
+      when(() => local.readCoinDetail(any())).thenAnswer((_) async => null);
+      when(() => remote.fetchCoin(any())).thenAnswer((_) async => _detailDto);
+      when(() => local.saveCoinDetail(any())).thenAnswer((_) async {});
 
       final result = await repo.getCoinDetail('bitcoin');
 
@@ -154,14 +155,13 @@ void main() {
 
     test('returns cache on network error', () async {
       when(() => local.readCoinDetail(any())).thenAnswer(
-        (_) async => const CryptoCoinDetailEntity(
+        (_) async => const CryptoCoinDetailDao(
           id: 'bitcoin',
           symbol: 'BTC',
           name: 'Bitcoin',
         ),
       );
-      when(() => remote.fetchCoin(any()))
-          .thenThrow(Exception('network'));
+      when(() => remote.fetchCoin(any())).thenThrow(Exception('network'));
 
       final result = await repo.getCoinDetail('bitcoin');
 
@@ -174,8 +174,7 @@ void main() {
       final dtos = List.generate(
         300,
         (i) => PriceChartPointDto(
-          timestampMs:
-              DateTime(2024, 1, 1 + i).millisecondsSinceEpoch,
+          timestampMs: DateTime(2024, 1, 1 + i).millisecondsSinceEpoch,
           priceUsd: 100.0 + i,
         ),
       );

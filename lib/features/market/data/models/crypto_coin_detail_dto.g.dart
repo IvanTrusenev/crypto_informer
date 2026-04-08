@@ -11,7 +11,7 @@ CryptoCoinDetailDto _$CryptoCoinDetailDtoFromJson(Map<String, dynamic> json) =>
       id: json['id'] as String? ?? '',
       symbol: json['symbol'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      description: json['description'] as Map<String, dynamic>?,
+      description: CoinDescriptionDto.fromJson(json['description']),
       image: json['image'] == null
           ? null
           : CoinImageDto.fromJson(json['image'] as Map<String, dynamic>),

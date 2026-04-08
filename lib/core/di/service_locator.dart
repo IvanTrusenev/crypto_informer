@@ -1,8 +1,13 @@
+import 'package:crypto_informer/core/network/rest/coingecko_api.dart';
 import 'package:crypto_informer/core/network/rest/coingecko_rest_client.dart';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/core/storage/sql/app_database.dart';
 import 'package:crypto_informer/core/storage/sql/app_database_impl.dart';
+import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql.dart';
+import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql_impl.dart';
+import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql.dart';
+import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql_impl.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source_impl.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
@@ -20,7 +25,7 @@ Future<void> initServiceLocator() async {
     ..registerLazySingleton<Dio>(
       () => Dio(
         BaseOptions(
-          baseUrl: 'https://api.coingecko.com/api/v3',
+          baseUrl: CoinGeckoApi.baseUrl,
           connectTimeout: const Duration(seconds: 15),
           receiveTimeout: const Duration(seconds: 15),
           headers: const {'Accept': 'application/json'},
@@ -40,8 +45,17 @@ Future<void> initServiceLocator() async {
   final appDb = await AppDatabaseImpl.open();
   sl
     ..registerSingleton<AppDatabase>(appDb)
+    ..registerLazySingleton<MarketAssetsCacheSql>(
+      () => MarketAssetsCacheSqlImpl(sl<AppDatabase>()),
+    )
+    ..registerLazySingleton<CoinDetailCacheSql>(
+      () => CoinDetailCacheSqlImpl(sl<AppDatabase>()),
+    )
     ..registerLazySingleton<CryptoLocalDataSource>(
-      () => CryptoLocalDataSourceImpl(sl<AppDatabase>()),
+      () => CryptoLocalDataSourceImpl(
+        sl<MarketAssetsCacheSql>(),
+        sl<CoinDetailCacheSql>(),
+      ),
     )
     ..registerLazySingleton<CryptoRepository>(
       () => CryptoRepositoryImpl(sl(), sl()),

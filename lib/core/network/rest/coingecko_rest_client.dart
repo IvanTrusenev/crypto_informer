@@ -1,3 +1,4 @@
+import 'package:crypto_informer/core/network/rest/coingecko_api.dart';
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
 
@@ -8,7 +9,7 @@ abstract class CoinGeckoRestClient {
   factory CoinGeckoRestClient(Dio dio, {String baseUrl}) =
       _CoinGeckoRestClient;
 
-  @GET('/coins/markets')
+  @GET(CoinGeckoApi.coinsMarkets)
   Future<List<dynamic>> fetchMarkets(
     @Query('vs_currency') String vsCurrency,
     @Query('order') String order,
@@ -18,17 +19,17 @@ abstract class CoinGeckoRestClient {
     @Query('ids') String? ids,
   });
 
-  @GET('/search')
+  @GET(CoinGeckoApi.search)
   Future<Map<String, dynamic>> search(
     @Query('query') String query,
   );
 
-  @GET('/coins/{id}')
+  @GET(CoinGeckoApi.coinById)
   Future<Map<String, dynamic>> fetchCoin(
     @Path('id') String id,
   );
 
-  @GET('/coins/{id}/market_chart')
+  @GET(CoinGeckoApi.coinMarketChart)
   Future<Map<String, dynamic>> fetchMarketChart(
     @Path('id') String id,
     @Query('vs_currency') String vsCurrency,

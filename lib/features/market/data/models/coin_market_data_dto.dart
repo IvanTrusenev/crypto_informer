@@ -1,3 +1,4 @@
+import 'package:crypto_informer/features/market/data/models/coin_current_price_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'coin_market_data_dto.g.dart';
@@ -13,8 +14,8 @@ class CoinMarketDataDto {
   factory CoinMarketDataDto.fromJson(Map<String, dynamic> json) =>
       _$CoinMarketDataDtoFromJson(json);
 
-  @JsonKey(name: 'current_price')
-  final Map<String, dynamic>? currentPrice;
+  @JsonKey(name: 'current_price', fromJson: CoinCurrentPriceDto.fromJson)
+  final CoinCurrentPriceDto? currentPrice;
 
   @JsonKey(name: 'price_change_percentage_24h')
   final double? priceChangePercentage24h;

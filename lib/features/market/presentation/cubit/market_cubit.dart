@@ -1,10 +1,11 @@
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/market_list_query_defaults.dart';
 import 'package:crypto_informer/features/market/domain/market_sort_column.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-const int _kPageSize = 50;
-const String _kDefaultOrder = 'market_cap_desc';
+const int _kPageSize = MarketListQueryDefaults.perPage;
+const String _kDefaultOrder = MarketListQueryDefaults.order;
 
 sealed class MarketState {
   const MarketState();
@@ -48,18 +49,16 @@ class MarketLoaded extends MarketState {
     bool? isSearching,
     MarketSortColumn? Function()? sortColumnFn,
     bool? sortAscending,
-  }) =>
-      MarketLoaded(
-        assets ?? this.assets,
-        page: page ?? this.page,
-        hasMore: hasMore ?? this.hasMore,
-        isLoadingMore: isLoadingMore ?? this.isLoadingMore,
-        searchQuery: searchQuery ?? this.searchQuery,
-        isSearching: isSearching ?? this.isSearching,
-        sortColumn:
-            sortColumnFn != null ? sortColumnFn() : sortColumn,
-        sortAscending: sortAscending ?? this.sortAscending,
-      );
+  }) => MarketLoaded(
+    assets ?? this.assets,
+    page: page ?? this.page,
+    hasMore: hasMore ?? this.hasMore,
+    isLoadingMore: isLoadingMore ?? this.isLoadingMore,
+    searchQuery: searchQuery ?? this.searchQuery,
+    isSearching: isSearching ?? this.isSearching,
+    sortColumn: sortColumnFn != null ? sortColumnFn() : sortColumn,
+    sortAscending: sortAscending ?? this.sortAscending,
+  );
 }
 
 class MarketError extends MarketState {
@@ -88,19 +87,20 @@ class MarketCubit extends Cubit<MarketState> {
     emit(const MarketLoading());
     try {
       final assets = await _repository.getMarketAssets(
-        perPage: _kPageSize,
         order: _apiOrder,
       );
       _browseCache = assets;
       _browsePage = 1;
       _browseHasMore = assets.length >= _kPageSize;
       if (!isClosed) {
-        emit(MarketLoaded(
-          assets,
-          hasMore: _browseHasMore,
-          sortColumn: _sortColumn,
-          sortAscending: _sortAscending,
-        ));
+        emit(
+          MarketLoaded(
+            assets,
+            hasMore: _browseHasMore,
+            sortColumn: _sortColumn,
+            sortAscending: _sortAscending,
+          ),
+        );
       }
     } on Object catch (e) {
       if (!isClosed) emit(MarketError(e));
@@ -119,33 +119,35 @@ class MarketCubit extends Cubit<MarketState> {
             ? <CryptoAssetEntity>[]
             : await _repository.getMarketAssets(
                 ids: chunk,
-                perPage: _kPageSize,
                 order: _apiOrder,
               );
         if (!isClosed) {
-          emit(MarketLoaded(
-            assets,
-            searchQuery: query,
-            hasMore: _searchIds.length > _kPageSize,
-            sortColumn: _sortColumn,
-            sortAscending: _sortAscending,
-          ));
+          emit(
+            MarketLoaded(
+              assets,
+              searchQuery: query,
+              hasMore: _searchIds.length > _kPageSize,
+              sortColumn: _sortColumn,
+              sortAscending: _sortAscending,
+            ),
+          );
         }
       } else {
         final assets = await _repository.getMarketAssets(
-          perPage: _kPageSize,
           order: _apiOrder,
         );
         _browseCache = assets;
         _browsePage = 1;
         _browseHasMore = assets.length >= _kPageSize;
         if (!isClosed) {
-          emit(MarketLoaded(
-            assets,
-            hasMore: _browseHasMore,
-            sortColumn: _sortColumn,
-            sortAscending: _sortAscending,
-          ));
+          emit(
+            MarketLoaded(
+              assets,
+              hasMore: _browseHasMore,
+              sortColumn: _sortColumn,
+              sortAscending: _sortAscending,
+            ),
+          );
         }
       }
     } on Object catch (e) {
@@ -155,9 +157,7 @@ class MarketCubit extends Cubit<MarketState> {
 
   Future<void> loadMore() async {
     final current = state;
-    if (current is! MarketLoaded ||
-        current.isLoadingMore ||
-        !current.hasMore) {
+    if (current is! MarketLoaded || current.isLoadingMore || !current.hasMore) {
       return;
     }
 
@@ -178,7 +178,6 @@ class MarketCubit extends Cubit<MarketState> {
     final nextPage = current.page + 1;
     final newAssets = await _repository.getMarketAssets(
       page: nextPage,
-      perPage: _kPageSize,
       order: _apiOrder,
     );
     if (!isClosed) {
@@ -186,13 +185,15 @@ class MarketCubit extends Cubit<MarketState> {
       _browseCache = all;
       _browsePage = nextPage;
       _browseHasMore = newAssets.length >= _kPageSize;
-      emit(MarketLoaded(
-        all,
-        page: nextPage,
-        hasMore: _browseHasMore,
-        sortColumn: _sortColumn,
-        sortAscending: _sortAscending,
-      ));
+      emit(
+        MarketLoaded(
+          all,
+          page: nextPage,
+          hasMore: _browseHasMore,
+          sortColumn: _sortColumn,
+          sortAscending: _sortAscending,
+        ),
+      );
     }
   }
 
@@ -208,19 +209,20 @@ class MarketCubit extends Cubit<MarketState> {
 
     final newAssets = await _repository.getMarketAssets(
       ids: remaining,
-      perPage: _kPageSize,
       order: _apiOrder,
     );
     if (!isClosed) {
       final all = [...current.assets, ...newAssets];
-      emit(MarketLoaded(
-        all,
-        page: current.page + 1,
-        searchQuery: current.searchQuery,
-        hasMore: all.length < _searchIds.length,
-        sortColumn: _sortColumn,
-        sortAscending: _sortAscending,
-      ));
+      emit(
+        MarketLoaded(
+          all,
+          page: current.page + 1,
+          searchQuery: current.searchQuery,
+          hasMore: all.length < _searchIds.length,
+          sortColumn: _sortColumn,
+          sortAscending: _sortAscending,
+        ),
+      );
     }
   }
 
@@ -235,13 +237,15 @@ class MarketCubit extends Cubit<MarketState> {
     if (current is MarketLoaded) {
       emit(current.copyWith(searchQuery: q, isSearching: true));
     } else {
-      emit(MarketLoaded(
-        const [],
-        searchQuery: q,
-        isSearching: true,
-        sortColumn: _sortColumn,
-        sortAscending: _sortAscending,
-      ));
+      emit(
+        MarketLoaded(
+          const [],
+          searchQuery: q,
+          isSearching: true,
+          sortColumn: _sortColumn,
+          sortAscending: _sortAscending,
+        ),
+      );
     }
 
     try {
@@ -251,45 +255,50 @@ class MarketCubit extends Cubit<MarketState> {
       if (s is! MarketLoaded || s.searchQuery != q) return;
 
       if (_searchIds.isEmpty) {
-        emit(MarketLoaded(
-          const [],
-          searchQuery: q,
-          hasMore: false,
-          sortColumn: _sortColumn,
-          sortAscending: _sortAscending,
-        ));
+        emit(
+          MarketLoaded(
+            const [],
+            searchQuery: q,
+            hasMore: false,
+            sortColumn: _sortColumn,
+            sortAscending: _sortAscending,
+          ),
+        );
         return;
       }
 
       final chunk = _searchIds.take(_kPageSize).toList();
       final assets = await _repository.getMarketAssets(
         ids: chunk,
-        perPage: _kPageSize,
         order: _apiOrder,
       );
       if (!isClosed) {
         final s2 = state;
         if (s2 is MarketLoaded && s2.searchQuery == q) {
-          emit(MarketLoaded(
-            assets,
-            searchQuery: q,
-            hasMore: _searchIds.length > chunk.length,
-            sortColumn: _sortColumn,
-            sortAscending: _sortAscending,
-          ));
+          emit(
+            MarketLoaded(
+              assets,
+              searchQuery: q,
+              hasMore: _searchIds.length > chunk.length,
+              sortColumn: _sortColumn,
+              sortAscending: _sortAscending,
+            ),
+          );
         }
       }
     } on Object {
       if (!isClosed) {
         final s = state;
         if (s is MarketLoaded && s.searchQuery == q) {
-          emit(MarketLoaded(
-            const [],
-            searchQuery: q,
-            hasMore: false,
-            sortColumn: _sortColumn,
-            sortAscending: _sortAscending,
-          ));
+          emit(
+            MarketLoaded(
+              const [],
+              searchQuery: q,
+              hasMore: false,
+              sortColumn: _sortColumn,
+              sortAscending: _sortAscending,
+            ),
+          );
         }
       }
     }
@@ -298,13 +307,15 @@ class MarketCubit extends Cubit<MarketState> {
   void clearSearch() {
     _searchIds = const [];
     if (!isClosed) {
-      emit(MarketLoaded(
-        _browseCache,
-        page: _browsePage,
-        hasMore: _browseHasMore,
-        sortColumn: _sortColumn,
-        sortAscending: _sortAscending,
-      ));
+      emit(
+        MarketLoaded(
+          _browseCache,
+          page: _browsePage,
+          hasMore: _browseHasMore,
+          sortColumn: _sortColumn,
+          sortAscending: _sortAscending,
+        ),
+      );
     }
   }
 

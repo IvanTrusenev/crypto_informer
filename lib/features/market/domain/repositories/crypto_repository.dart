@@ -2,14 +2,15 @@ import 'package:crypto_informer/features/market/domain/chart_period.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
+import 'package:crypto_informer/features/market/domain/market_list_query_defaults.dart';
 
 /// Контракт доступа к данным о криптоактивах (реализация — в data).
 abstract interface class CryptoRepository {
   Future<List<CryptoAssetEntity>> getMarketAssets({
-    String vsCurrency,
-    int page,
-    int perPage,
-    String order,
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
+    int page = MarketListQueryDefaults.page,
+    int perPage = MarketListQueryDefaults.perPage,
+    String order = MarketListQueryDefaults.order,
     List<String>? ids,
   });
 
@@ -21,7 +22,7 @@ abstract interface class CryptoRepository {
   /// История цен только с сети (кэш в БД не используется).
   Future<List<PriceChartPointEntity>> getPriceChart(
     String coinId, {
-    ChartPeriod period,
-    String vsCurrency,
+    ChartPeriod period = ChartPeriod.days7,
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
   });
 }

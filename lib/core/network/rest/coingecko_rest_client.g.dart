@@ -34,7 +34,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<List<dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        '/coins/markets',
+        CoinGeckoApi.coinsMarkets,
         queryParameters: queryParameters,
       ),
     );
@@ -46,7 +46,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        '/search',
+        CoinGeckoApi.search,
         queryParameters: <String, dynamic>{'query': query},
       ),
     );
@@ -58,7 +58,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        '/coins/$id',
+        CoinGeckoApi.coinPath(id),
       ),
     );
     return result.data!;
@@ -73,7 +73,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        '/coins/$id/market_chart',
+        CoinGeckoApi.coinMarketChartPath(id),
         queryParameters: <String, dynamic>{
           'vs_currency': vsCurrency,
           'days': days,

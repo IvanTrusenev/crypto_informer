@@ -8,9 +8,8 @@ extension CryptoCoinDetailDtoMapper on CryptoCoinDetailDto {
       id: id,
       symbol: symbol.toUpperCase(),
       name: name,
-      description: (description?['en'] as String?).cleanHtml(),
-      currentPriceUsd:
-          (marketData?.currentPrice?['usd'] as num?)?.toDouble(),
+      description: description?.en.cleanHtml(),
+      currentPriceUsd: marketData?.currentPrice?.usd,
       priceChangePercent24h: marketData?.priceChangePercentage24h,
       imageUrl: image?.large.nonEmpty,
     );

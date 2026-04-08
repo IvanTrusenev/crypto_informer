@@ -14,10 +14,10 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
 
   @override
   Future<List<CryptoAssetDto>> fetchMarkets({
-    String vsCurrency = 'usd',
-    int page = 1,
-    int perPage = 50,
-    String order = 'market_cap_desc',
+    required String vsCurrency,
+    required int page,
+    required int perPage,
+    required String order,
     List<String>? ids,
   }) async {
     try {
@@ -69,7 +69,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   Future<List<PriceChartPointDto>> fetchMarketChart(
     String id, {
     required ChartPeriod period,
-    String vsCurrency = 'usd',
+    required String vsCurrency,
   }) async {
     try {
       final data = await _client.fetchMarketChart(
@@ -89,22 +89,16 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   List<PriceChartPointDto> _parsePrices(Map<String, dynamic> json) {
     final raw = json['prices'];
     if (raw is! List) return const [];
-    final out = <PriceChartPointDto>[];
-    for (final item in raw) {
-      if (item is List<dynamic> && item.length >= 2) {
-        final t = item[0];
-        final p = item[1];
-        if (t is num && p is num) {
-          out.add(
-            PriceChartPointDto(
-              timestampMs: t.toInt(),
-              priceUsd: p.toDouble(),
-            ),
-          );
-        }
-      }
-    }
-    return out;
+    return raw
+        .whereType<List<dynamic>>()
+        .where((pair) => pair.length >= 2 && pair[0] is num && pair[1] is num)
+        .map(
+          (pair) => PriceChartPointDto(
+            timestampMs: (pair[0] as num).toInt(),
+            priceUsd: (pair[1] as num).toDouble(),
+          ),
+        )
+        .toList(growable: false);
   }
 
   AppException _mapDioException(DioException e) {

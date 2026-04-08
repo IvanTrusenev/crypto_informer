@@ -1,3 +1,4 @@
+import 'package:crypto_informer/features/market/data/models/coin_description_dto.dart';
 import 'package:crypto_informer/features/market/data/models/coin_image_dto.dart';
 import 'package:crypto_informer/features/market/data/models/coin_market_data_dto.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -28,7 +29,8 @@ class CryptoCoinDetailDto {
   @JsonKey(defaultValue: '')
   final String name;
 
-  final Map<String, dynamic>? description;
+  @JsonKey(fromJson: CoinDescriptionDto.fromJson)
+  final CoinDescriptionDto? description;
 
   final CoinImageDto? image;
 

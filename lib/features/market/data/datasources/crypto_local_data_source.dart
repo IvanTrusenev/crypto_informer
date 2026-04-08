@@ -1,15 +1,18 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
+import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dao.dart';
+import 'package:crypto_informer/features/market/domain/market_list_query_defaults.dart';
 
 abstract interface class CryptoLocalDataSource {
-  Future<List<CryptoAssetEntity>?> readMarketAssets({String vsCurrency});
-
-  Future<void> replaceMarketAssets(
-    List<CryptoAssetEntity> items, {
-    String vsCurrency,
+  Future<List<CryptoAssetDao>?> readMarketAssets({
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
   });
 
-  Future<CryptoCoinDetailEntity?> readCoinDetail(String id);
+  Future<void> replaceMarketAssets(
+    List<CryptoAssetDao> items, {
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
+  });
 
-  Future<void> saveCoinDetail(CryptoCoinDetailEntity detail);
+  Future<CryptoCoinDetailDao?> readCoinDetail(String id);
+
+  Future<void> saveCoinDetail(CryptoCoinDetailDao detail);
 }

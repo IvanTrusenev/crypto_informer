@@ -5,10 +5,10 @@ import 'package:crypto_informer/features/market/domain/chart_period.dart';
 
 abstract interface class CryptoRemoteDataSource {
   Future<List<CryptoAssetDto>> fetchMarkets({
-    String vsCurrency,
-    int page,
-    int perPage,
-    String order,
+    required String vsCurrency,
+    required int page,
+    required int perPage,
+    required String order,
     List<String>? ids,
   });
 
@@ -21,6 +21,6 @@ abstract interface class CryptoRemoteDataSource {
   Future<List<PriceChartPointDto>> fetchMarketChart(
     String id, {
     required ChartPeriod period,
-    String vsCurrency = 'usd',
+    required String vsCurrency,
   });
 }

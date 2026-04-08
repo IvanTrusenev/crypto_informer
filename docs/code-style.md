@@ -49,7 +49,7 @@ flutter test
 | Постфикс | Назначение | Пример |
 |----------|------------|--------|
 | `Entity` | Доменные сущности (чистая модель без зависимостей) | `CryptoAssetEntity`, `CryptoCoinDetailEntity`, `PriceChartPointEntity` |
-| `Dto` | Сетевые модели (Data Transfer Object) — маппинг JSON API → домен | `CryptoAssetDto`, `CryptoCoinDetailDto`, `CoinImageDto`, `CoinMarketDataDto`, `PriceChartPointDto` |
+| `Dto` | Сетевые модели (Data Transfer Object) — маппинг JSON API → домен | `CryptoAssetDto`, `CryptoCoinDetailDto`, `CoinCurrentPriceDto`, `CoinDescriptionDto`, `CoinImageDto`, `CoinMarketDataDto`, `PriceChartPointDto` |
 | `Dao` | Модели локальной БД (Data Access Object) — маппинг SQLite ↔ домен | `CryptoAssetDao`, `CryptoCoinDetailDao` |
 
 ### Сериализация моделей (`json_serializable`)
@@ -80,19 +80,21 @@ dart run build_runner build --delete-conflicting-outputs
 
 ### Маппинг между слоями (`data/mapper/`)
 
-Преобразование между Dto/Dao и Entity выделено в **отдельные файлы-маппер** на основе `extension`:
+Преобразование между Dto/Dao и Entity выделено в **отдельные файлы-маппер** на основе `extension`.
+
+**Нейминг:** имя extension и файла — **`<ИмяМодели>Mapper`**, где `ИмяМодели` — класс, на котором объявлен extension (`extension XMapper on X`). Постфикс всегда `Mapper`. Пример: `CryptoAssetDto` → файл `crypto_asset_dto_mapper.dart`, extension `CryptoAssetDtoMapper` on `CryptoAssetDto`.
 
 | Файл | Extension | Направление |
 |------|-----------|-------------|
 | `crypto_asset_dto_mapper.dart` | `CryptoAssetDtoMapper` on `CryptoAssetDto` | Dto → Entity (`toEntity()`) |
 | `crypto_coin_detail_dto_mapper.dart` | `CryptoCoinDetailDtoMapper` on `CryptoCoinDetailDto` | Dto → Entity (`toEntity()`) |
 | `crypto_asset_dao_mapper.dart` | `CryptoAssetDaoMapper` on `CryptoAssetDao` | Dao → Entity |
-| `crypto_asset_dao_from_entity_mapper.dart` | `CryptoAssetDaoFromEntityMapper` on `CryptoAssetEntity` | Entity → Dao |
+| `crypto_asset_entity_mapper.dart` | `CryptoAssetEntityMapper` on `CryptoAssetEntity` | Entity → Dao (`toDao()`) |
 | `crypto_coin_detail_dao_mapper.dart` | `CryptoCoinDetailDaoMapper` on `CryptoCoinDetailDao` | Dao → Entity |
-| `crypto_coin_detail_dao_from_entity_mapper.dart` | `CryptoCoinDetailDaoFromEntityMapper` on `CryptoCoinDetailEntity` | Entity → Dao |
+| `crypto_coin_detail_entity_mapper.dart` | `CryptoCoinDetailEntityMapper` on `CryptoCoinDetailEntity` | Entity → Dao (`toDao()`) |
 | `price_chart_point_dto_mapper.dart` | `PriceChartPointDtoMapper` on `PriceChartPointDto` | Dto → Entity |
 
-**Один extension — один файл.** Имя файла соответствует имени extension. Нейминг: постфикс `Mapper`. Модели данных (Dto/Dao) **не содержат** методов `toEntity()`/`fromEntity()` и **не выполняют нормализацию данных** — вся логика преобразования и нормализации (например, `symbol.toUpperCase()`, фильтрация пустого `imageUrl`) сосредоточена в маппер-расширениях.
+**Один extension — один файл.** Имя файла в snake_case совпадает с именем extension (без суффикса `.dart`). Модели данных (Dto/Dao) **не содержат** методов `toEntity()`/`fromEntity()` и **не выполняют нормализацию данных** — вся логика преобразования и нормализации (например, `symbol.toUpperCase()`, фильтрация пустого `imageUrl`) сосредоточена в маппер-расширениях.
 
 ### Структура фич (`lib/features/<имя_фичи>/`)
 
@@ -122,7 +124,7 @@ lib/features/market/
   data/
     datasources/        # remote/local (+ fetchMarketChart в remote)
     mapper/             # extension-маппер: Dto/Dao ↔ Entity (один файл — один маппер)
-    models/             # *_dto.dart (сеть), *_dao.dart (БД); вложенные DTO для сложных JSON (CoinImageDto, CoinMarketDataDto)
+    models/             # *_dto.dart (сеть), *_dao.dart (БД); вложенные DTO (CoinCurrentPriceDto, CoinDescriptionDto, CoinImageDto, CoinMarketDataDto)
     utils/              # price_chart_sampling (прореживание точек для отрисовки)
     repositories/       # CryptoRepositoryImpl (offline-first для рынка/карточки)
   presentation/
@@ -186,10 +188,12 @@ lib/features/about/
 
 | Подсистема | Абстракция | Реализация | Назначение |
 |------------|-----------|------------|------------|
-| `storage/sql/` | `AppDatabase` | `AppDatabaseImpl` (sqflite) | SQL-база данных (кэш рынка, деталей монет) |
+| `storage/sql/` | `AppDatabase` | `AppDatabaseImpl` (sqflite) | Открытие БД, версия, `onCreate` (схема таблиц) |
+| `storage/sql/tables/` | `MarketAssetsCacheSql` | `MarketAssetsCacheSqlImpl` | Таблица `market_assets_cache` (один файл — одна таблица; новые таблицы — новые пары файлов в этой папке) |
+| `storage/sql/tables/` | `CoinDetailCacheSql` | `CoinDetailCacheSqlImpl` | Таблица `coin_detail_cache` |
 | `storage/shared_pref/` | `AppKeyValueStorage` | `AppKeyValueStorageImpl` (SharedPreferences) | Key-value хранилище (настройки, watchlist, алерты) |
 
-Потребители зависят от **абстракций**, а не от конкретных реализаций (`SharedPreferences`, `Database`). Реализации регистрируются в `service_locator.dart`.
+Потребители зависят от **абстракций**, а не от конкретных реализаций (`SharedPreferences`, `Database`). `features/market` `CryptoLocalDataSourceImpl` получает `MarketAssetsCacheSql` и `CoinDetailCacheSql`, работает с DAO/JSON, **без** импорта `sqflite`. Реализации регистрируются в `service_locator.dart`. Контракты и реализации по таблицам лежат в `storage/sql/tables/`, чтобы не смешивать их с `app_database*.dart` в корне `sql/`.
 
 ### Расширения (`lib/core/extensions/`)
 

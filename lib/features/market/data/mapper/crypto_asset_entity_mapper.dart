@@ -1,7 +1,7 @@
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
 import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
 
-extension CryptoAssetDaoFromEntityMapper on CryptoAssetEntity {
+extension CryptoAssetEntityMapper on CryptoAssetEntity {
   CryptoAssetDao toDao() {
     return CryptoAssetDao(
       id: id,

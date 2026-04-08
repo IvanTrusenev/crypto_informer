@@ -1,93 +1,50 @@
 import 'dart:convert';
 
-import 'package:crypto_informer/core/storage/sql/app_database.dart';
+import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql.dart';
+import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dao_from_entity_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dao_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dao_from_entity_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dao_mapper.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dao.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:crypto_informer/features/market/domain/market_list_query_defaults.dart';
 
 class CryptoLocalDataSourceImpl implements CryptoLocalDataSource {
-  CryptoLocalDataSourceImpl(this._appDb);
+  CryptoLocalDataSourceImpl(this._marketAssets, this._coinDetail);
 
-  final AppDatabase _appDb;
-  Database get _db => _appDb.database;
-
-  static const _marketTable = 'market_assets_cache';
-  static const _coinTable = 'coin_detail_cache';
+  final MarketAssetsCacheSql _marketAssets;
+  final CoinDetailCacheSql _coinDetail;
 
   @override
-  Future<List<CryptoAssetEntity>?> readMarketAssets({
-    String vsCurrency = 'usd',
+  Future<List<CryptoAssetDao>?> readMarketAssets({
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
-    final rows = await _db.query(
-      _marketTable,
-      where: 'vs_currency = ?',
-      whereArgs: [vsCurrency],
-      limit: 1,
-    );
-    if (rows.isEmpty) return null;
-    final raw = rows.first['payload'] as String?;
-    if (raw == null || raw.isEmpty) return null;
+    final raw = await _marketAssets.readPayload(vsCurrency);
+    if (raw == null) return null;
     final list = jsonDecode(raw) as List<dynamic>;
     return list
-        .map(
-          (e) =>
-              CryptoAssetDao.fromJson(e as Map<String, dynamic>).toEntity(),
-        )
+        .map((e) => CryptoAssetDao.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
   @override
   Future<void> replaceMarketAssets(
-    List<CryptoAssetEntity> items, {
-    String vsCurrency = 'usd',
+    List<CryptoAssetDao> items, {
+    String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
-    final payload = jsonEncode(
-      items.map((a) => a.toDao().toJson()).toList(),
-    );
-    await _db.insert(
-      _marketTable,
-      {
-        'vs_currency': vsCurrency,
-        'updated_at': DateTime.now().millisecondsSinceEpoch,
-        'payload': payload,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    final payload = jsonEncode(items.map((a) => a.toJson()).toList());
+    await _marketAssets.replacePayload(vsCurrency, payload);
   }
 
   @override
-  Future<CryptoCoinDetailEntity?> readCoinDetail(String id) async {
-    final rows = await _db.query(
-      _coinTable,
-      where: 'coin_id = ?',
-      whereArgs: [id],
-      limit: 1,
-    );
-    if (rows.isEmpty) return null;
-    final raw = rows.first['payload'] as String?;
-    if (raw == null || raw.isEmpty) return null;
+  Future<CryptoCoinDetailDao?> readCoinDetail(String id) async {
+    final raw = await _coinDetail.readPayload(id);
+    if (raw == null) return null;
     final map = jsonDecode(raw) as Map<String, dynamic>;
-    return CryptoCoinDetailDao.fromJson(map).toEntity();
+    return CryptoCoinDetailDao.fromJson(map);
   }
 
   @override
-  Future<void> saveCoinDetail(CryptoCoinDetailEntity detail) async {
-    final payload = jsonEncode(detail.toDao().toJson());
-    await _db.insert(
-      _coinTable,
-      {
-        'coin_id': detail.id,
-        'updated_at': DateTime.now().millisecondsSinceEpoch,
-        'payload': payload,
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+  Future<void> saveCoinDetail(CryptoCoinDetailDao detail) async {
+    final payload = jsonEncode(detail.toJson());
+    await _coinDetail.savePayload(detail.id, payload);
   }
 }
