@@ -1,7 +1,10 @@
-/// Локальная data-модель деталей монеты.
-class CryptoCoinDetailDao {
-  const CryptoCoinDetailDao({
+import 'package:froom/froom.dart';
+
+@Entity(tableName: 'coin_detail_cache')
+class CoinDetailCacheRecord {
+  const CoinDetailCacheRecord({
     required this.id,
+    required this.updatedAt,
     required this.symbol,
     required this.name,
     this.description,
@@ -10,7 +13,11 @@ class CryptoCoinDetailDao {
     this.imageUrl,
   });
 
+  @primaryKey
   final String id;
+
+  @ColumnInfo(name: 'updated_at')
+  final int updatedAt;
 
   final String symbol;
 
@@ -18,9 +25,12 @@ class CryptoCoinDetailDao {
 
   final String? description;
 
+  @ColumnInfo(name: 'current_price_usd')
   final double? currentPriceUsd;
 
+  @ColumnInfo(name: 'price_change_percent_24h')
   final double? priceChangePercent24h;
 
+  @ColumnInfo(name: 'image_url')
   final String? imageUrl;
 }

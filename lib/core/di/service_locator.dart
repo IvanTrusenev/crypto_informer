@@ -2,12 +2,10 @@ import 'package:crypto_informer/core/network/rest/coingecko_api.dart';
 import 'package:crypto_informer/core/network/rest/coingecko_rest_client.dart';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
-import 'package:crypto_informer/core/storage/sql/app_database.dart';
-import 'package:crypto_informer/core/storage/sql/app_database_impl.dart';
-import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql.dart';
-import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql_impl.dart';
-import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql.dart';
-import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql_impl.dart';
+import 'package:crypto_informer/core/storage/sqflite/app_database.dart';
+import 'package:crypto_informer/core/storage/sqflite/migrations.dart';
+import 'package:crypto_informer/core/storage/sqflite/tables/coin_detail_cache_dao.dart';
+import 'package:crypto_informer/core/storage/sqflite/tables/market_assets_cache_dao.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source_impl.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
@@ -44,19 +42,22 @@ Future<void> initServiceLocator() async {
   final prefs = await SharedPreferences.getInstance();
   sl.registerSingleton<AppKeyValueStorage>(AppKeyValueStorageImpl(prefs));
 
-  final appDb = await AppDatabaseImpl.open();
+  final appDb = await $FroomAppDatabase
+      .databaseBuilder('crypto_informer.db')
+      .addMigrations([migration1to2])
+      .build();
   sl
     ..registerSingleton<AppDatabase>(appDb)
-    ..registerLazySingleton<MarketAssetsCacheSql>(
-      () => MarketAssetsCacheSqlImpl(sl<AppDatabase>()),
+    ..registerLazySingleton<MarketAssetsCacheDao>(
+      () => sl<AppDatabase>().marketAssetsCacheDao,
     )
-    ..registerLazySingleton<CoinDetailCacheSql>(
-      () => CoinDetailCacheSqlImpl(sl<AppDatabase>()),
+    ..registerLazySingleton<CoinDetailCacheDao>(
+      () => sl<AppDatabase>().coinDetailCacheDao,
     )
     ..registerLazySingleton<CryptoLocalDataSource>(
       () => CryptoLocalDataSourceImpl(
-        sl<MarketAssetsCacheSql>(),
-        sl<CoinDetailCacheSql>(),
+        sl<MarketAssetsCacheDao>(),
+        sl<CoinDetailCacheDao>(),
       ),
     )
     ..registerLazySingleton<CryptoRepository>(

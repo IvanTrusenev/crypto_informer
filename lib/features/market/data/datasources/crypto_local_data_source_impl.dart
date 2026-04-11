@@ -1,8 +1,10 @@
-import 'dart:convert';
-
-import 'package:crypto_informer/core/storage/sql/tables/coin_detail_cache_sql.dart';
-import 'package:crypto_informer/core/storage/sql/tables/market_assets_cache_sql.dart';
+import 'package:crypto_informer/core/storage/sqflite/tables/coin_detail_cache_dao.dart';
+import 'package:crypto_informer/core/storage/sqflite/tables/market_assets_cache_dao.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_detail_cache_record_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dao_cache_record_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dao_cache_record_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/market_asset_cache_record_mapper.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_asset_dao.dart';
 import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dao.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
@@ -10,19 +12,16 @@ import 'package:crypto_informer/features/market/domain/constants/market_list_que
 class CryptoLocalDataSourceImpl implements CryptoLocalDataSource {
   CryptoLocalDataSourceImpl(this._marketAssets, this._coinDetail);
 
-  final MarketAssetsCacheSql _marketAssets;
-  final CoinDetailCacheSql _coinDetail;
+  final MarketAssetsCacheDao _marketAssets;
+  final CoinDetailCacheDao _coinDetail;
 
   @override
   Future<List<CryptoAssetDao>?> readMarketAssets({
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
-    final raw = await _marketAssets.readPayload(vsCurrency);
-    if (raw == null) return null;
-    final list = jsonDecode(raw) as List<dynamic>;
-    return list
-        .map((e) => CryptoAssetDao.fromJson(e as Map<String, dynamic>))
-        .toList();
+    final rows = await _marketAssets.findByVsCurrency(vsCurrency);
+    if (rows.isEmpty) return null;
+    return rows.map((row) => row.toDao()).toList(growable: false);
   }
 
   @override
@@ -30,21 +29,30 @@ class CryptoLocalDataSourceImpl implements CryptoLocalDataSource {
     List<CryptoAssetDao> items, {
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
-    final payload = jsonEncode(items.map((a) => a.toJson()).toList());
-    await _marketAssets.replacePayload(vsCurrency, payload);
+    final updatedAt = DateTime.now().millisecondsSinceEpoch;
+    final rows = [
+      for (var index = 0; index < items.length; index++)
+        items[index].toCacheRecord(
+          vsCurrency: vsCurrency,
+          sortOrder: index,
+          updatedAt: updatedAt,
+        ),
+    ];
+    await _marketAssets.replaceRows(vsCurrency, rows);
   }
 
   @override
   Future<CryptoCoinDetailDao?> readCoinDetail(String id) async {
-    final raw = await _coinDetail.readPayload(id);
-    if (raw == null) return null;
-    final map = jsonDecode(raw) as Map<String, dynamic>;
-    return CryptoCoinDetailDao.fromJson(map);
+    final row = await _coinDetail.findById(id);
+    return row?.toDao();
   }
 
   @override
   Future<void> saveCoinDetail(CryptoCoinDetailDao detail) async {
-    final payload = jsonEncode(detail.toJson());
-    await _coinDetail.savePayload(detail.id, payload);
+    await _coinDetail.upsert(
+      detail.toCacheRecord(
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 }
