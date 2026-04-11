@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_detail/export.dart';
@@ -8,14 +8,14 @@ import 'package:mocktail/mocktail.dart';
 
 class MockCryptoRepository extends Mock implements CryptoRepository {}
 
-const _fresh = CryptoCoinDetailEntity(
+const _fresh = CoinDetailEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin fresh',
   currentPriceUsd: 70000,
 );
 
-const _stale = CryptoCoinDetailEntity(
+const _stale = CoinDetailEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin stale',

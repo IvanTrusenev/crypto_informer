@@ -1,5 +1,5 @@
 import 'package:crypto_informer/core/extensions/context_extensions.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/coin_price_chart_section.dart';
 import 'package:flutter/material.dart';
 
@@ -11,7 +11,7 @@ class CoinDetailContent extends StatelessWidget {
     super.key,
   });
 
-  final CryptoCoinDetailEntity detail;
+  final CoinDetailEntity detail;
   final String coinId;
 
   @override

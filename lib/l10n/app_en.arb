@@ -82,6 +82,7 @@
   "aboutSectionNetworking": "Networking",
   "aboutNetworkingBody": "Dio HTTP client with Retrofit-generated REST API interface (core/network/dio). The REST client is injected through an abstraction, following clean architecture principles.",
   "aboutDataBody": "CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).",
+  "errorCache": "Local storage error",
   "errorEmptyResponse": "Empty server response",
   "errorCoinNotFound": "Coin not found",
   "errorInvalidResponse": "Invalid server response",

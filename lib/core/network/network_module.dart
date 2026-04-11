@@ -1,6 +1,6 @@
 import 'package:crypto_informer/core/network/coin_gecko_api_client.dart';
-import 'package:crypto_informer/core/network/coingecko_endpoints.dart';
-import 'package:crypto_informer/core/network/dio/coingecko_retrofit_api.dart';
+import 'package:crypto_informer/core/network/coin_gecko_endpoints.dart';
+import 'package:crypto_informer/core/network/dio/coin_gecko_retrofit_api.dart';
 import 'package:crypto_informer/core/network/dio/dio_coin_gecko_api_client.dart';
 import 'package:crypto_informer/core/network/parser/coin_detail_response_parser.dart';
 import 'package:crypto_informer/core/network/parser/market_chart_response_parser.dart';

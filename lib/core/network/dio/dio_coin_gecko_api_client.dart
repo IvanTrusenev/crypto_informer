@@ -1,13 +1,13 @@
 import 'package:crypto_informer/core/error/app_exception.dart';
 import 'package:crypto_informer/core/network/coin_gecko_api_client.dart';
-import 'package:crypto_informer/core/network/dio/coingecko_retrofit_api.dart';
+import 'package:crypto_informer/core/network/dio/coin_gecko_retrofit_api.dart';
 import 'package:crypto_informer/core/network/dio/mapper/dio_exception_mapper.dart';
 import 'package:crypto_informer/core/network/parser/coin_detail_response_parser.dart';
 import 'package:crypto_informer/core/network/parser/market_chart_response_parser.dart';
 import 'package:crypto_informer/core/network/parser/markets_response_parser.dart';
 import 'package:crypto_informer/core/network/parser/search_ids_response_parser.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:dio/dio.dart';
 
@@ -27,7 +27,7 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
   final MarketChartResponseParser _marketChartParser;
 
   @override
-  Future<List<CryptoAssetDto>> fetchMarkets(
+  Future<List<CoinDto>> fetchMarkets(
     String vsCurrency,
     String order,
     int perPage,
@@ -55,7 +55,7 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
   }
 
   @override
-  Future<CryptoCoinDetailDto> fetchCoin(String id) async {
+  Future<CoinDetailDto> fetchCoin(String id) async {
     final data = await _mapRequestErrors(
       () => _client.fetchCoin(id),
       mapCoinNotFound: true,

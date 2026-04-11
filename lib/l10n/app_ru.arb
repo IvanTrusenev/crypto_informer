@@ -82,6 +82,7 @@
   "aboutSectionNetworking": "Сетевой слой",
   "aboutNetworkingBody": "HTTP-клиент Dio c Retrofit-генерируемым REST API интерфейсом (core/network/dio). REST-клиент инжектируется через абстракцию, следуя принципам чистой архитектуры.",
   "aboutDataBody": "Публичный REST API CoinGecko (есть лимиты запросов): список рынка и детали монеты (пути вида /coins/…), а также временной ряд market_chart для графика цены в USD (периоды от 1D до MAX).",
+  "errorCache": "Ошибка локального хранилища",
   "errorEmptyResponse": "Пустой ответ сервера",
   "errorCoinNotFound": "Монета не найдена",
   "errorInvalidResponse": "Некорректный ответ сервера",

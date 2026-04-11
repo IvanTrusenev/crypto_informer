@@ -1,5 +1,5 @@
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 /// Список рынка со stale-while-revalidate для «основного» просмотра.
@@ -15,7 +15,7 @@ class GetMarketAssetsUseCase {
 
   final CryptoRepository _repository;
 
-  Stream<List<CryptoAssetEntity>> call({
+  Stream<List<CoinEntity>> call({
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
     int page = MarketListQueryDefaults.page,
     int perPage = MarketListQueryDefaults.perPage,

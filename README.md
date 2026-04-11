@@ -35,6 +35,8 @@
 | Desktop SQLite | `sqflite_common_ffi` (инициализация в `main.dart`) |
 | Тесты | `flutter_test`, `bloc_test`, `mocktail` |
 
+Соглашение о том, почему текущий техстек намеренно отражается и в `README`, и в экране `About`, описано в [docs/tech-stack-sync.md](docs/tech-stack-sync.md).
+
 ## Требования
 
 - Flutter SDK, совместимый с Dart **^3.10.1** (см. `pubspec.yaml`).
@@ -66,7 +68,7 @@ flutter run
 lib/
   core/
     network/
-      rest/       # Retrofit REST-клиент (Dio), инкапсуляция HTTP-транспорта
+      dio/        # Retrofit REST-клиент (Dio), инкапсуляция HTTP-транспорта
     di/           # service_locator (get_it) — DI через абстракции
     router/       # go_router
     database/     # SQLite (sqflite)

@@ -1,7 +1,7 @@
 import 'package:crypto_informer/core/network/coin_gecko_api_client.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 
@@ -11,7 +11,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   final CoinGeckoApiClient _client;
 
   @override
-  Future<List<CryptoAssetDto>> fetchMarkets({
+  Future<List<CoinDto>> fetchMarkets({
     required String vsCurrency,
     required int page,
     required int perPage,
@@ -33,7 +33,7 @@ class CryptoRemoteDataSourceImpl implements CryptoRemoteDataSource {
   }
 
   @override
-  Future<CryptoCoinDetailDto> fetchCoin(String id) async {
+  Future<CoinDetailDto> fetchCoin(String id) async {
     return _client.fetchCoin(id);
   }
 

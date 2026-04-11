@@ -1,9 +1,9 @@
-import 'package:crypto_informer/features/market/data/models/crypto_asset_dto.dart';
-import 'package:crypto_informer/features/market/data/models/crypto_coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_detail_dto.dart';
+import 'package:crypto_informer/features/market/data/models/coin_dto.dart';
 import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 
 abstract interface class CoinGeckoApiClient {
-  Future<List<CryptoAssetDto>> fetchMarkets(
+  Future<List<CoinDto>> fetchMarkets(
     String vsCurrency,
     String order,
     int perPage,
@@ -14,7 +14,7 @@ abstract interface class CoinGeckoApiClient {
 
   Future<List<String>> search(String query);
 
-  Future<CryptoCoinDetailDto> fetchCoin(String id);
+  Future<CoinDetailDto> fetchCoin(String id);
 
   Future<List<PriceChartPointDto>> fetchMarketChart(
     String id,

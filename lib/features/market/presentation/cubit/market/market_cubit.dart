@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:crypto_informer/core/utils/debouncer.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
@@ -24,7 +24,7 @@ class MarketCubit extends Cubit<MarketState> {
   final CryptoRepository _repository;
   final Debouncer _searchDebouncer;
 
-  List<CryptoAssetEntity> _browseCache = const [];
+  List<CoinEntity> _browseCache = const [];
   int _browsePage = 1;
   bool _browseHasMore = true;
 
@@ -203,13 +203,13 @@ class MarketCubit extends Cubit<MarketState> {
     if (!isClosed) emit(MarketError(e));
   }
 
-  void _applyBrowseFirstPage(List<CryptoAssetEntity> assets) {
+  void _applyBrowseFirstPage(List<CoinEntity> assets) {
     _browseCache = assets;
     _browsePage = 1;
     _browseHasMore = assets.length >= _kPageSize;
   }
 
-  MarketLoaded _marketLoadedBrowse(List<CryptoAssetEntity> assets) =>
+  MarketLoaded _marketLoadedBrowse(List<CoinEntity> assets) =>
       MarketLoaded(
         assets,
         hasMore: _browseHasMore,

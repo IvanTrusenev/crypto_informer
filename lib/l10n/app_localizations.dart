@@ -404,6 +404,12 @@ abstract class AppLocalizations {
   /// **'CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).'**
   String get aboutDataBody;
 
+  /// No description provided for @errorCache.
+  ///
+  /// In en, this message translates to:
+  /// **'Local storage error'**
+  String get errorCache;
+
   /// No description provided for @errorEmptyResponse.
   ///
   /// In en, this message translates to:

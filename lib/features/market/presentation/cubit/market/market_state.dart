@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
 
 sealed class MarketState {
@@ -25,7 +25,7 @@ class MarketLoaded extends MarketState {
     this.sortAscending = true,
   });
 
-  final List<CryptoAssetEntity> assets;
+  final List<CoinEntity> assets;
   final int page;
   final bool hasMore;
   final bool isLoadingMore;
@@ -35,7 +35,7 @@ class MarketLoaded extends MarketState {
   final bool sortAscending;
 
   MarketLoaded copyWith({
-    List<CryptoAssetEntity>? assets,
+    List<CoinEntity>? assets,
     int? page,
     bool? hasMore,
     bool? isLoadingMore,

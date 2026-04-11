@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage.dart';
 import 'package:crypto_informer/features/alerts/domain/price_alert.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const _kPriceAlerts = 'price_alerts_v1';
@@ -48,7 +48,7 @@ class PriceAlertCubit extends Cubit<PriceAlertState> {
     emit(PriceAlertState(next));
   }
 
-  List<PriceAlert> checkAndConsume(List<CryptoAssetEntity> assets) {
+  List<PriceAlert> checkAndConsume(List<CoinEntity> assets) {
     final priceMap = {for (final a in assets) a.id: a.currentPriceUsd};
     final triggered = <PriceAlert>[];
 

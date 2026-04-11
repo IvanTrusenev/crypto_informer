@@ -2,9 +2,9 @@ import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
 import 'package:crypto_informer/core/widgets/centered_error_message.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
+import 'package:crypto_informer/features/market/presentation/widgets/coin_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -63,12 +63,12 @@ class WatchlistPage extends StatelessWidget {
   Widget _buildList(
     BuildContext context,
     List<String> ids,
-    List<CryptoAssetEntity> allAssets,
+    List<CoinEntity> allAssets,
     NumberFormat priceFormat,
     AppLocalizations l10n,
   ) {
     final byId = {for (final a in allAssets) a.id: a};
-    final items = <CryptoAssetEntity>[];
+    final items = <CoinEntity>[];
     for (final id in ids) {
       final a = byId[id];
       if (a != null) items.add(a);
@@ -101,7 +101,7 @@ class WatchlistPage extends StatelessWidget {
                         const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final asset = items[index];
-                      return CryptoAssetListTile(
+                      return CoinListTile(
                         asset: asset,
                         priceText: priceFormat.format(
                           asset.currentPriceUsd,
@@ -132,7 +132,7 @@ class WatchlistPage extends StatelessWidget {
                     return Card(
                       clipBehavior: Clip.antiAlias,
                       margin: EdgeInsets.zero,
-                      child: CryptoAssetListTile(
+                      child: CoinListTile(
                         asset: asset,
                         priceText: priceFormat.format(
                           asset.currentPriceUsd,

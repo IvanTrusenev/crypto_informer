@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
@@ -7,7 +7,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockRepo extends Mock implements CryptoRepository {}
 
-const _btc = CryptoAssetEntity(
+const _btc = CoinEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',
@@ -50,7 +50,7 @@ void main() {
   });
 
   test('emits stale then fresh on first browse page', () async {
-    const stale = CryptoAssetEntity(
+    const stale = CoinEntity(
       id: 'x',
       symbol: 'X',
       name: 'Stale',
@@ -79,7 +79,7 @@ void main() {
   });
 
   test('first browse page skips cache when emitCachedFirst is false', () async {
-    const stale = CryptoAssetEntity(
+    const stale = CoinEntity(
       id: 'x',
       symbol: 'X',
       name: 'Stale',
@@ -155,7 +155,7 @@ void main() {
   });
 
   test('completes without throw when network fails after stale', () async {
-    const stale = CryptoAssetEntity(
+    const stale = CoinEntity(
       id: 'x',
       symbol: 'X',
       name: 'Stale',

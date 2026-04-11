@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 
 /// Карточка монеты со stale-while-revalidate.
@@ -10,7 +10,7 @@ class GetCoinDetailUseCase {
 
   final CryptoRepository _repository;
 
-  Stream<CryptoCoinDetailEntity> call(String id) async* {
+  Stream<CoinDetailEntity> call(String id) async* {
     final stale = await _repository.getCachedCoinDetail(id);
     final yieldedStale = stale != null;
     if (yieldedStale) yield stale;

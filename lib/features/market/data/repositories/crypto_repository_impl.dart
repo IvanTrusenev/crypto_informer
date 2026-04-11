@@ -1,44 +1,47 @@
 import 'dart:async' show unawaited;
 import 'dart:isolate';
 
-import 'package:crypto_informer/features/market/data/datasources/crypto_local_data_source.dart';
+import 'package:crypto_informer/core/error/app_exception.dart';
+import 'package:crypto_informer/features/market/data/datasources/crypto_cache_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dao_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_asset_dto_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_asset_entity_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dao_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_dto_mapper.dart';
-import 'package:crypto_informer/features/market/data/mapper/crypto_coin_detail_entity_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_cache_model_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_detail_cache_model_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_detail_dto_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_detail_entity_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_dto_mapper.dart';
+import 'package:crypto_informer/features/market/data/mapper/coin_entity_mapper.dart';
 import 'package:crypto_informer/features/market/data/mapper/price_chart_point_dto_mapper.dart';
 import 'package:crypto_informer/features/market/data/utils/price_chart_sampling.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 
 class CryptoRepositoryImpl implements CryptoRepository {
-  CryptoRepositoryImpl(this._remote, this._local);
+  CryptoRepositoryImpl(this._remote, this._cache);
 
   final CryptoRemoteDataSource _remote;
-  final CryptoLocalDataSource _local;
+  final CryptoCacheDataSource _cache;
 
   @override
-  Future<List<CryptoAssetEntity>?> getCachedMarketAssetsFirstPage({
+  Future<List<CoinEntity>?> getCachedMarketAssetsFirstPage({
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
     try {
-      final daos = await _local.readMarketAssets(vsCurrency: vsCurrency);
-      if (daos == null || daos.isEmpty) return null;
-      return daos.map((d) => d.toEntity()).toList();
-    } on Object {
+      final models = await _cache.readCachedMarketAssets(
+        vsCurrency: vsCurrency,
+      );
+      if (models == null || models.isEmpty) return null;
+      return models.map((model) => model.toEntity()).toList();
+    } on CacheException {
       return null;
     }
   }
 
   @override
-  Future<List<CryptoAssetEntity>> getMarketAssets({
+  Future<List<CoinEntity>> getMarketAssets({
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
     int page = MarketListQueryDefaults.page,
     int perPage = MarketListQueryDefaults.perPage,
@@ -66,17 +69,17 @@ class CryptoRepositoryImpl implements CryptoRepository {
       _remote.searchCoins(query);
 
   @override
-  Future<CryptoCoinDetailEntity?> getCachedCoinDetail(String id) async {
+  Future<CoinDetailEntity?> getCachedCoinDetail(String id) async {
     try {
-      final dao = await _local.readCoinDetail(id);
-      return dao?.toEntity();
-    } on Object {
+      final model = await _cache.readCachedCoinDetail(id);
+      return model?.toEntity();
+    } on CacheException {
       return null;
     }
   }
 
   @override
-  Future<CryptoCoinDetailEntity> getCoinDetail(String id) async {
+  Future<CoinDetailEntity> getCoinDetail(String id) async {
     final model = await _remote.fetchCoin(id);
     final detail = model.toEntity();
     _cacheCoinDetailInBackground(detail);
@@ -102,34 +105,34 @@ class CryptoRepositoryImpl implements CryptoRepository {
 
   /// Кэш первой страницы в фоне, без ожидания записи.
   void _cacheMarketAssetsFirstPageInBackground(
-    List<CryptoAssetEntity> list,
+    List<CoinEntity> list,
     String vsCurrency,
   ) {
     unawaited(_persistMarketAssetsFirstPage(list, vsCurrency));
   }
 
   Future<void> _persistMarketAssetsFirstPage(
-    List<CryptoAssetEntity> list,
+    List<CoinEntity> list,
     String vsCurrency,
   ) async {
     try {
-      await _local.replaceMarketAssets(
-        list.map((e) => e.toDao()).toList(),
+      await _cache.replaceCachedMarketAssets(
+        list.map((e) => e.toCacheModel()).toList(),
         vsCurrency: vsCurrency,
       );
-    } on Object {
+    } on CacheException {
       // Best-effort; при сбое кэш догонит при следующем успешном запросе.
     }
   }
 
-  void _cacheCoinDetailInBackground(CryptoCoinDetailEntity detail) {
+  void _cacheCoinDetailInBackground(CoinDetailEntity detail) {
     unawaited(_persistCoinDetail(detail));
   }
 
-  Future<void> _persistCoinDetail(CryptoCoinDetailEntity detail) async {
+  Future<void> _persistCoinDetail(CoinDetailEntity detail) async {
     try {
-      await _local.saveCoinDetail(detail.toDao());
-    } on Object {
+      await _cache.saveCachedCoinDetail(detail.toCacheModel());
+    } on CacheException {
       // Best-effort; при сбое кэш догонит при следующем успешном запросе.
     }
   }

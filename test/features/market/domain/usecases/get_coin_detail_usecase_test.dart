@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/domain/entities/crypto_coin_detail_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -6,7 +6,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockRepo extends Mock implements CryptoRepository {}
 
-const _fresh = CryptoCoinDetailEntity(
+const _fresh = CoinDetailEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Fresh',
@@ -34,7 +34,7 @@ void main() {
   });
 
   test('emits stale then fresh', () async {
-    const stale = CryptoCoinDetailEntity(
+    const stale = CoinDetailEntity(
       id: 'bitcoin',
       symbol: 'BTC',
       name: 'Stale',
@@ -57,7 +57,7 @@ void main() {
   });
 
   test('completes after stale when network fails', () async {
-    const stale = CryptoCoinDetailEntity(
+    const stale = CoinDetailEntity(
       id: 'bitcoin',
       symbol: 'BTC',
       name: 'Stale',

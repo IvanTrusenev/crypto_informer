@@ -1,4 +1,6 @@
 part 'cache/cache_exception.dart';
+part 'cache/cache_read_exception.dart';
+part 'cache/cache_write_exception.dart';
 part 'market/coin_not_found_exception.dart';
 part 'market/market_exception.dart';
 part 'network/empty_response_exception.dart';

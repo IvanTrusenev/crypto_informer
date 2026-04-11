@@ -184,6 +184,9 @@ class AppLocalizationsRu extends AppLocalizations {
       'Публичный REST API CoinGecko (есть лимиты запросов): список рынка и детали монеты (пути вида /coins/…), а также временной ряд market_chart для графика цены в USD (периоды от 1D до MAX).';
 
   @override
+  String get errorCache => 'Ошибка локального хранилища';
+
+  @override
   String get errorEmptyResponse => 'Пустой ответ сервера';
 
   @override
@@ -196,7 +199,8 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorTimeout => 'Превышено время ожидания. Проверьте сеть.';
 
   @override
-  String get errorTooManyRequests => 'Слишком много запросов. Попробуйте позже.';
+  String get errorTooManyRequests =>
+      'Слишком много запросов. Попробуйте позже.';
 
   @override
   String get errorUnauthorized => 'Требуется авторизация';

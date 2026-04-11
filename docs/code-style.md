@@ -13,7 +13,7 @@
 |--------|-----------|--------|
 | **Analyzer** | `exclude`: `build/**`, `.dart_tool/**` | Исключены сгенерированные каталоги из анализа. |
 | **Errors** | `deprecated_member_use: warning` | Устаревший API помечается предупреждением, а не ошибкой (удобнее поэтапно обновлять зависимости). |
-| **Formatter** | `trailing_commas: preserve` | Сохранение завершающих запятых как в исходном коде при форматировании. |
+| **Formatter** | встроенный `dart format` | Форматирование доверяем стандартному форматтеру Dart/Flutter без проектных переопределений поведения запятых. |
 | **Linter** | `public_member_api_docs: false` | Не требовать `dartdoc` для каждого публичного члена приложения (в курсовом приложении это часто избыточно). При желании максимальной строгости правило можно включить и документировать публичный API. |
 
 ## Форматирование
@@ -63,9 +63,33 @@ flutter test
 |----------|------------|--------|
 | `Entity` | Доменные сущности (чистая модель без зависимостей) | `SomeNameEntity` |
 | `Dto` | Сетевые модели (JSON API → домен), вложенность JSON — вложенные Dto | `SomeNameDto`, при необходимости вложенные типы в том же стиле |
-| `Dao` | Модели локальной БД (SQLite JSON ↔ домен) | `SomeNameDao` |
+| `CacheModel` | Модели, которые storage-слой отдаёт наружу в data-layer | `SomeNameCacheModel` |
 | `Enum` | Доменные перечисления (value object) в `domain/value_objects/` | файл `*_enum.dart`, тип `PascalCase` + `Enum` (например `foo_bar_enum.dart` / `FooBarEnum`) |
 | `UseCase` | Один сценарий приложения поверх репозитория в `domain/usecases/` | файл `*_usecase.dart`, тип `PascalCase` + `UseCase` (например `get_foo_usecase.dart` / `GetFooUseCase`) |
+
+### Нейминг storage-слоя
+
+Для `lib/core/storage/` фиксируется следующий словарь ролей:
+
+| Суффикс | Роль | Пример |
+|---------|------|--------|
+| `Dao` | только ORM/Froom access object с `@dao` | `CoinDetailCacheDao` |
+| `Record` | запись таблицы SQLite | `CoinDetailCacheRecord` |
+| `CacheModel` | модель, которую storage возвращает наружу | `CoinDetailCacheModel` |
+| `CacheStorage` | абстракция storage-операций | `CoinDetailCacheStorage` |
+| `CacheStorageImpl` | конкретная реализация storage | `CoinDetailCacheStorageImpl` |
+
+Правило: суффикс описывает **роль типа**, а не просто источник данных.
+
+### Нейминг методов в storage
+
+Имена методов зависят от уровня абстракции:
+
+- **`@dao`-уровень** — короткие технические имена: `findById`, `upsert`, `findByVsCurrency`, `insert`, `replaceByVsCurrency`.
+- **`CacheStorage`-уровень** — тоже короткие предметные имена, потому что контекст `CacheStorage` уже задан типом: `readById`, `save`, `readByVsCurrency`, `replaceByVsCurrency`.
+- **`DataSource`-уровень** — явные use-case oriented имена: `readCachedCoinDetail`, `saveCachedCoinDetail`, `readCachedMarketAssets`, `replaceCachedMarketAssets`.
+
+Это позволяет держать `Dao` и `CacheStorage` компактными, а внешние контракты data-layer — самодокументируемыми.
 
 ### Value objects (`domain/value_objects/`)
 
@@ -80,14 +104,13 @@ flutter test
 
 ### Сериализация моделей (`json_serializable`)
 
-Для Dto и Dao используется пакет **`json_serializable`** с кодогенерацией (`build_runner`).
+Для Dto используется пакет **`json_serializable`** с кодогенерацией (`build_runner`).
 
 | Тип модели | Аннотация | `fromJson` | `toJson` |
 |------------|-----------|------------|----------|
 | **Dto** | `@JsonSerializable(createToJson: false)` | ✅ генерируется | ❌ подавлен — DTO используется только для десериализации ответов API |
-| **Dao** | `@JsonSerializable()` | ✅ генерируется | ✅ генерируется — нужен для записи/чтения JSON в SQLite |
 
-Модели данных — **чистые контейнеры**: они хранят данные «как есть» из JSON, без нормализации или бизнес-логики. Вся нормализация (приведение `symbol` к верхнему регистру, фильтрация пустых строк `imageUrl`, очистка HTML из `description`) выполняется в **маппер-расширениях** при переходе Dto/Dao → Entity.
+Модели данных — **чистые контейнеры**: они хранят данные «как есть» из JSON, без нормализации или бизнес-логики. Вся нормализация (приведение `symbol` к верхнему регистру, фильтрация пустых строк `imageUrl`, очистка HTML из `description`) выполняется в **маппер-расширениях** при переходе Dto/CacheModel → Entity.
 
 Вложенные JSON-структуры API отображаются **вложенными Dto-моделями**, а не `readValue`-хелперами — модель остаётся зеркалом структуры JSON.
 
@@ -106,11 +129,23 @@ dart run build_runner build --delete-conflicting-outputs
 
 ### Маппинг между слоями (`data/mapper/`)
 
-Преобразование между Dto/Dao и Entity выделено в **отдельные файлы-маппер** на основе `extension`.
+Преобразование между Dto/CacheModel/Record и Entity выделено в **отдельные файлы-маппер** на основе `extension`.
 
 **Нейминг:** extension и файл — **`<ИмяМодели>Mapper`**, где маппер объявлен как `extension ИмяМоделиMapper on ИмяМодели`. Файл в snake_case: `имя_модели_mapper.dart` (совпадает с именем extension без `.dart`). Постфикс у типа маппера — всегда `Mapper`.
 
-**Правила:** один extension — один файл; типичные направления — Dto → Entity (`toEntity()`), Dao → Entity, Entity → Dao (`toDao()`) — по необходимости **отдельные** файлы/расширения на каждую пару. Модели Dto/Dao **не** содержат `toEntity()` / `fromEntity()` и **не** нормализуют данные — нормализация только в мапперах (регистры, пустые строки, очистка HTML и т.д.).
+**Правила:** один extension — один файл; типичные направления — Dto → Entity (`toEntity()`), CacheModel → Entity, Entity → CacheModel (`toCacheModel()`), CacheModel ↔ Record (`toCacheRecord()`, `toCacheModel()`) — по необходимости **отдельные** файлы/расширения на каждую пару. Модели Dto/CacheModel/Record **не** содержат `toEntity()` / `fromEntity()` и **не** нормализуют данные — нормализация только в мапперах (регистры, пустые строки, очистка HTML и т.д.).
+
+### Network-слой и DTO
+
+`lib/core/network/` изолирует **HTTP-библиотеку**, но не стремится быть полностью автономным от feature-level DTO.
+
+В проекте принят осознанный компромисс:
+
+- реализация транспорта (`dio`, `retrofit`, маппинг библиотечных исключений) остаётся внутри `core/network/`;
+- наружу из network-слоя возвращаются **те же Dto**, которые дальше использует feature `market`;
+- отдельный промежуточный слой `network-model -> feature-dto` **не вводится**, чтобы не усложнять архитектуру без явной пользы.
+
+Следствие: текущая реализация в `core/network/dio/` считается **заменяемой целиком**. При смене HTTP-стека её можно удалить всей папкой, добавить рядом новую реализацию в отдельном каталоге внутри `core/network/`, переподключить зависимости в `network_module.dart` и сохранить тот же DTO-контракт (`CoinDto`, `CoinDetailDto`, `PriceChartPointDto`). Это считается допустимым архитектурным решением для данного проекта.
 
 ### Структура фич (`lib/features/<имя_фичи>/`)
 
@@ -119,12 +154,12 @@ dart run build_runner build --delete-conflicting-outputs
 | Слой | Назначение | Типичное содержимое |
 |------|------------|---------------------|
 | **domain** | Правила и контракты без Flutter/Dio/sqflite | сущности (`entities`), `constants/`, `value_objects/` (см. **Value objects**), репозитории, use case-ы в `usecases/` (нейминг — строка **`UseCase`** в таблице выше) |
-| **data** | Реализация доступа к данным | DTO (сеть, `*_dto.dart`), DAO (БД, `*_dao.dart`), datasources (remote/local), `*RepositoryImpl` |
+| **data** | Реализация доступа к данным | DTO (сеть, `*_dto.dart`), cache-модели (`*_cache_model.dart`), datasources (remote/cache), `*RepositoryImpl` |
 | **presentation** | UI и привязка к состоянию | страницы (`pages/`), виджеты (`widgets/`), кубиты (`cubit/`) |
 
 **Зависимости между слоями одной фичи:** `presentation` → `domain` (и опосредованно через интерфейсы репозитория); `data` → `domain` (реализует контракты). `domain` не импортирует `data` и `presentation`.
 
-**Каталоги внутри фичи** задаются по смыслу, а не жёстким шаблоном. Ориентиры: в `domain` — `entities`, `constants`, `value_objects`, `repositories`, `usecases` (набор подстраивается под фичу); в `data` — чаще всего `models` (Dto/Dao), `datasources` (remote/local), `mapper`, `repositories`, при необходимости `utils`; в `presentation` — `pages`, `widgets`, `cubit`. Узкая фича может обойтись частью слоёв (например только `presentation`) и **не** дублировать доступ к данным, если опирается на уже загруженное состояние другой фичи (провайдер, общий кубит).
+**Каталоги внутри фичи** задаются по смыслу, а не жёстким шаблоном. Ориентиры: в `domain` — `entities`, `constants`, `value_objects`, `repositories`, `usecases` (набор подстраивается под фичу); в `data` — чаще всего `models` (Dto/CacheModel), `datasources` (remote/cache), `mapper`, `repositories`, при необходимости `utils`; в `presentation` — `pages`, `widgets`, `cubit`. Узкая фича может обойтись частью слоёв (например только `presentation`) и **не** дублировать доступ к данным, если опирается на уже загруженное состояние другой фичи (провайдер, общий кубит).
 
 **Кубиты:** состояние и класс кубита — в разных файлах (`*_state.dart`, `*_cubit.dart`). Для удобства импорта в каталоге кубита — **barrel** `export.dart`, реэкспортирующий state и cubit (единое имя файла во всех папках кубитов). Зависимости подключаются через `get_it`. Параметры запросов и доменные варианты (период графика, колонка сортировки и т.д.) держите в `domain` (`value_objects`, `constants`), а не в виджетах.
 
@@ -136,9 +171,11 @@ dart run build_runner build --delete-conflicting-outputs
 
 ### Хранилище (`lib/core/storage/`)
 
-Две линии: **SQLite** и **key-value** (SharedPreferences). Обе завязаны на **абстракции** в `core`, конкретные реализации регистрируются в DI; фичи не импортируют напрямую `sqflite` / `SharedPreferences`, а получают контракты (датасорсы, `AppKeyValueStorage` и т.д.).
+Две линии: **SQLite** и **key-value** (SharedPreferences). Обе завязаны на **абстракции** в `core`, конкретные реализации регистрируются в DI; фичи не импортируют напрямую `sqflite` / `SharedPreferences`, а получают контракты (`CacheStorage`, датасорсы, `AppKeyValueStorage` и т.д.).
 
-- **`storage/sqflite/`** — конфигурация БД, миграции и Froom-база. Таблицы, row-сущности и DAO держим в `storage/sqflite/tables/`, чтобы SQL-схема и доступ к ней были собраны в одном месте.
+- **`storage/sqflite/database/`** — Froom-база, сгенерированный код и миграции.
+- **`storage/sqflite/<aggregate>/`** — агрегаты SQLite (`coin_detail`, `coin` и т.п.), где рядом лежат `*CacheDao`, `*CacheRecord`, `*CacheStorageImpl` и вложенный `mapper/`.
+- **`storage/cache/`** — абстракции storage-операций (`*CacheStorage`).
 - **`storage/shared_pref/`** — общий key-value контракт для настроек, списков id и прочих простых значений.
 
 Точные имена классов и файлов смотрите в коде.

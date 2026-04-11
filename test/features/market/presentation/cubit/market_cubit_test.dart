@@ -1,5 +1,5 @@
 import 'package:bloc_test/bloc_test.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
@@ -8,7 +8,7 @@ import 'package:mocktail/mocktail.dart';
 
 class MockCryptoRepository extends Mock implements CryptoRepository {}
 
-const _btc = CryptoAssetEntity(
+const _btc = CoinEntity(
   id: 'bitcoin',
   symbol: 'BTC',
   name: 'Bitcoin',
@@ -77,7 +77,7 @@ void main() {
   blocTest<MarketCubit, MarketState>(
     'loadAssets emits stale from cache then fresh from network',
     build: () {
-      const stale = CryptoAssetEntity(
+      const stale = CoinEntity(
         id: 'stale',
         symbol: 'ST',
         name: 'Stale',

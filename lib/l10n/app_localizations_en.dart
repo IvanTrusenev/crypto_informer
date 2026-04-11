@@ -183,6 +183,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'CoinGecko public REST API (rate limits apply): market list and per-coin details (REST paths under /coins/…), plus market_chart time series for the USD price graph (periods from 1D to MAX).';
 
   @override
+  String get errorCache => 'Local storage error';
+
+  @override
   String get errorEmptyResponse => 'Empty server response';
 
   @override
@@ -195,7 +198,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorTimeout => 'Request timed out. Check your connection.';
 
   @override
-  String get errorTooManyRequests => 'Too many requests. Please try again later.';
+  String get errorTooManyRequests =>
+      'Too many requests. Please try again later.';
 
   @override
   String get errorUnauthorized => 'Authorization required';

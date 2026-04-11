@@ -4,6 +4,8 @@ import 'package:crypto_informer/l10n/app_localizations.dart';
 extension AppExceptionLocalizations on AppException {
   String localize(AppLocalizations l10n) {
     return switch (this) {
+      CacheReadException() => l10n.errorCache,
+      CacheWriteException() => l10n.errorCache,
       EmptyResponseException() => l10n.errorEmptyResponse,
       CoinNotFoundException() => l10n.errorCoinNotFound,
       NotFoundException() => l10n.errorServer(404),

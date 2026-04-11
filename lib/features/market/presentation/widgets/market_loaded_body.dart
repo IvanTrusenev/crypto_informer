@@ -1,8 +1,8 @@
 import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
-import 'package:crypto_informer/features/market/domain/entities/crypto_asset_entity.dart';
+import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/widgets/crypto_asset_list_tile.dart';
+import 'package:crypto_informer/features/market/presentation/widgets/coin_list_tile.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/market_filter_bar_delegate.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/market_page_constants.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/market_search_field.dart';
@@ -35,7 +35,7 @@ class MarketLoadedBody extends StatelessWidget {
 
   final ScrollController scrollController;
   final TextEditingController searchController;
-  final List<CryptoAssetEntity> items;
+  final List<CoinEntity> items;
   final NumberFormat priceFormat;
   final AppLocalizations l10n;
   final bool isLoadingMore;
@@ -153,7 +153,7 @@ class MarketLoadedBody extends StatelessWidget {
                         itemBuilder: (context, index) {
                           final asset = display[index];
                           final inList = watchlistIds.contains(asset.id);
-                          return CryptoAssetListTile(
+                          return CoinListTile(
                             asset: asset,
                             priceText: priceFormat.format(
                               asset.currentPriceUsd,
@@ -179,7 +179,7 @@ class MarketLoadedBody extends StatelessWidget {
                             return Card(
                               clipBehavior: Clip.antiAlias,
                               margin: EdgeInsets.zero,
-                              child: CryptoAssetListTile(
+                              child: CoinListTile(
                                 asset: asset,
                                 priceText: priceFormat.format(
                                   asset.currentPriceUsd,
