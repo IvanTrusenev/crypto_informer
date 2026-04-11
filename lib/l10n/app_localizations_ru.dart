@@ -143,7 +143,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Чистая архитектура: domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• BLoC (Cubit) для управления состоянием, get_it для DI\n• Сеть: Dio + Retrofit (REST-клиент в core/network/rest)\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой\n• Экран монеты: график цены в USD (fl_chart) с выбором периода';
+      '• Чистая архитектура: domain / data / presentation по фичам\n• Репозитории и use case-ы в domain, реализация и API в data\n• BLoC (Cubit) для управления состоянием, get_it для DI\n• Сеть: Dio + Retrofit (REST-клиент в core/network/dio)\n• go_router, StatefulShellRoute, настройки и локализация\n• Material 3 со светлой и тёмной темой\n• Экран монеты: график цены в USD (fl_chart) с выбором периода';
 
   @override
   String get aboutSectionCache => 'Локальный кэш';
@@ -177,7 +177,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutNetworkingBody =>
-      'HTTP-клиент Dio c Retrofit-генерируемым REST API интерфейсом (core/network/rest). REST-клиент инжектируется через абстракцию, следуя принципам чистой архитектуры.';
+      'HTTP-клиент Dio c Retrofit-генерируемым REST API интерфейсом (core/network/dio). REST-клиент инжектируется через абстракцию, следуя принципам чистой архитектуры.';
 
   @override
   String get aboutDataBody =>
@@ -190,7 +190,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get errorCoinNotFound => 'Монета не найдена';
 
   @override
+  String get errorInvalidResponse => 'Некорректный ответ сервера';
+
+  @override
   String get errorTimeout => 'Превышено время ожидания. Проверьте сеть.';
+
+  @override
+  String get errorTooManyRequests => 'Слишком много запросов. Попробуйте позже.';
+
+  @override
+  String get errorUnauthorized => 'Требуется авторизация';
 
   @override
   String errorServer(int statusCode) {

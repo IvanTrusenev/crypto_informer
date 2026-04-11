@@ -10,12 +10,16 @@ analyzer:
   errors:
     deprecated_member_use: warning
 
-formatter:
-  trailing_commas: preserve
-
 linter:
   rules:
     # Пресет включает правило для публикуемых пакетов; в приложении документировать
     # каждое публичное поле виджета/модели обычно нецелесообразно. Для максимальной
     # строгости API удалите блок ниже и добавьте dartdoc.
+    avoid_redundant_argument_values: true
+    directives_ordering: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
     public_member_api_docs: false
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true

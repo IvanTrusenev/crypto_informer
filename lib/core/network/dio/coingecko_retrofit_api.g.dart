@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'coingecko_rest_client.dart';
+part of 'coingecko_retrofit_api.dart';
 
 // **************************************************************************
 // RetrofitGenerator
 // **************************************************************************
 
-class _CoinGeckoRestClient implements CoinGeckoRestClient {
-  _CoinGeckoRestClient(this._dio, {this.baseUrl});
+class _CoinGeckoRetrofitApi implements CoinGeckoRetrofitApi {
+  _CoinGeckoRetrofitApi(this._dio, {this.baseUrl});
 
   final Dio _dio;
   String? baseUrl;
@@ -34,7 +34,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<List<dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        CoinGeckoApi.coinsMarkets,
+        CoinGeckoEndpoints.coinsMarkets,
         queryParameters: queryParameters,
       ),
     );
@@ -46,7 +46,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        CoinGeckoApi.search,
+        CoinGeckoEndpoints.search,
         queryParameters: <String, dynamic>{'query': query},
       ),
     );
@@ -58,7 +58,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        CoinGeckoApi.coinPath(id),
+        CoinGeckoEndpoints.coinPath(id),
       ),
     );
     return result.data!;
@@ -73,7 +73,7 @@ class _CoinGeckoRestClient implements CoinGeckoRestClient {
     final result = await _dio.fetch<Map<String, dynamic>>(
       Options(method: 'GET').compose(
         _dio.options,
-        CoinGeckoApi.coinMarketChartPath(id),
+        CoinGeckoEndpoints.coinMarketChartPath(id),
         queryParameters: <String, dynamic>{
           'vs_currency': vsCurrency,
           'days': days,

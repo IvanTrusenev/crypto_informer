@@ -3,12 +3,17 @@ import 'package:crypto_informer/l10n/app_localizations.dart';
 
 extension AppExceptionLocalizations on AppException {
   String localize(AppLocalizations l10n) {
-    return switch (code) {
-      AppErrorCode.emptyResponse => l10n.errorEmptyResponse,
-      AppErrorCode.coinNotFound => l10n.errorCoinNotFound,
-      AppErrorCode.timeout => l10n.errorTimeout,
-      AppErrorCode.serverError => l10n.errorServer(statusCode ?? 0),
-      AppErrorCode.network => l10n.errorNetwork,
+    return switch (this) {
+      EmptyResponseException() => l10n.errorEmptyResponse,
+      CoinNotFoundException() => l10n.errorCoinNotFound,
+      NotFoundException() => l10n.errorServer(404),
+      ResponseParsingException() => l10n.errorInvalidResponse,
+      NetworkTimeoutException() => l10n.errorTimeout,
+      TooManyRequestsException() => l10n.errorTooManyRequests,
+      UnauthorizedException() => l10n.errorUnauthorized,
+      ServerErrorException(statusCode: final statusCode) =>
+        l10n.errorServer(statusCode),
+      NetworkUnavailableException() => l10n.errorNetwork,
     };
   }
 }

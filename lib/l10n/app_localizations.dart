@@ -353,7 +353,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutArchitectureBulletList.
   ///
   /// In en, this message translates to:
-  /// **'• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/rest)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
+  /// **'• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/dio)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period'**
   String get aboutArchitectureBulletList;
 
   /// No description provided for @aboutSectionCache.
@@ -395,7 +395,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutNetworkingBody.
   ///
   /// In en, this message translates to:
-  /// **'Dio HTTP client with Retrofit-generated REST API interface (core/network/rest). The REST client is injected through an abstraction, following clean architecture principles.'**
+  /// **'Dio HTTP client with Retrofit-generated REST API interface (core/network/dio). The REST client is injected through an abstraction, following clean architecture principles.'**
   String get aboutNetworkingBody;
 
   /// No description provided for @aboutDataBody.
@@ -416,11 +416,29 @@ abstract class AppLocalizations {
   /// **'Coin not found'**
   String get errorCoinNotFound;
 
+  /// No description provided for @errorInvalidResponse.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid server response'**
+  String get errorInvalidResponse;
+
   /// No description provided for @errorTimeout.
   ///
   /// In en, this message translates to:
   /// **'Request timed out. Check your connection.'**
   String get errorTimeout;
+
+  /// No description provided for @errorTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many requests. Please try again later.'**
+  String get errorTooManyRequests;
+
+  /// No description provided for @errorUnauthorized.
+  ///
+  /// In en, this message translates to:
+  /// **'Authorization required'**
+  String get errorUnauthorized;
 
   /// No description provided for @errorServer.
   ///

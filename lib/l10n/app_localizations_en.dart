@@ -144,7 +144,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutArchitectureBulletList =>
-      '• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/rest)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period';
+      '• Clean Architecture: domain / data / presentation per feature\n• Repositories and use cases in domain; API in data\n• BLoC (Cubit) for state management, get_it for DI\n• Networking: Dio + Retrofit (REST client in core/network/dio)\n• go_router, StatefulShellRoute, settings and localization\n• Material 3 with light and dark themes\n• Coin screen: USD price chart (fl_chart) with selectable period';
 
   @override
   String get aboutSectionCache => 'Local cache';
@@ -176,7 +176,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutNetworkingBody =>
-      'Dio HTTP client with Retrofit-generated REST API interface (core/network/rest). The REST client is injected through an abstraction, following clean architecture principles.';
+      'Dio HTTP client with Retrofit-generated REST API interface (core/network/dio). The REST client is injected through an abstraction, following clean architecture principles.';
 
   @override
   String get aboutDataBody =>
@@ -189,7 +189,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorCoinNotFound => 'Coin not found';
 
   @override
+  String get errorInvalidResponse => 'Invalid server response';
+
+  @override
   String get errorTimeout => 'Request timed out. Check your connection.';
+
+  @override
+  String get errorTooManyRequests => 'Too many requests. Please try again later.';
+
+  @override
+  String get errorUnauthorized => 'Authorization required';
 
   @override
   String errorServer(int statusCode) {

@@ -1,8 +1,8 @@
 /// Базовый URL и пути CoinGecko REST API v3.
 ///
 /// См. [документацию](https://docs.coingecko.com/reference/introduction).
-abstract final class CoinGeckoApi {
-  CoinGeckoApi._();
+abstract final class CoinGeckoEndpoints {
+  CoinGeckoEndpoints._();
 
   static const String baseUrl = 'https://api.coingecko.com/api/v3';
 
