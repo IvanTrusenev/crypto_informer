@@ -118,6 +118,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get coinChartNoData => 'Нет данных за выбранный период.';
 
   @override
+  String get chartPeriod1d => '1Д';
+
+  @override
+  String get chartPeriod7d => '7Д';
+
+  @override
+  String get chartPeriod30d => '30Д';
+
+  @override
+  String get chartPeriod90d => '90Д';
+
+  @override
+  String get chartPeriod1y => '1Г';
+
+  @override
+  String get chartPeriodMax => 'Всё';
+
+  @override
   String get watchlistTitle => 'Избранное';
 
   @override

@@ -52,6 +52,30 @@
   "coinPriceChartTitle": "Price chart (USD)",
   "coinPriceChartHint": "Historical prices are loaded from the network.",
   "coinChartNoData": "No data for this period.",
+  "chartPeriod1d": "1D",
+  "@chartPeriod1d": {
+    "description": "Chip label: 1-day chart range."
+  },
+  "chartPeriod7d": "7D",
+  "@chartPeriod7d": {
+    "description": "Chip label: 7-day chart range."
+  },
+  "chartPeriod30d": "30D",
+  "@chartPeriod30d": {
+    "description": "Chip label: 30-day chart range."
+  },
+  "chartPeriod90d": "90D",
+  "@chartPeriod90d": {
+    "description": "Chip label: 90-day chart range."
+  },
+  "chartPeriod1y": "1Y",
+  "@chartPeriod1y": {
+    "description": "Chip label: 1-year chart range."
+  },
+  "chartPeriodMax": "MAX",
+  "@chartPeriodMax": {
+    "description": "Chip label: full available chart history."
+  },
   "watchlistTitle": "Watchlist",
   "watchlistEmptyBody": "Add coins with the star on the Market screen.",
   "watchlistPartialMissing": "Some favorites are not in the current market top ({missing}). Open a coin from Market or refresh the list.",

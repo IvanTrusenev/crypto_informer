@@ -308,6 +308,42 @@ abstract class AppLocalizations {
   /// **'No data for this period.'**
   String get coinChartNoData;
 
+  /// Chip label: 1-day chart range.
+  ///
+  /// In en, this message translates to:
+  /// **'1D'**
+  String get chartPeriod1d;
+
+  /// Chip label: 7-day chart range.
+  ///
+  /// In en, this message translates to:
+  /// **'7D'**
+  String get chartPeriod7d;
+
+  /// Chip label: 30-day chart range.
+  ///
+  /// In en, this message translates to:
+  /// **'30D'**
+  String get chartPeriod30d;
+
+  /// Chip label: 90-day chart range.
+  ///
+  /// In en, this message translates to:
+  /// **'90D'**
+  String get chartPeriod90d;
+
+  /// Chip label: 1-year chart range.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get chartPeriod1y;
+
+  /// Chip label: full available chart history.
+  ///
+  /// In en, this message translates to:
+  /// **'MAX'**
+  String get chartPeriodMax;
+
   /// No description provided for @watchlistTitle.
   ///
   /// In en, this message translates to:

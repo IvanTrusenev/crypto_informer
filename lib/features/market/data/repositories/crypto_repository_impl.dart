@@ -33,8 +33,8 @@ class CryptoRepositoryImpl implements CryptoRepository {
       final models = await _cache.readCachedMarketAssets(
         vsCurrency: vsCurrency,
       );
-      if (models == null || models.isEmpty) return null;
-      return models.map((model) => model.toEntity()).toList();
+      if (models?.isEmpty ?? true) return null;
+      return models!.map((model) => model.toEntity()).toList();
     } on CacheException {
       return null;
     }
@@ -59,7 +59,12 @@ class CryptoRepositoryImpl implements CryptoRepository {
       () => models.map((m) => m.toEntity()).toList(),
     );
     if (ids == null) {
-      _cacheMarketAssetsFirstPageInBackground(list, vsCurrency);
+      _processInBackground(() async {
+        await _cache.replaceCachedMarketAssets(
+          list.map((e) => e.toCacheModel()).toList(),
+          vsCurrency: vsCurrency,
+        );
+      });
     }
     return list;
   }
@@ -82,7 +87,9 @@ class CryptoRepositoryImpl implements CryptoRepository {
   Future<CoinDetailEntity> getCoinDetail(String id) async {
     final model = await _remote.fetchCoin(id);
     final detail = model.toEntity();
-    _cacheCoinDetailInBackground(detail);
+    _processInBackground(() async {
+      await _cache.saveCachedCoinDetail(detail.toCacheModel());
+    });
     return detail;
   }
 
@@ -103,37 +110,15 @@ class CryptoRepositoryImpl implements CryptoRepository {
     });
   }
 
-  /// Кэш первой страницы в фоне, без ожидания записи.
-  void _cacheMarketAssetsFirstPageInBackground(
-    List<CoinEntity> list,
-    String vsCurrency,
-  ) {
-    unawaited(_persistMarketAssetsFirstPage(list, vsCurrency));
-  }
-
-  Future<void> _persistMarketAssetsFirstPage(
-    List<CoinEntity> list,
-    String vsCurrency,
-  ) async {
-    try {
-      await _cache.replaceCachedMarketAssets(
-        list.map((e) => e.toCacheModel()).toList(),
-        vsCurrency: vsCurrency,
-      );
-    } on CacheException {
-      // Best-effort; при сбое кэш догонит при следующем успешном запросе.
-    }
-  }
-
-  void _cacheCoinDetailInBackground(CoinDetailEntity detail) {
-    unawaited(_persistCoinDetail(detail));
-  }
-
-  Future<void> _persistCoinDetail(CoinDetailEntity detail) async {
-    try {
-      await _cache.saveCachedCoinDetail(detail.toCacheModel());
-    } on CacheException {
-      // Best-effort; при сбое кэш догонит при следующем успешном запросе.
-    }
+  void _processInBackground(Future<void> Function() work) {
+    unawaited(
+      (() async {
+        try {
+          await work();
+        } on CacheException {
+          // Best-effort; при сбое кэш догонит при следующем успешном запросе.
+        }
+      })(),
+    );
   }
 }

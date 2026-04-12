@@ -7,6 +7,7 @@ import 'package:crypto_informer/features/alerts/presentation/cubit/price_alert_c
 import 'package:crypto_informer/features/market/domain/entities/price_chart_point_entity.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/chart_period_enum.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/coin_price_chart/export.dart';
+import 'package:crypto_informer/features/market/presentation/extensions/chart_period_enum_l10n.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -47,7 +48,7 @@ class CoinPriceChartSection extends StatelessWidget {
               children: [
                 for (final p in ChartPeriodEnum.values)
                   FilterChip(
-                    label: Text(p.shortLabel),
+                    label: Text(p.localizedShortLabel(l10n)),
                     selected: p == state.period,
                     onSelected: (_) => context
                         .read<CoinPriceChartCubit>()

@@ -119,6 +119,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coinChartNoData => 'No data for this period.';
 
   @override
+  String get chartPeriod1d => '1D';
+
+  @override
+  String get chartPeriod7d => '7D';
+
+  @override
+  String get chartPeriod30d => '30D';
+
+  @override
+  String get chartPeriod90d => '90D';
+
+  @override
+  String get chartPeriod1y => '1Y';
+
+  @override
+  String get chartPeriodMax => 'MAX';
+
+  @override
   String get watchlistTitle => 'Watchlist';
 
   @override

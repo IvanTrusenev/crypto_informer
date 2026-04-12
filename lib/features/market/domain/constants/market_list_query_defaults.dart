@@ -1,6 +1,6 @@
 /// Значения по умолчанию для запросов на рынке.
 abstract final class MarketListQueryDefaults {
-  MarketListQueryDefaults._();
+  const MarketListQueryDefaults._();
 
   static const String vsCurrency = 'usd';
   static const int page = 1;

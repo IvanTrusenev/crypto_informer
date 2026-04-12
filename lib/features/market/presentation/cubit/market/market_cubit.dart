@@ -33,26 +33,32 @@ class MarketCubit extends Cubit<MarketState> {
   MarketSortColumnEnum? _sortColumn;
   bool _sortAscending = true;
 
+  @override
+  Future<void> close() {
+    _searchDebouncer.dispose();
+    return super.close();
+  }
+
+  void clearSearch() {
+    _searchDebouncer.cancel();
+    _searchIds = const [];
+    if (!isClosed) {
+      emit(
+        MarketLoaded(
+          _browseCache,
+          page: _browsePage,
+          hasMore: _browseHasMore,
+          sortColumn: _sortColumn,
+          sortAscending: _sortAscending,
+        ),
+      );
+    }
+  }
+
   Future<void> loadAssets() async {
     emit(const MarketLoading());
     try {
       await _listenBrowseFirstPageStream(emitCachedFirst: true);
-    } on Object catch (e) {
-      _emitMarketErrorIfNotLoaded(e);
-    }
-  }
-
-  Future<void> refresh() async {
-    try {
-      final current = state;
-      final query = current is MarketLoaded ? current.searchQuery : '';
-
-      if (query.isNotEmpty) {
-        _searchIds = await _repository.searchCoinIds(query);
-        await _listenSearchFirstChunkStream(query);
-      } else {
-        await _listenBrowseFirstPageStream(emitCachedFirst: false);
-      }
     } on Object catch (e) {
       _emitMarketErrorIfNotLoaded(e);
     }
@@ -74,6 +80,22 @@ class MarketCubit extends Cubit<MarketState> {
       }
     } on Object {
       if (!isClosed) emit(current.copyWith(isLoadingMore: false));
+    }
+  }
+
+  Future<void> refresh() async {
+    try {
+      final current = state;
+      final query = current is MarketLoaded ? current.searchQuery : '';
+
+      if (query.isNotEmpty) {
+        _searchIds = await _repository.searchCoinIds(query);
+        await _listenSearchFirstChunkStream(query);
+      } else {
+        await _listenBrowseFirstPageStream(emitCachedFirst: false);
+      }
+    } on Object catch (e) {
+      _emitMarketErrorIfNotLoaded(e);
     }
   }
 
@@ -151,22 +173,6 @@ class MarketCubit extends Cubit<MarketState> {
     }
   }
 
-  void clearSearch() {
-    _searchDebouncer.cancel();
-    _searchIds = const [];
-    if (!isClosed) {
-      emit(
-        MarketLoaded(
-          _browseCache,
-          page: _browsePage,
-          hasMore: _browseHasMore,
-          sortColumn: _sortColumn,
-          sortAscending: _sortAscending,
-        ),
-      );
-    }
-  }
-
   Future<void> setSort(
     MarketSortColumnEnum? column, {
     required bool ascending,
@@ -198,24 +204,16 @@ class MarketCubit extends Cubit<MarketState> {
   String get _apiOrder =>
       _sortColumn?.toApiOrder(ascending: _sortAscending) ?? _kDefaultOrder;
 
-  void _emitMarketErrorIfNotLoaded(Object e) {
-    if (state is MarketLoaded) return;
-    if (!isClosed) emit(MarketError(e));
-  }
-
   void _applyBrowseFirstPage(List<CoinEntity> assets) {
     _browseCache = assets;
     _browsePage = 1;
     _browseHasMore = assets.length >= _kPageSize;
   }
 
-  MarketLoaded _marketLoadedBrowse(List<CoinEntity> assets) =>
-      MarketLoaded(
-        assets,
-        hasMore: _browseHasMore,
-        sortColumn: _sortColumn,
-        sortAscending: _sortAscending,
-      );
+  void _emitMarketErrorIfNotLoaded(Object e) {
+    if (state is MarketLoaded) return;
+    if (!isClosed) emit(MarketError(e));
+  }
 
   /// Первая страница списка рынка (без поиска).
   Future<void> _listenBrowseFirstPageStream({
@@ -323,9 +321,11 @@ class MarketCubit extends Cubit<MarketState> {
     }
   }
 
-  @override
-  Future<void> close() {
-    _searchDebouncer.dispose();
-    return super.close();
-  }
+  MarketLoaded _marketLoadedBrowse(List<CoinEntity> assets) =>
+      MarketLoaded(
+        assets,
+        hasMore: _browseHasMore,
+        sortColumn: _sortColumn,
+        sortAscending: _sortAscending,
+      );
 }
