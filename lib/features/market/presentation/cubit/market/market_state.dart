@@ -1,6 +1,9 @@
 import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
 
+/// Sentinel для [MarketLoaded.copyWith]: не менять [MarketLoaded.sortColumn].
+const Object _keepSortColumn = Object();
+
 sealed class MarketState {
   const MarketState();
 }
@@ -21,6 +24,7 @@ class MarketLoaded extends MarketState {
     this.isLoadingMore = false,
     this.searchQuery = '',
     this.isSearching = false,
+    this.searchNeedsRefinement = false,
     this.sortColumn,
     this.sortAscending = true,
   });
@@ -31,6 +35,7 @@ class MarketLoaded extends MarketState {
   final bool isLoadingMore;
   final String searchQuery;
   final bool isSearching;
+  final bool searchNeedsRefinement;
   final MarketSortColumnEnum? sortColumn;
   final bool sortAscending;
 
@@ -41,7 +46,8 @@ class MarketLoaded extends MarketState {
     bool? isLoadingMore,
     String? searchQuery,
     bool? isSearching,
-    MarketSortColumnEnum? Function()? sortColumnFn,
+    bool? searchNeedsRefinement,
+    Object? sortColumn = _keepSortColumn,
     bool? sortAscending,
   }) => MarketLoaded(
     assets ?? this.assets,
@@ -50,7 +56,11 @@ class MarketLoaded extends MarketState {
     isLoadingMore: isLoadingMore ?? this.isLoadingMore,
     searchQuery: searchQuery ?? this.searchQuery,
     isSearching: isSearching ?? this.isSearching,
-    sortColumn: sortColumnFn != null ? sortColumnFn() : sortColumn,
+    searchNeedsRefinement:
+        searchNeedsRefinement ?? this.searchNeedsRefinement,
+    sortColumn: identical(sortColumn, _keepSortColumn)
+        ? this.sortColumn
+        : sortColumn as MarketSortColumnEnum?,
     sortAscending: sortAscending ?? this.sortAscending,
   );
 }

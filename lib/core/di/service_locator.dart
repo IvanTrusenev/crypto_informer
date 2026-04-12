@@ -11,6 +11,9 @@ import 'package:crypto_informer/features/market/data/repositories/crypto_reposit
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt sl = GetIt.instance;
@@ -34,6 +37,18 @@ Future<void> initServiceLocator() async {
     )
     ..registerLazySingleton<GetMarketAssetsUseCase>(
       () => GetMarketAssetsUseCase(sl<CryptoRepository>()),
+    )
+    ..registerLazySingleton<SearchCoinIdsUseCase>(
+      () => SearchCoinIdsUseCase(sl<CryptoRepository>()),
+    )
+    ..registerFactory<SearchBloc>(
+      () => SearchBloc(sl<SearchCoinIdsUseCase>()),
+    )
+    ..registerFactoryParam<MarketBloc, SearchBloc, void>(
+      (searchBloc, _) => MarketBloc(
+        sl<GetMarketAssetsUseCase>(),
+        searchBloc,
+      ),
     )
     ..registerLazySingleton<GetCoinDetailUseCase>(
       () => GetCoinDetailUseCase(sl<CryptoRepository>()),

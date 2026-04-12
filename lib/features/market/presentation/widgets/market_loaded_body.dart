@@ -26,6 +26,7 @@ class MarketLoadedBody extends StatelessWidget {
     required this.hasMore,
     required this.searchQuery,
     required this.isSearching,
+    required this.searchNeedsRefinement,
     required this.sortColumn,
     required this.sortAscending,
     required this.onSearchChanged,
@@ -42,6 +43,7 @@ class MarketLoadedBody extends StatelessWidget {
   final bool hasMore;
   final String searchQuery;
   final bool isSearching;
+  final bool searchNeedsRefinement;
   final MarketSortColumnEnum? sortColumn;
   final bool sortAscending;
   final ValueChanged<String> onSearchChanged;
@@ -114,7 +116,9 @@ class MarketLoadedBody extends StatelessWidget {
 
             return RefreshIndicator(
               triggerMode: RefreshIndicatorTriggerMode.anywhere,
-              onRefresh: () => context.read<MarketCubit>().refresh(),
+              onRefresh: () async {
+                context.read<MarketBloc>().add(const MarketRefreshRequested());
+              },
               child: CustomScrollView(
                 controller: scrollController,
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -133,6 +137,13 @@ class MarketLoadedBody extends StatelessWidget {
                     const SliverFillRemaining(
                       hasScrollBody: false,
                       child: CenteredCircularProgress(),
+                    )
+                  else if (searchNeedsRefinement)
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Text(l10n.marketSearchNeedsRefinement),
+                      ),
                     )
                   else if (items.isEmpty && searchQuery.isNotEmpty)
                     SliverFillRemaining(

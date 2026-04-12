@@ -19,6 +19,7 @@
   "marketTitle": "Market",
   "marketSearchHint": "Search by name or ticker",
   "marketSearchNoResults": "Nothing matches your search.",
+  "marketSearchNeedsRefinement": "Too many results. Refine your search.",
   "marketSortSectionTitle": "Sorting",
   "marketSortId": "ID",
   "marketSortVolume": "Volume",

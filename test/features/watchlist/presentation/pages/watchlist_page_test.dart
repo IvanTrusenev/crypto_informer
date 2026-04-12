@@ -1,7 +1,9 @@
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/pages/watchlist_page.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -33,13 +35,22 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenAnswer((_) async => []);
-    final marketCubit = MarketCubit(GetMarketAssetsUseCase(repo), repo);
-    await marketCubit.loadAssets();
+    final getAssets = GetMarketAssetsUseCase(repo);
+    final searchBloc = SearchBloc(
+      SearchCoinIdsUseCase(repo),
+      searchDebounce: Duration.zero,
+    );
+    final marketBloc = MarketBloc(
+      getAssets,
+      searchBloc,
+    )..add(const MarketLoadRequested());
+    await tester.pump();
 
     await tester.pumpWidget(
       MultiBlocProvider(
         providers: [
-          BlocProvider.value(value: marketCubit),
+          BlocProvider.value(value: searchBloc),
+          BlocProvider.value(value: marketBloc),
           BlocProvider(
             create: (_) => WatchlistCubit(storage)..loadIds(),
           ),

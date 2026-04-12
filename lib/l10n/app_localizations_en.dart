@@ -66,6 +66,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketSearchNoResults => 'Nothing matches your search.';
 
   @override
+  String get marketSearchNeedsRefinement =>
+      'Too many results. Refine your search.';
+
+  @override
   String get marketSortSectionTitle => 'Sorting';
 
   @override

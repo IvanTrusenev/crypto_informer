@@ -1,7 +1,6 @@
-import 'dart:async';
-
 import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -42,25 +41,26 @@ class _MarketPageState extends State<MarketPage> {
         searchController: _searchController,
         onSearchChanged: _scheduleSearchUpdate,
         onClearSearch: _clearSearch,
-        onRetry: () => unawaited(context.read<MarketCubit>().loadAssets()),
+        onRetry: () =>
+            context.read<MarketBloc>().add(const MarketLoadRequested()),
       ),
     );
   }
 
   void _scheduleSearchUpdate(String text) {
     if (!mounted) return;
-    context.read<MarketCubit>().scheduleSearch(text);
+    context.read<SearchBloc>().add(SearchQueryChanged(text));
   }
 
   void _onScroll() {
     final pos = _scrollController.position;
     if (pos.pixels >= pos.maxScrollExtent - 200) {
-      unawaited(context.read<MarketCubit>().loadMore());
+      context.read<MarketBloc>().add(const MarketLoadMoreRequested());
     }
   }
 
   void _clearSearch() {
     _searchController.clear();
-    context.read<MarketCubit>().clearSearch();
+    context.read<SearchBloc>().add(const SearchCleared());
   }
 }

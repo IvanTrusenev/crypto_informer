@@ -39,7 +39,7 @@ class WatchlistPage extends StatelessWidget {
               ),
             );
           }
-          return BlocBuilder<MarketCubit, MarketState>(
+          return BlocBuilder<MarketBloc, MarketState>(
             builder: (context, marketState) => switch (marketState) {
               MarketInitial() || MarketLoading() =>
                 const CenteredCircularProgress(),
@@ -88,7 +88,9 @@ class WatchlistPage extends StatelessWidget {
           ),
         Expanded(
           child: RefreshIndicator(
-            onRefresh: () => context.read<MarketCubit>().refresh(),
+            onRefresh: () async {
+              context.read<MarketBloc>().add(const MarketRefreshRequested());
+            },
             child: LayoutBuilder(
               builder: (context, constraints) {
                 final columns = marketListCrossAxisCount(constraints.maxWidth);

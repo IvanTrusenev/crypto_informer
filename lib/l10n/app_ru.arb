@@ -19,6 +19,7 @@
   "marketTitle": "Рынок",
   "marketSearchHint": "Поиск по названию или тикеру",
   "marketSearchNoResults": "Ничего не найдено.",
+  "marketSearchNeedsRefinement": "Слишком много результатов. Уточните запрос.",
   "marketSortSectionTitle": "Сортировка",
   "marketSortId": "ID",
   "marketSortVolume": "Объём",

@@ -212,6 +212,12 @@ abstract class AppLocalizations {
   /// **'Nothing matches your search.'**
   String get marketSearchNoResults;
 
+  /// No description provided for @marketSearchNeedsRefinement.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many results. Refine your search.'**
+  String get marketSearchNeedsRefinement;
+
   /// No description provided for @marketSortSectionTitle.
   ///
   /// In en, this message translates to:

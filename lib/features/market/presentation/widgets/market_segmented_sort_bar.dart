@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -38,8 +36,11 @@ class MarketSortControlsBar extends StatelessWidget {
         const SizedBox(width: 4),
         TextButton(
           style: resetStyle,
-          onPressed: () => unawaited(
-            context.read<MarketCubit>().setSort(null, ascending: true),
+          onPressed: () => context.read<MarketBloc>().add(
+            const MarketSortChanged(
+              column: null,
+              ascending: true,
+            ),
           ),
           child: Text(
             l10n.marketSortReset,
@@ -80,10 +81,8 @@ class SegmentedMarketSortBar extends StatelessWidget {
                 label: l10n.marketSortId,
                 selected: selectedColumn == MarketSortColumnEnum.id,
                 ascending: ascending,
-                onTap: () => unawaited(
-                  context.read<MarketCubit>().tapSortSegment(
-                    MarketSortColumnEnum.id,
-                  ),
+                onTap: () => context.read<MarketBloc>().add(
+                  const MarketSortSegmentTapped(MarketSortColumnEnum.id),
                 ),
               ),
             ),
@@ -99,10 +98,8 @@ class SegmentedMarketSortBar extends StatelessWidget {
                 label: l10n.marketSortVolume,
                 selected: selectedColumn == MarketSortColumnEnum.volume,
                 ascending: ascending,
-                onTap: () => unawaited(
-                  context.read<MarketCubit>().tapSortSegment(
-                    MarketSortColumnEnum.volume,
-                  ),
+                onTap: () => context.read<MarketBloc>().add(
+                  const MarketSortSegmentTapped(MarketSortColumnEnum.volume),
                 ),
               ),
             ),
@@ -118,8 +115,8 @@ class SegmentedMarketSortBar extends StatelessWidget {
                 label: l10n.marketSortMarketCap,
                 selected: selectedColumn == MarketSortColumnEnum.marketCap,
                 ascending: ascending,
-                onTap: () => unawaited(
-                  context.read<MarketCubit>().tapSortSegment(
+                onTap: () => context.read<MarketBloc>().add(
+                  const MarketSortSegmentTapped(
                     MarketSortColumnEnum.marketCap,
                   ),
                 ),

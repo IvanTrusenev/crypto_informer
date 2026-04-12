@@ -66,6 +66,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get marketSearchNoResults => 'Ничего не найдено.';
 
   @override
+  String get marketSearchNeedsRefinement =>
+      'Слишком много результатов. Уточните запрос.';
+
+  @override
   String get marketSortSectionTitle => 'Сортировка';
 
   @override

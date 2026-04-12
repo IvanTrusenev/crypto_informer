@@ -29,7 +29,7 @@ class MarketPageBody extends StatelessWidget {
     final l10n = context.l10n;
     final priceFormat = context.usdCurrencyFormat;
 
-    return BlocBuilder<MarketCubit, MarketState>(
+    return BlocBuilder<MarketBloc, MarketState>(
       builder: (context, marketState) {
         return switch (marketState) {
           MarketInitial() ||
@@ -40,6 +40,7 @@ class MarketPageBody extends StatelessWidget {
             :final hasMore,
             :final searchQuery,
             :final isSearching,
+            :final searchNeedsRefinement,
             :final sortColumn,
             :final sortAscending,
           ) =>
@@ -53,6 +54,7 @@ class MarketPageBody extends StatelessWidget {
               hasMore: hasMore,
               searchQuery: searchQuery,
               isSearching: isSearching,
+              searchNeedsRefinement: searchNeedsRefinement,
               sortColumn: sortColumn,
               sortAscending: sortAscending,
               onSearchChanged: onSearchChanged,

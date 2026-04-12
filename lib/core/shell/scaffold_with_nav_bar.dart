@@ -52,7 +52,7 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar> {
   Widget build(BuildContext context) {
     final l10n = context.l10n;
 
-    return BlocListener<MarketCubit, MarketState>(
+    return BlocListener<MarketBloc, MarketState>(
       listener: _onMarketStateChanged,
       child: Scaffold(
         body: widget.navigationShell,

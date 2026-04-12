@@ -1,8 +1,11 @@
 import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_impl.dart';
+import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
 import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
+import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
 import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_page.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
@@ -22,7 +25,10 @@ const _btc = CoinEntity(
   priceChangePercent24h: 2.5,
 );
 
-Widget _buildApp({required MarketCubit marketCubit}) {
+Widget _buildApp({
+  required SearchBloc searchBloc,
+  required MarketBloc marketBloc,
+}) {
   SharedPreferences.setMockInitialValues({});
   return FutureBuilder<SharedPreferences>(
     future: SharedPreferences.getInstance(),
@@ -33,7 +39,8 @@ Widget _buildApp({required MarketCubit marketCubit}) {
       final storage = AppKeyValueStorageImpl(snapshot.data!);
       return MultiBlocProvider(
         providers: [
-          BlocProvider.value(value: marketCubit),
+          BlocProvider.value(value: searchBloc),
+          BlocProvider.value(value: marketBloc),
           BlocProvider(
             create: (_) => WatchlistCubit(storage)..loadIds(),
           ),
@@ -66,10 +73,20 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenAnswer((_) async => [_btc]);
-    final cubit = MarketCubit(GetMarketAssetsUseCase(repo), repo);
-    await cubit.loadAssets();
+    final getAssets = GetMarketAssetsUseCase(repo);
+    final searchBloc = SearchBloc(
+      SearchCoinIdsUseCase(repo),
+      searchDebounce: Duration.zero,
+    );
+    final marketBloc = MarketBloc(
+      getAssets,
+      searchBloc,
+    )..add(const MarketLoadRequested());
+    await tester.pump();
 
-    await tester.pumpWidget(_buildApp(marketCubit: cubit));
+    await tester.pumpWidget(
+      _buildApp(searchBloc: searchBloc, marketBloc: marketBloc),
+    );
     await tester.pumpAndSettle();
 
     expect(find.text('Bitcoin'), findsOneWidget);
@@ -91,12 +108,63 @@ void main() {
         ids: any(named: 'ids'),
       ),
     ).thenThrow(Exception('fail'));
-    final cubit = MarketCubit(GetMarketAssetsUseCase(repo), repo);
-    await cubit.loadAssets();
+    final getAssets = GetMarketAssetsUseCase(repo);
+    final searchBloc = SearchBloc(
+      SearchCoinIdsUseCase(repo),
+      searchDebounce: Duration.zero,
+    );
+    final marketBloc = MarketBloc(
+      getAssets,
+      searchBloc,
+    )..add(const MarketLoadRequested());
+    await tester.pump();
 
-    await tester.pumpWidget(_buildApp(marketCubit: cubit));
+    await tester.pumpWidget(
+      _buildApp(searchBloc: searchBloc, marketBloc: marketBloc),
+    );
     await tester.pumpAndSettle();
 
     expect(find.byType(FilledButton), findsOneWidget);
+  });
+
+  testWidgets('shows refinement message when search returns too many matches', (
+    tester,
+  ) async {
+    final repo = MockCryptoRepository();
+    when(
+      () => repo.getCachedMarketAssetsFirstPage(
+        vsCurrency: any(named: 'vsCurrency'),
+      ),
+    ).thenAnswer((_) async => null);
+    when(
+      () => repo.searchCoinIds('coin'),
+    ).thenAnswer(
+      (_) async => List.generate(
+        MarketListQueryDefaults.maxSearchResultsForMarketFetch + 1,
+        (index) => 'coin-$index',
+      ),
+    );
+
+    final getAssets = GetMarketAssetsUseCase(repo);
+    final searchBloc = SearchBloc(
+      SearchCoinIdsUseCase(repo),
+      searchDebounce: Duration.zero,
+    );
+    final marketBloc = MarketBloc(
+      getAssets,
+      searchBloc,
+    );
+    searchBloc.add(const SearchQueryChanged('coin'));
+    await tester.pump();
+
+    await tester.pumpWidget(
+      _buildApp(searchBloc: searchBloc, marketBloc: marketBloc),
+    );
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('Too many results. Refine your search.'),
+      findsOneWidget,
+    );
   });
 }
