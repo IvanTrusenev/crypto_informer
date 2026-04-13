@@ -82,12 +82,16 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
   }) async {
     try {
       return await request();
+    } on AppException {
+      rethrow;
     } on DioException catch (e) {
       final exception = e.toAppException();
       if (mapCoinNotFound && exception is NotFoundException) {
         throw const CoinNotFoundException();
       }
       throw exception;
+    } on Object catch (_) {
+      throw const ResponseParsingException();
     }
   }
 

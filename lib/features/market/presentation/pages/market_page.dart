@@ -1,6 +1,6 @@
 import 'package:crypto_informer/core/extensions/context_extensions.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/export.dart';
 import 'package:crypto_informer/features/market/presentation/pages/market_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -36,7 +36,7 @@ class _MarketPageState extends State<MarketPage> {
     final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.marketTitle)),
-      body: MarketPageBody(
+      body: MarketBody(
         scrollController: _scrollController,
         searchController: _searchController,
         onSearchChanged: _scheduleSearchUpdate,

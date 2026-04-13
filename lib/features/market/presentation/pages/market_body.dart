@@ -2,14 +2,14 @@ import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:crypto_informer/core/localization/app_exception_localizations.dart';
 import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
 import 'package:crypto_informer/core/widgets/centered_error_with_retry.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/widgets/market_loaded_body.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/pages/market_content.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Содержимое [Scaffold.body] экрана рынка.
-class MarketPageBody extends StatelessWidget {
-  const MarketPageBody({
+class MarketBody extends StatelessWidget {
+  const MarketBody({
     required this.scrollController,
     required this.searchController,
     required this.onSearchChanged,
@@ -44,7 +44,7 @@ class MarketPageBody extends StatelessWidget {
             :final sortColumn,
             :final sortAscending,
           ) =>
-            MarketLoadedBody(
+            MarketContent(
               scrollController: scrollController,
               searchController: searchController,
               items: assets,

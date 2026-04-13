@@ -88,6 +88,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get marketEmpty => 'No data';
 
   @override
+  String get marketCapShort => 'Cap';
+
+  @override
+  String get marketVolumeShort => 'Vol';
+
+  @override
   String marketAssetSubtitle(String symbol, String change) {
     return '$symbol · $change';
   }

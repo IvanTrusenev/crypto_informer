@@ -1,4 +1,4 @@
-import 'package:crypto_informer/features/market/presentation/cubit/search/search_status_enum.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/search_status_enum.dart';
 
 class SearchState {
   const SearchState({

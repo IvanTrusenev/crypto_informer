@@ -88,6 +88,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get marketEmpty => 'Нет данных';
 
   @override
+  String get marketCapShort => 'Кап.';
+
+  @override
+  String get marketVolumeShort => 'Объём';
+
+  @override
   String marketAssetSubtitle(String symbol, String change) {
     return '$symbol · $change';
   }

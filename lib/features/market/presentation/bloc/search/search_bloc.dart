@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:crypto_informer/core/utils/debouncer.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
 import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/search_event.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/search_state.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/search_status_enum.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/search_event.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/search_state.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/search_status_enum.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SearchBloc extends Bloc<SearchEvent, SearchState> {

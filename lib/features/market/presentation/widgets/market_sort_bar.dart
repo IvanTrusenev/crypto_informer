@@ -1,11 +1,11 @@
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class MarketSortControlsBar extends StatelessWidget {
-  const MarketSortControlsBar({
+class MarketSortBar extends StatelessWidget {
+  const MarketSortBar({
     required this.l10n,
     required this.sortColumn,
     required this.sortAscending,
@@ -18,19 +18,53 @@ class MarketSortControlsBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final resetStyle = TextButton.styleFrom(
       padding: const EdgeInsets.symmetric(horizontal: 4),
       minimumSize: Size.zero,
       tapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
+    final segments = <({String label, MarketSortColumnEnum column})>[
+      (label: l10n.marketSortId, column: MarketSortColumnEnum.id),
+      (label: l10n.marketSortVolume, column: MarketSortColumnEnum.volume),
+      (label: l10n.marketSortMarketCap, column: MarketSortColumnEnum.marketCap),
+    ];
 
     return Row(
       children: [
         Expanded(
-          child: SegmentedMarketSortBar(
-            selectedColumn: sortColumn,
-            ascending: sortAscending,
-            l10n: l10n,
+          child: Material(
+            color: scheme.surface,
+            shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 22,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  for (var index = 0; index < segments.length; index++) ...[
+                    if (index > 0)
+                      VerticalDivider(
+                        width: 1,
+                        thickness: 1,
+                        color: scheme.outline,
+                        indent: 4,
+                        endIndent: 4,
+                      ),
+                    Expanded(
+                      child: _MarketSortSegment(
+                        label: segments[index].label,
+                        selected: sortColumn == segments[index].column,
+                        ascending: sortAscending,
+                        onTap: () => context.read<MarketBloc>().add(
+                          MarketSortSegmentTapped(segments[index].column),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
         const SizedBox(width: 4),
@@ -52,90 +86,12 @@ class MarketSortControlsBar extends StatelessWidget {
   }
 }
 
-class SegmentedMarketSortBar extends StatelessWidget {
-  const SegmentedMarketSortBar({
-    required this.selectedColumn,
-    required this.ascending,
-    required this.l10n,
-    super.key,
-  });
-
-  final MarketSortColumnEnum? selectedColumn;
-  final bool ascending;
-  final AppLocalizations l10n;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return Material(
-      color: scheme.surface,
-      shape: StadiumBorder(side: BorderSide(color: scheme.outline)),
-      clipBehavior: Clip.antiAlias,
-      child: SizedBox(
-        height: 22,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-              child: MarketSortSegment(
-                label: l10n.marketSortId,
-                selected: selectedColumn == MarketSortColumnEnum.id,
-                ascending: ascending,
-                onTap: () => context.read<MarketBloc>().add(
-                  const MarketSortSegmentTapped(MarketSortColumnEnum.id),
-                ),
-              ),
-            ),
-            VerticalDivider(
-              width: 1,
-              thickness: 1,
-              color: scheme.outline,
-              indent: 4,
-              endIndent: 4,
-            ),
-            Expanded(
-              child: MarketSortSegment(
-                label: l10n.marketSortVolume,
-                selected: selectedColumn == MarketSortColumnEnum.volume,
-                ascending: ascending,
-                onTap: () => context.read<MarketBloc>().add(
-                  const MarketSortSegmentTapped(MarketSortColumnEnum.volume),
-                ),
-              ),
-            ),
-            VerticalDivider(
-              width: 1,
-              thickness: 1,
-              color: scheme.outline,
-              indent: 4,
-              endIndent: 4,
-            ),
-            Expanded(
-              child: MarketSortSegment(
-                label: l10n.marketSortMarketCap,
-                selected: selectedColumn == MarketSortColumnEnum.marketCap,
-                ascending: ascending,
-                onTap: () => context.read<MarketBloc>().add(
-                  const MarketSortSegmentTapped(
-                    MarketSortColumnEnum.marketCap,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class MarketSortSegment extends StatelessWidget {
-  const MarketSortSegment({
+class _MarketSortSegment extends StatelessWidget {
+  const _MarketSortSegment({
     required this.label,
     required this.selected,
     required this.ascending,
     required this.onTap,
-    super.key,
   });
 
   final String label;

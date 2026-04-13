@@ -12,8 +12,8 @@ import 'package:crypto_informer/features/market/domain/repositories/crypto_repos
 import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/export.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt sl = GetIt.instance;

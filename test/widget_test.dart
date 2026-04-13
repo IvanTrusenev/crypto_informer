@@ -5,8 +5,8 @@ import 'package:crypto_informer/core/storage/shared_pref/app_key_value_storage_i
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/export.dart';
 import 'package:crypto_informer/features/settings/presentation/cubit/app_settings_cubit.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/main.dart';

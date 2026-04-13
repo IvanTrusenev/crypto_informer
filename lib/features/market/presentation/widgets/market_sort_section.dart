@@ -1,19 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// Скругление и обводка как у [InputDecoration] из темы.
-OutlineInputBorder marketSortOutlineBorderFromTheme(
-  ThemeData theme,
-  ColorScheme scheme,
-) {
-  final inputTheme = theme.inputDecorationTheme;
-  final shape = inputTheme.enabledBorder ?? inputTheme.border;
-  if (shape is OutlineInputBorder) return shape;
-  return OutlineInputBorder(
-    borderRadius: BorderRadius.circular(12),
-    borderSide: BorderSide(color: scheme.outline),
-  );
-}
-
 /// Подпись «Сортировка» и дочерний контрол в рамке как у поля ввода.
 class MarketSortSection extends StatelessWidget {
   const MarketSortSection({
@@ -27,13 +13,24 @@ class MarketSortSection extends StatelessWidget {
   final bool fillHeight;
   final Widget child;
 
+  static OutlineInputBorder _resolveOutlineBorder(ThemeData theme) {
+    final border =
+        theme.inputDecorationTheme.enabledBorder ??
+        theme.inputDecorationTheme.border;
+    if (border is OutlineInputBorder) return border;
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+      borderSide: BorderSide(color: theme.colorScheme.outline),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final textTheme = theme.textTheme;
     final inputTheme = theme.inputDecorationTheme;
-    final outlineBorder = marketSortOutlineBorderFromTheme(theme, scheme);
+    final outlineBorder = _resolveOutlineBorder(theme);
 
     final inner = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

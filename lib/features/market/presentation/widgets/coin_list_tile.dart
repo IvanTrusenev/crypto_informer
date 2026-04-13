@@ -1,24 +1,9 @@
 import 'package:crypto_informer/core/extensions/context_extensions.dart';
+import 'package:crypto_informer/core/formatters/currency_formatter.dart';
 import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/watchlist/presentation/widgets/animated_watchlist_icon_button.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
-
-/// Число колонок сетки карточек по ширине контента.
-int marketListCrossAxisCount(double width) {
-  if (width >= 1200) return 4;
-  if (width >= 900) return 3;
-  if (width >= 600) return 2;
-  return 1;
-}
-
-String _compactNumber(double value) {
-  if (value >= 1e12) return '${(value / 1e12).toStringAsFixed(2)}T';
-  if (value >= 1e9) return '${(value / 1e9).toStringAsFixed(2)}B';
-  if (value >= 1e6) return '${(value / 1e6).toStringAsFixed(2)}M';
-  if (value >= 1e3) return '${(value / 1e3).toStringAsFixed(1)}K';
-  return value.toStringAsFixed(0);
-}
 
 /// Карточка монеты: аватар, имя, тикер, 24ч %, цена, Cap, Vol, избранное.
 class CoinListTile extends StatelessWidget {
@@ -47,6 +32,7 @@ class CoinListTile extends StatelessWidget {
     final textTheme = theme.textTheme;
     final scheme = theme.colorScheme;
     final finance = context.financeColors;
+    final localeName = Localizations.localeOf(context).toString();
 
     final change = asset.priceChangePercent24h;
     final changeColor = change >= 0
@@ -143,7 +129,12 @@ class CoinListTile extends StatelessWidget {
                       children: [
                         if (cap != null)
                           Text(
-                            'Cap \$${_compactNumber(cap)}',
+                            '${l10n.marketCapShort} '
+                            '${CurrencyFormatter.formatCompactMetric(
+                              cap,
+                              localeName: localeName,
+                              currencySymbol: r'$',
+                            )}',
                             style: textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),
@@ -152,7 +143,12 @@ class CoinListTile extends StatelessWidget {
                           const SizedBox(width: 12),
                         if (vol != null)
                           Text(
-                            'Vol \$${_compactNumber(vol)}',
+                            '${l10n.marketVolumeShort} '
+                            '${CurrencyFormatter.formatCompactMetric(
+                              vol,
+                              localeName: localeName,
+                              currencySymbol: r'$',
+                            )}',
                             style: textTheme.bodyMedium?.copyWith(
                               color: scheme.onSurfaceVariant,
                             ),

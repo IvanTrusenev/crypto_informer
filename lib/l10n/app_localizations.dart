@@ -254,6 +254,18 @@ abstract class AppLocalizations {
   /// **'No data'**
   String get marketEmpty;
 
+  /// No description provided for @marketCapShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Cap'**
+  String get marketCapShort;
+
+  /// No description provided for @marketVolumeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Vol'**
+  String get marketVolumeShort;
+
   /// No description provided for @marketAssetSubtitle.
   ///
   /// In en, this message translates to:

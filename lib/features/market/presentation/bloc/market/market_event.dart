@@ -1,5 +1,5 @@
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/search_state.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/search_state.dart';
 
 sealed class MarketEvent {
   const MarketEvent();

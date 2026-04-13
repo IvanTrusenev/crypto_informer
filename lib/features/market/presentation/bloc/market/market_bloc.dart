@@ -4,10 +4,10 @@ import 'package:crypto_informer/features/market/domain/constants/market_list_que
 import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/value_objects/market_sort_column_enum.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/market_browse_snapshot.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/market_event.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/market_state.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/search/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/market_browse_snapshot.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/market_event.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/market_state.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/search/export.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 const int _kPageSize = MarketListQueryDefaults.perPage;

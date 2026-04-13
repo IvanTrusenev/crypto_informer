@@ -26,6 +26,8 @@
   "marketSortMarketCap": "Капитализация",
   "marketSortReset": "Сброс",
   "marketEmpty": "Нет данных",
+  "marketCapShort": "Кап.",
+  "marketVolumeShort": "Объём",
   "marketAssetSubtitle": "{symbol} · {change}",
   "@marketAssetSubtitle": {
     "placeholders": {

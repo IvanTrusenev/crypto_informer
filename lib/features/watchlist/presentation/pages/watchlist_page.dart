@@ -3,7 +3,8 @@ import 'package:crypto_informer/core/localization/app_exception_localizations.da
 import 'package:crypto_informer/core/widgets/centered_circular_progress.dart';
 import 'package:crypto_informer/core/widgets/centered_error_message.dart';
 import 'package:crypto_informer/features/market/domain/entities/coin_entity.dart';
-import 'package:crypto_informer/features/market/presentation/cubit/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/bloc/market/export.dart';
+import 'package:crypto_informer/features/market/presentation/layout/market_grid_layout.dart';
 import 'package:crypto_informer/features/market/presentation/widgets/coin_list_tile.dart';
 import 'package:crypto_informer/features/watchlist/presentation/cubit/watchlist_cubit.dart';
 import 'package:crypto_informer/l10n/app_localizations.dart';

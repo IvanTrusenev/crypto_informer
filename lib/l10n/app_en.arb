@@ -26,6 +26,8 @@
   "marketSortMarketCap": "Market cap",
   "marketSortReset": "Reset",
   "marketEmpty": "No data",
+  "marketCapShort": "Cap",
+  "marketVolumeShort": "Vol",
   "marketAssetSubtitle": "{symbol} · {change}",
   "@marketAssetSubtitle": {
     "placeholders": {
