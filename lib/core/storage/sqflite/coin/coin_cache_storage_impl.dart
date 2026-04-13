@@ -1,9 +1,9 @@
 import 'package:crypto_informer/core/error/app_exception.dart';
-import 'package:crypto_informer/core/storage/cache/coin_cache_storage.dart';
 import 'package:crypto_informer/core/storage/sqflite/coin/coin_cache_dao.dart';
 import 'package:crypto_informer/core/storage/sqflite/coin/mapper/coin_cache_model_mapper.dart';
 import 'package:crypto_informer/core/storage/sqflite/coin/mapper/coin_cache_record_mapper.dart';
 import 'package:crypto_informer/features/market/data/models/coin_cache_model.dart';
+import 'package:crypto_informer/features/market/data/storage/coin_cache_storage.dart';
 
 class CoinCacheStorageImpl implements CoinCacheStorage {
   CoinCacheStorageImpl(this._dao);

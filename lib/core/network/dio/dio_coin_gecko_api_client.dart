@@ -50,7 +50,9 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
 
   @override
   Future<List<String>> search(String query) async {
-    final data = await _mapRequestErrors(() => _client.search(query));
+    final data = await _mapRequestErrors(
+      () => _client.search(query),
+    );
     return _mapResponseParsing(() => _searchIdsParser.parse(data));
   }
 
@@ -84,13 +86,13 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
       return await request();
     } on AppException {
       rethrow;
-    } on DioException catch (e) {
-      final exception = e.toAppException();
+    } on DioException catch (error) {
+      final exception = error.toAppException();
       if (mapCoinNotFound && exception is NotFoundException) {
         throw const CoinNotFoundException();
       }
       throw exception;
-    } on Object catch (_) {
+    } on Object {
       throw const ResponseParsingException();
     }
   }
@@ -100,7 +102,7 @@ class DioCoinGeckoApiClient implements CoinGeckoApiClient {
       return parse();
     } on AppException {
       rethrow;
-    } on Object catch (_) {
+    } on Object {
       throw const ResponseParsingException();
     }
   }

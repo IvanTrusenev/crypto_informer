@@ -14,5 +14,7 @@ abstract interface class CryptoCacheDataSource {
 
   Future<CoinDetailCacheModel?> readCachedCoinDetail(String id);
 
+  Future<int> countCachedCoinDetails();
+
   Future<void> saveCachedCoinDetail(CoinDetailCacheModel detail);
 }

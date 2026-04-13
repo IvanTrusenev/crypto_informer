@@ -1,5 +1,4 @@
 import 'dart:async' show unawaited;
-import 'dart:isolate';
 
 import 'package:crypto_informer/core/error/app_exception.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_cache_data_source.dart';
@@ -11,6 +10,8 @@ import 'package:crypto_informer/features/market/data/mapper/coin_detail_entity_m
 import 'package:crypto_informer/features/market/data/mapper/coin_dto_mapper.dart';
 import 'package:crypto_informer/features/market/data/mapper/coin_entity_mapper.dart';
 import 'package:crypto_informer/features/market/data/mapper/price_chart_point_dto_mapper.dart';
+import 'package:crypto_informer/features/market/data/models/coin_dto.dart';
+import 'package:crypto_informer/features/market/data/models/price_chart_point_dto.dart';
 import 'package:crypto_informer/features/market/data/utils/price_chart_sampling.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
 import 'package:crypto_informer/features/market/domain/entities/coin_detail_entity.dart';
@@ -34,7 +35,8 @@ class CryptoRepositoryImpl implements CryptoRepository {
         vsCurrency: vsCurrency,
       );
       if (models?.isEmpty ?? true) return null;
-      return models!.map((model) => model.toEntity()).toList();
+      final cachedModels = models!;
+      return cachedModels.map((model) => model.toEntity()).toList();
     } on CacheException {
       return null;
     }
@@ -48,25 +50,29 @@ class CryptoRepositoryImpl implements CryptoRepository {
     String order = MarketListQueryDefaults.order,
     List<String>? ids,
   }) async {
-    final models = await _remote.fetchMarkets(
-      vsCurrency: vsCurrency,
-      page: page,
-      perPage: perPage,
-      order: order,
-      ids: ids,
-    );
-    final list = await Isolate.run(
-      () => models.map((m) => m.toEntity()).toList(),
-    );
-    if (ids == null) {
-      _processInBackground(() async {
-        await _cache.replaceCachedMarketAssets(
-          list.map((e) => e.toCacheModel()).toList(),
-          vsCurrency: vsCurrency,
+    try {
+      final models = await _remote.fetchMarkets(
+        vsCurrency: vsCurrency,
+        page: page,
+        perPage: perPage,
+        order: order,
+        ids: ids,
+      );
+      final list = _mapCoinDtosToEntities(models);
+      if (ids == null) {
+        _processInBackground(
+          () async {
+            await _cache.replaceCachedMarketAssets(
+              list.map((e) => e.toCacheModel()).toList(),
+              vsCurrency: vsCurrency,
+            );
+          },
         );
-      });
+      }
+      return list;
+    } on Object {
+      rethrow;
     }
-    return list;
   }
 
   @override
@@ -84,13 +90,24 @@ class CryptoRepositoryImpl implements CryptoRepository {
   }
 
   @override
+  Future<int> getCachedCoinDetailCount() async {
+    return _cache.countCachedCoinDetails();
+  }
+
+  @override
   Future<CoinDetailEntity> getCoinDetail(String id) async {
-    final model = await _remote.fetchCoin(id);
-    final detail = model.toEntity();
-    _processInBackground(() async {
-      await _cache.saveCachedCoinDetail(detail.toCacheModel());
-    });
-    return detail;
+    try {
+      final model = await _remote.fetchCoin(id);
+      final detail = model.toEntity();
+      _processInBackground(
+        () async {
+          await _cache.saveCachedCoinDetail(detail.toCacheModel());
+        },
+      );
+      return detail;
+    } on Object {
+      rethrow;
+    }
   }
 
   @override
@@ -99,15 +116,16 @@ class CryptoRepositoryImpl implements CryptoRepository {
     ChartPeriodEnum period = ChartPeriodEnum.days7,
     String vsCurrency = MarketListQueryDefaults.vsCurrency,
   }) async {
-    final dtos = await _remote.fetchMarketChart(
-      coinId,
-      period: period,
-      vsCurrency: vsCurrency,
-    );
-    return Isolate.run(() {
-      final entities = dtos.map((d) => d.toEntity()).toList();
-      return samplePriceChartPoints(entities);
-    });
+    try {
+      final dtos = await _remote.fetchMarketChart(
+        coinId,
+        period: period,
+        vsCurrency: vsCurrency,
+      );
+      return _mapAndSamplePriceChart(dtos);
+    } on Object {
+      rethrow;
+    }
   }
 
   void _processInBackground(Future<void> Function() work) {
@@ -121,4 +139,15 @@ class CryptoRepositoryImpl implements CryptoRepository {
       })(),
     );
   }
+}
+
+List<CoinEntity> _mapCoinDtosToEntities(List<CoinDto> models) {
+  return models.map((model) => model.toEntity()).toList();
+}
+
+List<PriceChartPointEntity> _mapAndSamplePriceChart(
+  List<PriceChartPointDto> dtos,
+) {
+  final entities = dtos.map((dto) => dto.toEntity()).toList();
+  return samplePriceChartPoints(entities);
 }

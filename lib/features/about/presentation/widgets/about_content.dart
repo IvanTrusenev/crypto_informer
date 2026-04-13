@@ -1,19 +1,14 @@
-import 'package:crypto_informer/core/di/service_locator.dart';
 import 'package:crypto_informer/core/extensions/context_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 
 /// Текст «О программе» (экран настроек открывает это в диалоге).
 class AboutContent extends StatelessWidget {
-  const AboutContent({super.key});
+  const AboutContent({
+    required this.cachedCoinCountFuture,
+    super.key,
+  });
 
-  Future<int> _cachedCoinCount() async {
-    final db = sl<Database>();
-    final result = await db.rawQuery(
-      'SELECT COUNT(*) AS cnt FROM coin_detail_cache',
-    );
-    return Sqflite.firstIntValue(result) ?? 0;
-  }
+  final Future<int> cachedCoinCountFuture;
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +75,7 @@ class AboutContent extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         FutureBuilder<int>(
-          future: _cachedCoinCount(),
+          future: cachedCoinCountFuture,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const SizedBox(

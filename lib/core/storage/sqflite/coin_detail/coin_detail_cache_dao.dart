@@ -3,6 +3,9 @@ import 'package:froom/froom.dart';
 
 @dao
 abstract class CoinDetailCacheDao {
+  @Query('SELECT COUNT(*) FROM coin_detail_cache')
+  Future<int?> count();
+
   @Query('SELECT * FROM coin_detail_cache WHERE id = :id LIMIT 1')
   Future<CoinDetailCacheRecord?> findById(String id);
 

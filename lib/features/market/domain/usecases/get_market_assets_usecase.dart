@@ -37,13 +37,14 @@ class GetMarketAssetsUseCase {
       }
     }
     try {
-      yield await _repository.getMarketAssets(
+      final fresh = await _repository.getMarketAssets(
         vsCurrency: vsCurrency,
         page: page,
         perPage: perPage,
         order: order,
         ids: ids,
       );
+      yield fresh;
     } on Object {
       if (!yieldedStale) rethrow;
     }

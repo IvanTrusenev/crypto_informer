@@ -1,8 +1,8 @@
-import 'package:crypto_informer/core/storage/cache/coin_cache_storage.dart';
-import 'package:crypto_informer/core/storage/cache/coin_detail_cache_storage.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_cache_data_source.dart';
 import 'package:crypto_informer/features/market/data/models/coin_cache_model.dart';
 import 'package:crypto_informer/features/market/data/models/coin_detail_cache_model.dart';
+import 'package:crypto_informer/features/market/data/storage/coin_cache_storage.dart';
+import 'package:crypto_informer/features/market/data/storage/coin_detail_cache_storage.dart';
 import 'package:crypto_informer/features/market/domain/constants/market_list_query_defaults.dart';
 
 class CryptoCacheDataSourceImpl implements CryptoCacheDataSource {
@@ -29,6 +29,11 @@ class CryptoCacheDataSourceImpl implements CryptoCacheDataSource {
   @override
   Future<CoinDetailCacheModel?> readCachedCoinDetail(String id) async {
     return _coinDetail.readById(id);
+  }
+
+  @override
+  Future<int> countCachedCoinDetails() async {
+    return _coinDetail.count();
   }
 
   @override

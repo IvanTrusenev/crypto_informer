@@ -1,14 +1,15 @@
 import 'package:crypto_informer/core/network/coin_gecko_api_client.dart';
 import 'package:crypto_informer/core/network/network_module.dart';
-import 'package:crypto_informer/core/storage/cache/coin_cache_storage.dart';
-import 'package:crypto_informer/core/storage/cache/coin_detail_cache_storage.dart';
 import 'package:crypto_informer/core/storage/storage_module.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_cache_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_cache_data_source_impl.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source.dart';
 import 'package:crypto_informer/features/market/data/datasources/crypto_remote_data_source_impl.dart';
 import 'package:crypto_informer/features/market/data/repositories/crypto_repository_impl.dart';
+import 'package:crypto_informer/features/market/data/storage/coin_cache_storage.dart';
+import 'package:crypto_informer/features/market/data/storage/coin_detail_cache_storage.dart';
 import 'package:crypto_informer/features/market/domain/repositories/crypto_repository.dart';
+import 'package:crypto_informer/features/market/domain/usecases/get_cached_coin_detail_count_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_coin_detail_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/get_market_assets_usecase.dart';
 import 'package:crypto_informer/features/market/domain/usecases/search_coin_ids_usecase.dart';
@@ -37,6 +38,9 @@ Future<void> initServiceLocator() async {
     )
     ..registerLazySingleton<GetMarketAssetsUseCase>(
       () => GetMarketAssetsUseCase(sl<CryptoRepository>()),
+    )
+    ..registerLazySingleton<GetCachedCoinDetailCountUseCase>(
+      () => GetCachedCoinDetailCountUseCase(sl<CryptoRepository>()),
     )
     ..registerLazySingleton<SearchCoinIdsUseCase>(
       () => SearchCoinIdsUseCase(sl<CryptoRepository>()),

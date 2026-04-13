@@ -240,6 +240,14 @@ class _$CoinDetailCacheDao extends CoinDetailCacheDao {
   _coinDetailCacheRecordInsertionAdapter;
 
   @override
+  Future<int?> count() async {
+    return _queryAdapter.query(
+      'SELECT COUNT(*) FROM coin_detail_cache',
+      mapper: (Map<String, Object?> row) => row.values.first as int,
+    );
+  }
+
+  @override
   Future<CoinDetailCacheRecord?> findById(String id) async {
     return _queryAdapter.query(
       'SELECT * FROM coin_detail_cache WHERE id = ?1 LIMIT 1',

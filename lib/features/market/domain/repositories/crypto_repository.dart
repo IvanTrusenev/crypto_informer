@@ -25,6 +25,8 @@ abstract interface class CryptoRepository {
   /// Карточка монеты из локального кэша, без сети. `null` — нет данных.
   Future<CoinDetailEntity?> getCachedCoinDetail(String id);
 
+  Future<int> getCachedCoinDetailCount();
+
   Future<CoinDetailEntity> getCoinDetail(String id);
 
   /// История цен только с сети (кэш в БД не используется).

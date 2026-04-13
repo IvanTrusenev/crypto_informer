@@ -25,5 +25,10 @@ String localizedErrorMessage(AppLocalizations l10n, Object error) {
   if (error is AppException) {
     return error.localize(l10n);
   }
+  if (error is ArgumentError ||
+      error is FormatException ||
+      error is TypeError) {
+    return l10n.errorInvalidResponse;
+  }
   return l10n.errorUnexpected;
 }
